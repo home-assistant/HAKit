@@ -1,0 +1,4 @@
+# for the 'languages' composition on GitHub
+Makefile -linguist-detectable
+Brewfile -linguist-detectable
+*.podspec -linguist-detectable
