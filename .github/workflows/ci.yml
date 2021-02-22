@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+env:
+  DEVELOPER_DIR: /Applications/Xcode_12.4.app/Contents/Developer
+  HOMEBREW_NO_INSTALL_CLEANUP: TRUE
+
+jobs:
+  lint:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Dependencies
+        run: brew bundle      
+      - name: "Run Linting"
+        run: make lint
+
+  test:
+    runs-on: macos-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Dependencies
+        run: brew bundle
+      - name: Run Tests
+        run: make test
+      - name: Generate lcov
+        # https://www.reddit.com/r/swift/comments/hr93xg/code_coverage_for_swiftpm_packages/
+        run: |
+          BIN_PATH="$(swift build --show-bin-path)"
+          XCTEST_PATH="$(find ${BIN_PATH} -name '*.xctest')"
+          COV_BIN=$XCTEST_PATH
+          if [[ "$OSTYPE" == "darwin"* ]]; then
+              f="$(basename $XCTEST_PATH .xctest)"
+              COV_BIN="${COV_BIN}/Contents/MacOS/$f"
+          fi
+          /usr/local/opt/llvm/bin/llvm-cov export -format="lcov" \
+            "${COV_BIN}" \
+            -instr-profile=.build/debug/codecov/default.profdata \
+            -ignore-filename-regex=".build|Tests"\ > info.lcov
+      - uses: codecov/codecov-action@v1
+        name: Upload Code Coverage
+        with:
+          file: ./info.lcov

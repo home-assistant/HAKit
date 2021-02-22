@@ -1,6 +1,6 @@
 
-# Created by https://www.toptal.com/developers/gitignore/api/macos,swiftpm,cocoapods
-# Edit at https://www.toptal.com/developers/gitignore?templates=macos,swiftpm,cocoapods
+# Created by https://www.toptal.com/developers/gitignore/api/macos,swiftpm,cocoapods,homebrew
+# Edit at https://www.toptal.com/developers/gitignore?templates=macos,swiftpm,cocoapods,homebrew
 
 ### CocoaPods ###
 ## CocoaPods GitIgnore Template
@@ -9,6 +9,9 @@
 #           - Also handy if you have a large number of dependant pods
 #           - AS PER https://guides.cocoapods.org/using/using-cocoapods.html NEVER IGNORE THE LOCK FILE
 Pods/
+
+### Homebrew ###
+Brewfile.lock.json
 
 ### macOS ###
 # General
@@ -47,4 +50,4 @@ DerivedData/
 *.xcodeproj
 
 
-# End of https://www.toptal.com/developers/gitignore/api/macos,swiftpm,cocoapods
+# End of https://www.toptal.com/developers/gitignore/api/macos,swiftpm,cocoapods,homebrew
