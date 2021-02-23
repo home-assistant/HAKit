@@ -10,7 +10,7 @@ public protocol HADataDecodable {
 }
 
 /// Parse error
-public enum HADataError: Error {
+public enum HADataError: Error, Equatable {
     case missingKey(String)
     case incorrectType(key: String, expected: String, actual: String)
     case couldntTransform(key: String)
@@ -63,11 +63,12 @@ public extension HAData {
     /// - Throws: If the key was not present in the dictionary or the type was not the expected type or the value couldn't be transformed
     func decode<Value, Transform>(_ key: String, transform: (Value) throws -> Transform?) throws -> Transform {
         let base: Value = try decode(key)
-        if let transformed = try transform(base) {
-            return transformed
-        } else {
+
+        guard let transformed = try transform(base) else {
             throw HADataError.couldntTransform(key: key)
         }
+
+        return transformed
     }
 
     /// Convenience access to the dictionary case for a particular key, with an expected type
@@ -76,11 +77,11 @@ public extension HAData {
     /// - Parameter fallback: The fallback value to use if not found in the dictionary
     /// - Returns: The value from the dictionary
     func decode<T>(_ key: String, fallback: @autoclosure () -> T) -> T {
-        if let value: T = try? decode(key) {
-            return value
-        } else {
+        guard let value: T = try? decode(key) else {
             return fallback()
         }
+
+        return value
     }
 
     /// Date formatter

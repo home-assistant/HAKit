@@ -166,31 +166,3 @@ public protocol HAConnectionProtocol: AnyObject {
         handler: @escaping (HACancellable, T) -> Void
     ) -> HACancellable
 }
-
-/// Overall error wrapper for the library
-public enum HAError: Error {
-    /// An error occurred in parsing or other internal handling
-    case `internal`(debugDescription: String)
-    /// An error response from the server indicating a request problem
-    case external(ExternalError)
-
-    /// Description of a server-delivered error
-    public struct ExternalError {
-        /// The code provided with the error
-        public var code: Int
-        /// The message provided with the error
-        public var message: String
-
-        init(_ errorValue: Any?) {
-            if let error = errorValue as? [String: Any],
-               let code = error["code"] as? Int,
-               let message = error["message"] as? String {
-                self.code = code
-                self.message = message
-            } else {
-                self.code = -1
-                self.message = "unable to parse error response"
-            }
-        }
-    }
-}
