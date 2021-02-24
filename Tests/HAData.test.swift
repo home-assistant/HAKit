@@ -79,9 +79,26 @@ internal class HADataTests: XCTestCase {
         XCTAssertEqual(innerValue["value"] as? Bool, true)
     }
 
+    func testDecodeToOptionalData() throws {
+        let value = HAData(value: ["key": ["value": true]])
+        let keyValue: HAData = try XCTUnwrap(value.decode("key") as HAData?)
+        guard case let .dictionary(innerValue) = keyValue else {
+            XCTFail("expected data wrapping dictionary")
+            return
+        }
+        XCTAssertEqual(innerValue["value"] as? Bool, true)
+    }
+
     func testDecodeToArrayOfData() throws {
         let value = HAData(value: ["key": [["inner": 1], ["inner": 2]]])
         let keyValue: [HAData] = try value.decode("key")
+        XCTAssertEqual(try keyValue.get(throwing: 0).decode("inner") as Int, 1)
+        XCTAssertEqual(try keyValue.get(throwing: 1).decode("inner") as Int, 2)
+    }
+
+    func testDecodeToOptionalArrayOfData() throws {
+        let value = HAData(value: ["key": [["inner": 1], ["inner": 2]]])
+        let keyValue: [HAData] = try XCTUnwrap(value.decode("key") as [HAData]?)
         XCTAssertEqual(try keyValue.get(throwing: 0).decode("inner") as Int, 1)
         XCTAssertEqual(try keyValue.get(throwing: 1).decode("inner") as Int, 2)
     }
@@ -99,6 +116,24 @@ internal class HADataTests: XCTestCase {
             XCTAssertEqual(error as? HADataError, .missingKey("some_key"))
         }
     }
+
+    func testDecodeToOptionalDate() throws {
+        let value = HAData(value: ["some_key": "2021-02-20T05:14:52.647932+00:00"])
+        let date: Date = try XCTUnwrap(value.decode("some_key") as Date?)
+
+        let components = Calendar.current.dateComponents(
+            in: TimeZone(identifier: "UTC+6")!,
+            from: date
+        )
+        XCTAssertEqual(components.year, 2021)
+        XCTAssertEqual(components.month, 2)
+        XCTAssertEqual(components.day, 20)
+        XCTAssertEqual(components.hour, 11)
+        XCTAssertEqual(components.minute, 14)
+        XCTAssertEqual(components.second, 52)
+        XCTAssertEqual(components.nanosecond ?? -1, 647_000_000, accuracy: 100_000)
+    }
+
 
     func testDecodeToDate() throws {
         let value = HAData(value: ["some_key": "2021-02-20T05:14:52.647932+00:00"])

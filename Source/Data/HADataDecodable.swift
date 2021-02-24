@@ -31,19 +31,22 @@ public extension HAData {
             return value
         }
 
-        if T.self == HAData.self {
+        if T.self == HAData.self || T.self == HAData?.self {
             // TODO: can i do this type-safe
             // swiftlint:disable:next force_cast
             return HAData(value: value) as! T
         }
 
-        if T.self == [HAData].self, let value = value as? [Any] {
+        if T.self == [HAData].self || T.self == [HAData]?.self,
+           let value = value as? [Any] {
             // TODO: can i do this type-safe
             // swiftlint:disable:next force_cast
             return value.map(HAData.init(value:)) as! T
         }
 
-        if T.self == Date.self, let value = value as? String, let date = Self.formatter.date(from: value) {
+        if T.self == Date.self || T.self == Date?.self,
+           let value = value as? String,
+           let date = Self.formatter.date(from: value) {
             // TODO: can i do this type-safe
             // swiftlint:disable:next force_cast
             return date as! T
