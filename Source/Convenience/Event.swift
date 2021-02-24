@@ -94,11 +94,13 @@ public struct HAResponseEvent: HADataDecodable {
     }
 
     public init(data: HAData) throws {
-        self.type = .init(rawValue: try data.decode("event_type"))
-        self.timeFired = try data.decode("time_fired")
-        self.data = data.decode("data", fallback: [:])
-        self.origin = try data.decode("origin", transform: Origin.init(rawValue:))
-        self.context = try data.decode("context", transform: Context.init(data:))
+        self.init(
+            type: .init(rawValue: try data.decode("event_type")),
+            timeFired: try data.decode("time_fired"),
+            data: data.decode("data", fallback: [:]),
+            origin: try data.decode("origin", transform: Origin.init(rawValue:)),
+            context: try data.decode("context", transform: Context.init(data:))
+        )
     }
 
     public init(

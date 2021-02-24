@@ -134,7 +134,6 @@ internal class HADataTests: XCTestCase {
         XCTAssertEqual(components.nanosecond ?? -1, 647_000_000, accuracy: 100_000)
     }
 
-
     func testDecodeToDate() throws {
         let value = HAData(value: ["some_key": "2021-02-20T05:14:52.647932+00:00"])
         let date: Date = try value.decode("some_key")
