@@ -42,7 +42,7 @@ internal class HARequestController {
 
     private var stateQueue = DispatchQueue(label: "request-controller-state")
 
-    private func mutate(using handler: @escaping (inout State) -> Void, then perform: @escaping () -> Void = {}) {
+    private func mutate(using handler: @escaping (inout State) -> Void, then perform: @escaping () -> Void) {
         dispatchPrecondition(condition: .notOnQueue(stateQueue))
         stateQueue.async(execute: .init(qos: .default, flags: .barrier, block: { [self] in
             handler(&state)
@@ -59,15 +59,15 @@ internal class HARequestController {
         }
     }
 
-    func add(_ invocation: HARequestInvocation) {
-        mutate { state in
+    func add(_ invocation: HARequestInvocation, completion: @escaping () -> Void = {}) {
+        mutate(using: { state in
             state.pending.insert(invocation)
-        }
-
-        prepare()
+        }, then: { [self] in
+            prepare(completion: completion)
+        })
     }
 
-    func cancel(_ request: HARequestInvocation) {
+    func cancel(_ request: HARequestInvocation, completion: @escaping () -> Void = {}) {
         // intentionally grabbed before entering the mutex
         let identifier = request.identifier
         let cancelRequest = request.cancelRequest()
@@ -87,12 +87,12 @@ internal class HARequestController {
                 ))
             }
         }, then: { [self] in
-            prepare()
+            prepare(completion: completion)
         })
     }
 
-    func resetActive() {
-        mutate { state in
+    func resetActive(completion: @escaping () -> Void = {}) {
+        mutate(using: { state in
             for invocation in state.pending {
                 if invocation.request.shouldRetry {
                     invocation.identifier = nil
@@ -103,7 +103,7 @@ internal class HARequestController {
 
             state.active.removeAll()
             state.identifierGenerator.reset()
-        }
+        }, then: completion)
     }
 
     private func invocation(for identifier: HARequestIdentifier) -> HARequestInvocation? {
@@ -121,18 +121,21 @@ internal class HARequestController {
     }
 
     // only single invocations can be cleared, as subscriptions need to be cancelled
-    func clear(invocation: HARequestInvocationSingle) {
-        mutate { state in
+    func clear(invocation: HARequestInvocationSingle, completion: @escaping () -> Void = {}) {
+        mutate(using: { state in
             if let identifier = invocation.identifier {
                 state.active[identifier] = nil
             }
 
             state.pending.remove(invocation)
-        }
+        }, then: completion)
     }
 
-    func prepare() {
-        guard delegate?.requestControllerShouldSendRequests(self) == true else { return }
+    func prepare(completion handler: @escaping () -> Void = {}) {
+        guard delegate?.requestControllerShouldSendRequests(self) == true else {
+            handler()
+            return
+        }
 
         let queue = DispatchQueue(label: "request-controller-callback", target: .main)
         queue.suspend()
@@ -149,6 +152,7 @@ internal class HARequestController {
             }
         }, then: {
             queue.resume()
+            queue.async(flags: .barrier, execute: handler)
         })
     }
 }

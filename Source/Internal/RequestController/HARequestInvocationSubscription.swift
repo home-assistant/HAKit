@@ -23,11 +23,11 @@ internal class HARequestInvocationSubscription: HARequestInvocation {
     }
 
     override func cancelRequest() -> HATypedRequest<HAResponseVoid>? {
-        if let identifier = identifier {
-            return .unsubscribe(identifier)
-        } else {
+        guard let identifier = identifier else {
             return nil
         }
+
+        return .unsubscribe(identifier)
     }
 
     func resolve(_ result: Result<HAData, HAError>) {
