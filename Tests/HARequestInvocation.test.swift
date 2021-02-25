@@ -19,7 +19,7 @@ internal class HARequestInvocationTests: XCTestCase {
         ))
         XCTAssertTrue(invocation.needsAssignment)
 
-        invocation.identifier = .init(rawValue: 55)
+        invocation.identifier = 55
         XCTAssertFalse(invocation.needsAssignment)
     }
 

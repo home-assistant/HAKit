@@ -17,7 +17,7 @@ internal class HARequestInvocationSubscriptionTests: XCTestCase {
             initiated: { _ in },
             handler: { _, _ in }
         )
-        invocation.identifier = .init(rawValue: 77)
+        invocation.identifier = 77
 
         let request = try XCTUnwrap(invocation.cancelRequest())
         XCTAssertEqual(request.request.type, .unsubscribeEvents)
@@ -31,7 +31,7 @@ internal class HARequestInvocationSubscriptionTests: XCTestCase {
             handler: { _, _ in }
         )
         XCTAssertTrue(invocation.needsAssignment)
-        invocation.identifier = .init(rawValue: 44)
+        invocation.identifier = 44
         XCTAssertFalse(invocation.needsAssignment)
     }
 

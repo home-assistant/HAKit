@@ -2,6 +2,27 @@
 import XCTest
 
 internal class HADataTests: XCTestCase {
+    func testEquality() {
+        let empty = HAData.empty
+        let dict = HAData.dictionary([:])
+        let array = HAData.array([])
+
+        XCTAssertEqual(empty, empty)
+        XCTAssertEqual(dict, dict)
+        XCTAssertEqual(array, array)
+        XCTAssertNotEqual(empty, dict)
+        XCTAssertNotEqual(dict, empty)
+        XCTAssertNotEqual(empty, array)
+        XCTAssertNotEqual(array, empty)
+        XCTAssertNotEqual(array, dict)
+        XCTAssertNotEqual(dict, array)
+
+        let invalidDict = HAData.dictionary(["key": UUID()])
+        XCTAssertNotEqual(invalidDict, invalidDict)
+        XCTAssertNotEqual(invalidDict, dict)
+        XCTAssertNotEqual(dict, invalidDict)
+    }
+
     func testDictionary() {
         let data = HAData(value: ["test": true])
         guard case let .dictionary(value) = data else {

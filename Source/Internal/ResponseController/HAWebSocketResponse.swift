@@ -1,5 +1,5 @@
-internal enum HAWebSocketResponse {
-    enum ResponseType: String {
+internal enum HAWebSocketResponse: Equatable {
+    enum ResponseType: String, Equatable {
         case result = "result"
         case event = "event"
         case authRequired = "auth_required"
@@ -7,7 +7,7 @@ internal enum HAWebSocketResponse {
         case authInvalid = "auth_invalid"
     }
 
-    enum AuthState {
+    enum AuthState: Equatable {
         case required
         case ok(version: String)
         case invalid
@@ -22,24 +22,20 @@ internal enum HAWebSocketResponse {
         case unknownId(Any)
     }
 
-    enum TempError: Error {
-        case parseError(String)
-    }
-
     init(dictionary: [String: Any]) throws {
-        guard let type = dictionary["type"] as? String else {
+        guard let typeString = dictionary["type"] as? String, let type = ResponseType(rawValue: typeString) else {
             throw ParseError.unknownType(dictionary["type"] ?? "(unknown)")
         }
 
         func parseIdentifier() throws -> HARequestIdentifier {
-            if let value = (dictionary["id"] as? Int).flatMap(HARequestIdentifier.init(rawValue:)) {
-                return value
-            } else {
+            guard let value = (dictionary["id"] as? Int).flatMap(HARequestIdentifier.init(rawValue:)) else {
                 throw ParseError.unknownId(dictionary["id"] ?? "(unknown)")
             }
+            
+            return value
         }
 
-        switch ResponseType(rawValue: type) {
+        switch type {
         case .result:
             let identifier = try parseIdentifier()
 
@@ -57,8 +53,6 @@ internal enum HAWebSocketResponse {
             self = .auth(.ok(version: dictionary["ha_version"] as? String ?? "unknown"))
         case .authInvalid:
             self = .auth(.invalid)
-        case .none:
-            throw TempError.parseError("unknown response type \(type)")
         }
     }
 }

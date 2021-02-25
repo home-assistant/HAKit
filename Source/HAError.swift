@@ -1,5 +1,5 @@
 /// Overall error wrapper for the library
-public enum HAError: Error {
+public enum HAError: Error, Equatable {
     /// An error occurred in parsing or other internal handling
     case `internal`(debugDescription: String)
     /// An error response from the server indicating a request problem
