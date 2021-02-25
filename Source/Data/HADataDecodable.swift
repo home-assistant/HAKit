@@ -27,29 +27,13 @@ public extension HAData {
             throw HADataError.missingKey(key)
         }
 
+        // Not the prettiest, but we need to super duper promise to the compiler that we're returning a good value
+        if let type = T.self as? HADecodeTransformable.Type, let inside = type.decode(unknown: value) as? T {
+            return inside
+        }
+
         if let value = value as? T {
             return value
-        }
-
-        if T.self == HAData.self || T.self == HAData?.self {
-            // TODO: can i do this type-safe
-            // swiftlint:disable:next force_cast
-            return HAData(value: value) as! T
-        }
-
-        if T.self == [HAData].self || T.self == [HAData]?.self,
-           let value = value as? [Any] {
-            // TODO: can i do this type-safe
-            // swiftlint:disable:next force_cast
-            return value.map(HAData.init(value:)) as! T
-        }
-
-        if T.self == Date.self || T.self == Date?.self,
-           let value = value as? String,
-           let date = Self.formatter.date(from: value) {
-            // TODO: can i do this type-safe
-            // swiftlint:disable:next force_cast
-            return date as! T
         }
 
         throw HADataError.incorrectType(
@@ -63,7 +47,8 @@ public extension HAData {
     ///
     /// - Parameter key: The key to look up in `dictionary` case
     /// - Returns: The value from the dictionary
-    /// - Throws: If the key was not present in the dictionary or the type was not the expected type or the value couldn't be transformed
+    /// - Throws: If the key was not present in the dictionary or the type was not the expected type or the value
+    ///           couldn't be transformed
     func decode<Value, Transform>(_ key: String, transform: (Value) throws -> Transform?) throws -> Transform {
         let base: Value = try decode(key)
 
@@ -86,11 +71,4 @@ public extension HAData {
 
         return value
     }
-
-    /// Date formatter
-    private static let formatter: ISO8601DateFormatter = {
-        let formatter = ISO8601DateFormatter()
-        formatter.formatOptions = [.withFractionalSeconds, .withInternetDateTime]
-        return formatter
-    }()
 }

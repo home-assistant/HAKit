@@ -68,14 +68,16 @@ public protocol HAConnectionProtocol: AnyObject {
     var callbackQueue: DispatchQueue { get set }
 
     /// Attempt to connect to the server
-    /// This will attempt immediately and then make retry attempts based on timing and/or reachability and/or application state
+    /// This will attempt immediately and then make retry attempts based on timing and/or reachability and/or
+    /// application state
     func connect()
     /// Disconnect from the server or end reconnection attempts
     func disconnect()
 
     /// Send a request
     ///
-    /// If the connection is currently disconnected, or this request fails to be responded to, this will be reissued in the future until it individually fails or is cancelled.
+    /// If the connection is currently disconnected, or this request fails to be responded to, this will be reissued in
+    /// the future until it individually fails or is cancelled.
     ///
     /// - Parameters:
     ///   - request: The request to send; invoked at most once
@@ -88,7 +90,8 @@ public protocol HAConnectionProtocol: AnyObject {
     ) -> HACancellable
     /// Send a request with a concrete response type
     ///
-    /// If the connection is currently disconnected, or this request fails to be responded to, this will be reissued in the future until it individually fails or is cancelled.
+    /// If the connection is currently disconnected, or this request fails to be responded to, this will be reissued in
+    /// the future until it individually fails or is cancelled.
     ///
     /// - SeeAlso: `HATypedRequest` extensions which create instances of it
     /// - Parameters:

@@ -89,6 +89,35 @@ internal class HADataTests: XCTestCase {
         XCTAssertEqual(innerValue["value"] as? Bool, true)
     }
 
+    func testDecodeToDictionaryOfDataFromNonDictionary() throws {
+        let value = HAData(value: ["key": true])
+
+        XCTAssertThrowsError(try value.decode("key") as [String: HAData]) { error in
+            XCTAssertEqual(error as? HADataError, .incorrectType(
+                key: "key",
+                expected: String(describing: [String: HAData].self),
+                actual: String(describing: Bool.self)
+            ))
+        }
+    }
+
+    func testDecodeToDictionaryOfData() throws {
+        let value = HAData(value: ["key": ["a": true, "b": ["test": true]]])
+        let keyValue: [String: HAData] = try value.decode("key")
+
+        if case .empty = keyValue["a"] {
+            // pass
+        } else {
+            XCTFail("expected empty but got \(String(describing: keyValue["a"]))")
+        }
+
+        if case let .dictionary(dictionary) = keyValue["b"] {
+            XCTAssertEqual(dictionary["test"] as? Bool, true)
+        } else {
+            XCTFail("expected dictionary, got \(String(describing: keyValue["b"]))")
+        }
+    }
+
     func testDecodeToArrayOfData() throws {
         let value = HAData(value: ["key": [["inner": 1], ["inner": 2]]])
         let keyValue: [HAData] = try value.decode("key")
@@ -107,6 +136,37 @@ internal class HADataTests: XCTestCase {
         let value = HAData(value: nil)
         XCTAssertThrowsError(try value.decode("some_key") as Date) { error in
             XCTAssertEqual(error as? HADataError, .missingKey("some_key"))
+        }
+    }
+
+    func testDecodeToDateArrayForNonArray() throws {
+        let value = HAData(value: ["some_key": true])
+        XCTAssertThrowsError(try value.decode("some_key") as [Date]) { error in
+            XCTAssertEqual(error as? HADataError, .incorrectType(
+                key: "some_key",
+                expected: String(describing: [Date].self),
+                actual: String(describing: Bool.self)
+            ))
+        }
+    }
+
+    func testDecodeToDateArray() throws {
+        let value = HAData(value: ["some_key": [
+            "2021-02-23T20:45:39.438088-08:00",
+            "2021-02-20T05:14:52.647932+00:00",
+        ]])
+        let dates: [Date] = try value.decode("some_key")
+        XCTAssertEqual(dates.count, 2)
+    }
+
+    func testDecodeToDateWithNonString() throws {
+        let value = HAData(value: ["some_key": true])
+        XCTAssertThrowsError(try value.decode("some_key") as Date) { error in
+            XCTAssertEqual(error as? HADataError, .incorrectType(
+                key: "some_key",
+                expected: String(describing: Date.self),
+                actual: String(describing: Bool.self)
+            ))
         }
     }
 
