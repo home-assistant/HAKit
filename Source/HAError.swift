@@ -8,7 +8,7 @@ public enum HAError: Error {
     /// Description of a server-delivered error
     public struct ExternalError: Equatable {
         /// The code provided with the error
-        public var code: Int
+        public var code: String
         /// The message provided with the error
         public var message: String
 
@@ -18,9 +18,9 @@ public enum HAError: Error {
         }
 
         init(_ errorValue: Any?) {
-            if let error = errorValue as? [String: Any],
-               let code = error["code"] as? Int,
-               let message = error["message"] as? String {
+            if let error = errorValue as? [String: String],
+               let code = error["code"],
+               let message = error["message"] {
                 self.init(code: code, message: message)
             } else {
                 self.init(invalid: ())
@@ -34,13 +34,13 @@ public enum HAError: Error {
         /// - Parameters:
         ///   - code: The error code
         ///   - message: The message
-        public init(code: Int, message: String) {
+        public init(code: String, message: String) {
             self.code = code
             self.message = message
         }
 
         private init(invalid: ()) {
-            self.code = -1
+            self.code = "invalid_error_response"
             self.message = "unable to parse error response"
         }
     }
