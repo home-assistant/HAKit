@@ -31,7 +31,7 @@ internal enum HAWebSocketResponse: Equatable {
             guard let value = (dictionary["id"] as? Int).flatMap(HARequestIdentifier.init(rawValue:)) else {
                 throw ParseError.unknownId(dictionary["id"] ?? "(unknown)")
             }
-            
+
             return value
         }
 

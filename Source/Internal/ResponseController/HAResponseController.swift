@@ -15,26 +15,24 @@ internal protocol HAResponseControllerDelegate: AnyObject {
 internal class HAResponseController {
     weak var delegate: HAResponseControllerDelegate?
 
-    enum Phase {
+    enum Phase: Equatable {
         case auth
         case command(version: String)
         case disconnected
     }
 
-    var phase: Phase = .disconnected {
+    private(set) var phase: Phase = .disconnected {
         didSet {
             HAGlobal.log("phase transition to \(phase)")
             delegate?.responseController(self, didTransitionTo: phase)
         }
     }
 
-    func didUpdate(to webSocket: WebSocket?) {
+    func reset() {
         phase = .disconnected
     }
-}
 
-extension HAResponseController: Starscream.WebSocketDelegate {
-    func didReceive(event: Starscream.WebSocketEvent, client: WebSocket) {
+    func didReceive(event: Starscream.WebSocketEvent) {
         switch event {
         case let .connected(headers):
             HAGlobal.log("connected with headers: \(headers)")
@@ -61,10 +59,10 @@ extension HAResponseController: Starscream.WebSocketDelegate {
         case let .binary(data):
             HAGlobal.log("Received binary data: \(data.count)")
         case .ping, .pong:
+            // automatically handled by Starscream
             break
-        case .reconnectSuggested:
-            break
-        case .viabilityChanged:
+        case .reconnectSuggested, .viabilityChanged:
+            // doesn't look like the URLSession variant calls this
             break
         case .cancelled:
             phase = .disconnected

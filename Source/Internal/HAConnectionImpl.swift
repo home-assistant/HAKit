@@ -22,8 +22,8 @@ internal class HAConnectionImpl: HAConnectionProtocol {
 
     private var connection: WebSocket? {
         didSet {
-            connection?.delegate = responseController
-            responseController.didUpdate(to: connection)
+            connection?.delegate = self
+            responseController.reset()
         }
     }
 

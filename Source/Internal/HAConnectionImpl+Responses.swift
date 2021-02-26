@@ -1,3 +1,11 @@
+import Starscream
+
+extension HAConnectionImpl: Starscream.WebSocketDelegate {
+    func didReceive(event: WebSocketEvent, client: WebSocket) {
+        responseController.didReceive(event: event)
+    }
+}
+
 extension HAConnectionImpl {
     private func sendAuthToken() {
         configuration.fetchAuthToken { [self] result in
