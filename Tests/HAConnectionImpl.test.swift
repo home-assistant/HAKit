@@ -217,6 +217,7 @@ internal class HAConnectionImplTests: XCTestCase {
         XCTAssertTrue(requestController.didResetActive)
         XCTAssertFalse(reconnectManager.didTemporarily)
         XCTAssertFalse(reconnectManager.didPermanently)
+        XCTAssertTrue(engine.events.isEmpty)
     }
 
     func testReconnectManagerWantsReconnect() {
@@ -224,6 +225,13 @@ internal class HAConnectionImplTests: XCTestCase {
         XCTAssertFalse(reconnectManager.didPermanently)
         XCTAssertFalse(reconnectManager.didTemporarily)
         XCTAssertFalse(reconnectManager.didStartInitial)
+        XCTAssertTrue(engine.events.contains(where: { event in
+            if case .start = event {
+                return true
+            } else {
+                return false
+            }
+        }))
     }
 
     func testShouldSendRequestsDuringCommandPhase() {
