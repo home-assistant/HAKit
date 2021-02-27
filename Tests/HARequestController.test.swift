@@ -16,7 +16,7 @@ internal class HARequestControllerTests: XCTestCase {
 
     func testAddingWhenNotAllowed() {
         let expectation1 = expectation(description: "add")
-        controller.add(.init(request: .init(type: .init(rawValue: "test1"), data: [:]))) {
+        controller.add(.init(request: .init(type: "test1", data: [:]))) {
             expectation1.fulfill()
         }
         waitForExpectations(timeout: 10.0)
@@ -37,11 +37,11 @@ internal class HARequestControllerTests: XCTestCase {
         delegate.shouldSendRequests = true
 
         let expectation1 = expectation(description: "add")
-        controller.add(.init(request: .init(type: .init(rawValue: "test1"), data: [:]))) {
+        controller.add(.init(request: .init(type: "test1", data: [:]))) {
             expectation1.fulfill()
         }
         let expectation2 = expectation(description: "add")
-        controller.add(.init(request: .init(type: .init(rawValue: "test2"), data: [:]))) {
+        controller.add(.init(request: .init(type: "test2", data: [:]))) {
             expectation2.fulfill()
         }
         waitForExpectations(timeout: 10.0)
@@ -71,23 +71,23 @@ internal class HARequestControllerTests: XCTestCase {
 
         // will completed
         let invoc1 = HARequestInvocationSingle(
-            request: .init(type: .init(rawValue: "test1"), data: [:], shouldRetry: true),
+            request: .init(type: "test1", data: [:], shouldRetry: true),
             completion: { _ in }
         )
         // will not be completed, but shouldn't retry
         let invoc2 = HARequestInvocationSubscription(
-            request: .init(type: .init(rawValue: "test1"), data: [:], shouldRetry: false),
+            request: .init(type: "test1", data: [:], shouldRetry: false),
             initiated: { _ in },
             handler: { _, _ in }
         )
         // will not be completed, but should retry
         let invoc3 = HARequestInvocationSingle(
-            request: .init(type: .init(rawValue: "test3"), data: [:], shouldRetry: true),
+            request: .init(type: "test3", data: [:], shouldRetry: true),
             completion: { _ in }
         )
         // will not be completed, but should retry
         let invoc4 = HARequestInvocationSubscription(
-            request: .init(type: .init(rawValue: "test4"), data: [:], shouldRetry: true),
+            request: .init(type: "test4", data: [:], shouldRetry: true),
             initiated: { _ in },
             handler: { _, _ in }
         )
@@ -128,7 +128,7 @@ internal class HARequestControllerTests: XCTestCase {
 
     func testCancelSingleBeforeSent() {
         let invocation = HARequestInvocationSingle(
-            request: .init(type: .init(rawValue: "test1"), data: [:]),
+            request: .init(type: "test1", data: [:]),
             completion: { _ in }
         )
         let expectationAdd = expectation(description: "add")
@@ -155,7 +155,7 @@ internal class HARequestControllerTests: XCTestCase {
         var didCallCompletion = false
 
         let invocation = HARequestInvocationSingle(
-            request: .init(type: .init(rawValue: "test1"), data: [:]),
+            request: .init(type: "test1", data: [:]),
             completion: { _ in didCallCompletion = true }
         )
         let expectationAdd = expectation(description: "add")
@@ -177,7 +177,7 @@ internal class HARequestControllerTests: XCTestCase {
 
     func testCancelSubscriptionBeforeSent() {
         let invocation = HARequestInvocationSubscription(
-            request: .init(type: .init(rawValue: "test1"), data: [:]),
+            request: .init(type: "test1", data: [:]),
             initiated: { _ in },
             handler: { _, _ in }
         )
@@ -203,7 +203,7 @@ internal class HARequestControllerTests: XCTestCase {
         delegate.shouldSendRequests = true
 
         let invocation = HARequestInvocationSubscription(
-            request: .init(type: .init(rawValue: "test1"), data: [:]),
+            request: .init(type: "test1", data: [:]),
             initiated: { _ in },
             handler: { _, _ in }
         )
@@ -230,7 +230,7 @@ internal class HARequestControllerTests: XCTestCase {
         delegate.shouldSendRequests = true
 
         let invocation = HARequestInvocationSingle(
-            request: .init(type: .init(rawValue: "test1"), data: [:]),
+            request: .init(type: "test1", data: [:]),
             completion: { _ in }
         )
         let expectationAdd = expectation(description: "add")

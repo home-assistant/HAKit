@@ -10,14 +10,14 @@ internal class EventTests: XCTestCase {
     }
 
     func testRequestSpecific() {
-        let request = HATypedSubscription<HAResponseEvent>.events(.init(rawValue: "test"))
+        let request = HATypedSubscription<HAResponseEvent>.events("test")
         XCTAssertEqual(request.request.type, .subscribeEvents)
         XCTAssertEqual(request.request.shouldRetry, true)
         XCTAssertEqual(request.request.data["event_type"] as? String, "test")
     }
 
     func testUnsubscribe() {
-        let request = HATypedRequest<HAResponseVoid>.unsubscribe(.init(rawValue: 33))
+        let request = HATypedRequest<HAResponseVoid>.unsubscribe(33)
         XCTAssertEqual(request.request.type, .unsubscribeEvents)
         XCTAssertEqual(request.request.shouldRetry, false)
         XCTAssertEqual(request.request.data["subscription"] as? Int, 33)

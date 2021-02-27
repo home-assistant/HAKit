@@ -30,31 +30,39 @@ internal extension HATypedRequest {
     }
 }
 
-public struct HAEventType: RawRepresentable, Hashable {
+public struct HAEventType: RawRepresentable, Hashable, ExpressibleByStringLiteral, ExpressibleByNilLiteral {
     public var rawValue: String?
     public init(rawValue: String?) {
         self.rawValue = rawValue
     }
 
-    public static var all: Self = .init(rawValue: nil)
+    public init(stringLiteral value: StringLiteralType) {
+        self.init(rawValue: value)
+    }
+
+    public init(nilLiteral: ()) {
+        self.init(rawValue: nil)
+    }
+
+    public static var all: Self = nil
 
     // rule of thumb: any event available in `core` is valid for this list
-    public static var callService: Self = .init(rawValue: "call_service")
-    public static var componentLoaded: Self = .init(rawValue: "component_loaded")
-    public static var coreConfigUpdated: Self = .init(rawValue: "core_config_updated")
-    public static var homeassistantClose: Self = .init(rawValue: "homeassistant_close")
-    public static var homeassistantFinalWrite: Self = .init(rawValue: "homeassistant_final_write")
-    public static var homeassistantStart: Self = .init(rawValue: "homeassistant_start")
-    public static var homeassistantStarted: Self = .init(rawValue: "homeassistant_started")
-    public static var homeassistantStop: Self = .init(rawValue: "homeassistant_stop")
-    public static var logbookEntry: Self = .init(rawValue: "logbook_entry")
-    public static var platformDiscovered: Self = .init(rawValue: "platform_discovered")
-    public static var serviceRegistered: Self = .init(rawValue: "service_registered")
-    public static var serviceRemoved: Self = .init(rawValue: "service_removed")
-    public static var shoppingListUpdated: Self = .init(rawValue: "shopping_list_updated")
-    public static var stateChanged: Self = .init(rawValue: "state_changed")
-    public static var themesUpdated: Self = .init(rawValue: "themes_updated")
-    public static var timerOutOfSync: Self = .init(rawValue: "timer_out_of_sync")
+    public static var callService: Self = "call_service"
+    public static var componentLoaded: Self = "component_loaded"
+    public static var coreConfigUpdated: Self = "core_config_updated"
+    public static var homeassistantClose: Self = "homeassistant_close"
+    public static var homeassistantFinalWrite: Self = "homeassistant_final_write"
+    public static var homeassistantStart: Self = "homeassistant_start"
+    public static var homeassistantStarted: Self = "homeassistant_started"
+    public static var homeassistantStop: Self = "homeassistant_stop"
+    public static var logbookEntry: Self = "logbook_entry"
+    public static var platformDiscovered: Self = "platform_discovered"
+    public static var serviceRegistered: Self = "service_registered"
+    public static var serviceRemoved: Self = "service_removed"
+    public static var shoppingListUpdated: Self = "shopping_list_updated"
+    public static var stateChanged: Self = "state_changed"
+    public static var themesUpdated: Self = "themes_updated"
+    public static var timerOutOfSync: Self = "timer_out_of_sync"
 }
 
 public struct HAResponseEvent: HADataDecodable {
