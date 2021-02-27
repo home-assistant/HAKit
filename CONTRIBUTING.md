@@ -1,14 +1,21 @@
-# Contributing to Home Assistant
+# Contributing
 
  - Read [How to get faster PR reviews](https://github.com/kubernetes/community/blob/master/contributors/guide/pull-requests.md#best-practices-for-faster-reviews) by Kubernetes (but skip step 0)
- - Fork the Home Assistant [git repository](https://github.com/home-assistant/home-assistant-iOS).
- - Write the code.
- - Ensure tests work.
- - Create a Pull Request against the [**master**](https://github.com/home-assistant/home-assistant-iOS/tree/master) branch of Home Assistant.
-- **Translations** are handled by [lokalise.com](https://lokalise.com/public/834452985a05254348aee2.46389241/), we are always looking to add more translations and complete the ones we already have. If you would like to contribute to the translation of the app, please visit [lokalise.com](https://lokalise.com/public/834452985a05254348aee2.46389241/) and join the team.
+ - Create a Pull Request against the **main** branch.
+
+## Guidelines
+
+- Convenience methods, request types and event names can be added for any request or event in the Home Assistant core repository. Calls which are added via third-party components should not be added here.
+- Code coverage must be maintained for all changes. Make sure your tests execute successfully.
+
+## Building the library
+- `brew bundle` installs linting and other utilities.
+- `make open` launches the Swift Project Manager version of the library in Xcode.
+- `make generate-project` creates an openable `.xcodeproj` from the Swift package.
+- `make test` executes all tests for the library.
+- `make lint` execute linting. Locally, this will also apply autocorrects.
 
 ## Learn Swift
-
 This project is a good opportunity to learn Swift programming and contribute back to a friendly and welcoming Open Source community. We've collected some pointers to get you started.
 
 * Apple's [The Swift Programming Language](https://www.apple.com/swift/) is a great resource to start learning Swift programming. It also happens to be free.
