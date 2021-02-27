@@ -4,7 +4,7 @@ import Starscream
 internal protocol HAResponseControllerDelegate: AnyObject {
     func responseController(
         _ controller: HAResponseController,
-        didTransitionTo phase: HAResponseController.Phase
+        didTransitionTo phase: HAResponseControllerPhase
     )
     func responseController(
         _ controller: HAResponseController,
@@ -12,16 +12,24 @@ internal protocol HAResponseControllerDelegate: AnyObject {
     )
 }
 
-internal class HAResponseController {
+internal enum HAResponseControllerPhase: Equatable {
+    case auth
+    case command(version: String)
+    case disconnected
+}
+
+internal protocol HAResponseController: AnyObject {
+    var delegate: HAResponseControllerDelegate? { get set }
+    var phase: HAResponseControllerPhase { get }
+
+    func reset()
+    func didReceive(event: Starscream.WebSocketEvent)
+}
+
+internal class HAResponseControllerImpl: HAResponseController {
     weak var delegate: HAResponseControllerDelegate?
 
-    enum Phase: Equatable {
-        case auth
-        case command(version: String)
-        case disconnected
-    }
-
-    private(set) var phase: Phase = .disconnected {
+    private(set) var phase: HAResponseControllerPhase = .disconnected {
         didSet {
             HAGlobal.log("phase transition to \(phase)")
             delegate?.responseController(self, didTransitionTo: phase)

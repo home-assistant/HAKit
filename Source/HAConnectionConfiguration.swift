@@ -6,7 +6,7 @@ public struct HAConnectionConfiguration {
     ///   - fetchAuthToken: Block which invokes a closure asynchronously to provide authentication access tokens
     public init(
         connectionInfo: @escaping () -> HAConnectionInfo,
-        fetchAuthToken: @escaping ((Result<String, Error>) -> Void) -> Void
+        fetchAuthToken: @escaping (@escaping (Result<String, Error>) -> Void) -> Void
     ) {
         self.connectionInfo = connectionInfo
         self.fetchAuthToken = fetchAuthToken
@@ -15,5 +15,5 @@ public struct HAConnectionConfiguration {
     /// The connection info provider block
     public var connectionInfo: () -> HAConnectionInfo
     /// The auth token provider block
-    public var fetchAuthToken: (_ completion: (Result<String, Error>) -> Void) -> Void
+    public var fetchAuthToken: (_ completion: @escaping (Result<String, Error>) -> Void) -> Void
 }

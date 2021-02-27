@@ -11,7 +11,21 @@ internal protocol HARequestControllerDelegate: AnyObject {
     )
 }
 
-internal class HARequestController {
+internal protocol HARequestController: AnyObject {
+    var delegate: HARequestControllerDelegate? { get set }
+
+    func add(_ invocation: HARequestInvocation, completion: @escaping () -> Void)
+    func cancel(_ request: HARequestInvocation, completion: @escaping () -> Void)
+
+    func prepare(completion handler: @escaping () -> Void)
+    func resetActive(completion: @escaping () -> Void)
+
+    func single(for identifier: HARequestIdentifier) -> HARequestInvocationSingle?
+    func subscription(for identifier: HARequestIdentifier) -> HARequestInvocationSubscription?
+    func clear(invocation: HARequestInvocationSingle, completion: @escaping () -> Void)
+}
+
+internal class HARequestControllerImpl: HARequestController {
     private struct State {
         var identifierGenerator = IdentifierGenerator()
         var pending: Set<HARequestInvocation> = Set()
@@ -59,7 +73,7 @@ internal class HARequestController {
         }
     }
 
-    func add(_ invocation: HARequestInvocation, completion: @escaping () -> Void = {}) {
+    func add(_ invocation: HARequestInvocation, completion: @escaping () -> Void) {
         mutate(using: { state in
             state.pending.insert(invocation)
         }, then: { [self] in
@@ -67,7 +81,7 @@ internal class HARequestController {
         })
     }
 
-    func cancel(_ request: HARequestInvocation, completion: @escaping () -> Void = {}) {
+    func cancel(_ request: HARequestInvocation, completion: @escaping () -> Void) {
         // intentionally grabbed before entering the mutex
         let identifier = request.identifier
         let cancelRequest = request.cancelRequest()
@@ -91,7 +105,7 @@ internal class HARequestController {
         })
     }
 
-    func resetActive(completion: @escaping () -> Void = {}) {
+    func resetActive(completion: @escaping () -> Void) {
         mutate(using: { state in
             for invocation in state.pending {
                 if invocation.request.shouldRetry {
@@ -121,7 +135,7 @@ internal class HARequestController {
     }
 
     // only single invocations can be cleared, as subscriptions need to be cancelled
-    func clear(invocation: HARequestInvocationSingle, completion: @escaping () -> Void = {}) {
+    func clear(invocation: HARequestInvocationSingle, completion: @escaping () -> Void) {
         mutate(using: { state in
             if let identifier = invocation.identifier {
                 state.active[identifier] = nil
@@ -131,7 +145,7 @@ internal class HARequestController {
         }, then: completion)
     }
 
-    func prepare(completion handler: @escaping () -> Void = {}) {
+    func prepare(completion handler: @escaping () -> Void) {
         guard delegate?.requestControllerShouldSendRequests(self) == true else {
             handler()
             return

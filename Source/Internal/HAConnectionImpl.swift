@@ -8,11 +8,12 @@ internal class HAConnectionImpl: HAConnectionProtocol {
     public var configuration: HAConnectionConfiguration
 
     public var callbackQueue: DispatchQueue = .main
+
+    private var lastDisconnectReason: HAConnectionState.DisconnectReason = .initial
     public var state: HAConnectionState {
         switch responseController.phase {
         case .disconnected:
-            // TODO: actual disconnection reason
-            return .disconnected(reason: .initial)
+            return .disconnected(reason: lastDisconnectReason)
         case .auth:
             return .connecting
         case let .command(version):
@@ -23,15 +24,34 @@ internal class HAConnectionImpl: HAConnectionProtocol {
     private var connection: WebSocket? {
         didSet {
             connection?.delegate = self
-            responseController.reset()
+
+            if oldValue !== connection {
+                oldValue?.disconnect(closeCode: CloseCode.goingAway.rawValue)
+                responseController.reset()
+            }
         }
     }
 
-    let requestController = HARequestController()
-    let responseController = HAResponseController()
+    let requestController: HARequestController
+    let responseController: HAResponseController
 
-    required init(configuration: HAConnectionConfiguration) {
+    required convenience init(configuration: HAConnectionConfiguration) {
+        self.init(
+            configuration: configuration,
+            requestController: HARequestControllerImpl(),
+            responseController: HAResponseControllerImpl()
+        )
+    }
+
+    init(
+        configuration: HAConnectionConfiguration,
+        requestController: HARequestController,
+        responseController: HAResponseController
+    ) {
         self.configuration = configuration
+        self.requestController = requestController
+        self.responseController = responseController
+
         requestController.delegate = self
         responseController.delegate = self
     }
@@ -40,34 +60,39 @@ internal class HAConnectionImpl: HAConnectionProtocol {
 
     public func connect() {
         let connectionInfo = configuration.connectionInfo()
-        let request = URLRequest(url: connectionInfo.url)
+        let connection: WebSocket = {
+            guard let existing = self.connection else {
+                return connectionInfo.webSocket()
+            }
 
-        let createdConnection: WebSocket
+            guard connectionInfo.shouldReplace(existing) else {
+                return existing
+            }
 
-        if let connection = connection {
-            createdConnection = connection
-        } else {
-            createdConnection = WebSocket(request: request)
-            connection = createdConnection
-        }
+            return connectionInfo.webSocket()
+        }()
 
-        if createdConnection.request.url != request.url {
-            createdConnection.request = request
-        }
-
-        createdConnection.connect()
+        self.connection = connection
+        connection.connect()
     }
 
     public func disconnect() {
+        disconnect(reason: .initial)
+    }
+
+    func disconnect(reason: HAConnectionState.DisconnectReason) {
         // TODO: none of the connection handling is good right now
         connection?.delegate = nil
         connection?.disconnect(closeCode: CloseCode.goingAway.rawValue)
         connection = nil
+
+        lastDisconnectReason = reason
+        delegate?.connection(self, transitionedTo: .disconnected(reason: reason))
     }
 
     func disconnectTemporarily() {
         // TODO: none of the connection handling is good right now
-        disconnect()
+        disconnect(reason: .waitingToReconnect(atLatest: Date(), retryCount: 0))
     }
 
     // MARK: - Sending
@@ -78,9 +103,9 @@ internal class HAConnectionImpl: HAConnectionProtocol {
         completion: @escaping RequestCompletion
     ) -> HACancellable {
         let invocation = HARequestInvocationSingle(request: request, completion: completion)
-        requestController.add(invocation)
+        requestController.add(invocation, completion: {})
         return HACancellableImpl { [requestController] in
-            requestController.cancel(invocation)
+            requestController.cancel(invocation, completion: {})
         }
     }
 
@@ -109,9 +134,9 @@ internal class HAConnectionImpl: HAConnectionProtocol {
         handler: @escaping SubscriptionHandler
     ) -> HACancellable {
         let sub = HARequestInvocationSubscription(request: request, initiated: initiated, handler: handler)
-        requestController.add(sub)
+        requestController.add(sub, completion: {})
         return HACancellableImpl { [requestController] in
-            requestController.cancel(sub)
+            requestController.cancel(sub, completion: {})
         }
     }
 
@@ -168,20 +193,28 @@ internal class HAConnectionImpl: HAConnectionProtocol {
 // MARK: -
 
 extension HAConnectionImpl {
-    func sendRaw(_ dictionary: [String: Any], completion: @escaping (Result<Void, HAError>) -> Void) {
-        guard let connection = connection else {
-            assertionFailure("cannot send commands without a connection")
-            completion(.failure(.internal(debugDescription: "tried to send when not connected")))
-            return
+    func sendRaw(
+        identifier: HARequestIdentifier?,
+        request: HARequest
+    ) {
+        var dictionary = request.data
+        if let identifier = identifier {
+            dictionary["id"] = identifier.rawValue
+        }
+        dictionary["type"] = request.type.rawValue
+
+        // the only cases where JSONSerialization appears to fail are cases where it throws exceptions too
+        // this is bad API from Apple that I don't feel like dealing with :grimace:
+
+        // swiftlint:disable:next force_try
+        let data = try! JSONSerialization.data(withJSONObject: dictionary, options: [])
+
+        if request.type == .auth {
+            HAGlobal.log("sending auth")
+        } else {
+            HAGlobal.log("sending \(data)")
         }
 
-        do {
-            let data = try JSONSerialization.data(withJSONObject: dictionary, options: [])
-            connection.write(string: String(data: data, encoding: .utf8) ?? "", completion: {
-                completion(.success(()))
-            })
-        } catch {
-            completion(.failure(.internal(debugDescription: error.localizedDescription)))
-        }
+        connection?.write(string: String(data: data, encoding: .utf8)!)
     }
 }

@@ -1,9 +1,8 @@
 extension HAConnectionImpl: HARequestControllerDelegate {
     func requestControllerShouldSendRequests(_ requestController: HARequestController) -> Bool {
-        if case .command = responseController.phase {
-            return true
-        } else {
-            return false
+        switch responseController.phase {
+        case .auth, .disconnected: return false
+        case .command: return true
         }
     }
 
@@ -12,13 +11,6 @@ extension HAConnectionImpl: HARequestControllerDelegate {
         didPrepareRequest request: HARequest,
         with identifier: HARequestIdentifier
     ) {
-        var data = request.data
-        data["id"] = identifier.rawValue
-        data["type"] = request.type.rawValue
-
-        print("sending \(data)")
-
-        sendRaw(data) { _ in
-        }
+        sendRaw(identifier: identifier, request: request)
     }
 }

@@ -3,7 +3,7 @@ import Starscream
 import XCTest
 
 internal class HAResponseControllerTests: XCTestCase {
-    private var controller: HAResponseController!
+    private var controller: HAResponseControllerImpl!
     // swiftlint:disable:next weak_delegate
     private var delegate: FakeHAResponseControllerDelegate!
 
@@ -11,7 +11,7 @@ internal class HAResponseControllerTests: XCTestCase {
         super.setUp()
 
         delegate = FakeHAResponseControllerDelegate()
-        controller = HAResponseController()
+        controller = HAResponseControllerImpl()
         controller.delegate = delegate
     }
 
@@ -69,7 +69,7 @@ internal class HAResponseControllerTests: XCTestCase {
             expectingPhase: .auth
         )
 
-        let commandPhase = HAResponseController.Phase.command(version: "2021.3.0.dev0")
+        let commandPhase = HAResponseControllerPhase.command(version: "2021.3.0.dev0")
 
         try fireText(
             from: HAWebSocketResponseFixture.authOK,
@@ -140,7 +140,7 @@ private extension HAResponseControllerTests {
     func fireText(
         from object: [String: Any],
         expectingResponse: Bool,
-        expectingPhase: HAResponseController.Phase
+        expectingPhase: HAResponseControllerPhase
     ) throws {
         let text =
             try XCTUnwrap(String(data: JSONSerialization.data(withJSONObject: object, options: []), encoding: .utf8))
@@ -157,11 +157,11 @@ private extension HAResponseControllerTests {
 }
 
 private class FakeHAResponseControllerDelegate: HAResponseControllerDelegate {
-    var lastPhase: HAResponseController.Phase?
+    var lastPhase: HAResponseControllerPhase?
 
     func responseController(
         _ controller: HAResponseController,
-        didTransitionTo phase: HAResponseController.Phase
+        didTransitionTo phase: HAResponseControllerPhase
     ) {
         lastPhase = phase
     }

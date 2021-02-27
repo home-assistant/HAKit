@@ -11,17 +11,10 @@ extension HAConnectionImpl {
         configuration.fetchAuthToken { [self] result in
             switch result {
             case let .success(token):
-                sendRaw([
-                    "type": "auth",
-                    "access_token": token,
-                ], completion: { result in
-                    switch result {
-                    case .success: HAGlobal.log("auth token sent")
-                    case let .failure(error):
-                        HAGlobal.log("couldn't send auth token \(error), disconnecting")
-                        disconnectTemporarily()
-                    }
-                })
+                sendRaw(
+                    identifier: nil,
+                    request: .init(type: .auth, data: ["access_token": token])
+                )
             case let .failure(error):
                 HAGlobal.log("delegate failed to provide access token \(error), bailing")
                 disconnectTemporarily()
@@ -44,7 +37,7 @@ extension HAConnectionImpl: HAResponseControllerDelegate {
             if let subscription = requestController.subscription(for: identifier) {
                 callbackQueue.async { [self] in
                     subscription.invoke(token: HACancellableImpl { [requestController] in
-                        requestController.cancel(subscription)
+                        requestController.cancel(subscription, completion: {})
                     }, event: data)
                 }
             } else {
@@ -57,7 +50,7 @@ extension HAConnectionImpl: HAResponseControllerDelegate {
                     request.resolve(result)
                 }
 
-                requestController.clear(invocation: request)
+                requestController.clear(invocation: request, completion: {})
             } else if let subscription = requestController.subscription(for: identifier) {
                 callbackQueue.async {
                     subscription.resolve(result)
@@ -70,12 +63,14 @@ extension HAConnectionImpl: HAResponseControllerDelegate {
 
     func responseController(
         _ responseController: HAResponseController,
-        didTransitionTo phase: HAResponseController.Phase
+        didTransitionTo phase: HAResponseControllerPhase
     ) {
         switch phase {
         case .auth: sendAuthToken()
-        case .command: requestController.prepare()
-        case .disconnected: requestController.resetActive()
+        case .command: requestController.prepare(completion: {})
+        case .disconnected:
+            // TODO: setup retries if not requested
+            requestController.resetActive(completion: {})
         }
 
         delegate?.connection(self, transitionedTo: state)

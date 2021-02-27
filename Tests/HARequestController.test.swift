@@ -2,7 +2,7 @@
 import XCTest
 
 internal class HARequestControllerTests: XCTestCase {
-    private var controller: HARequestController!
+    private var controller: HARequestControllerImpl!
     // swiftlint:disable:next weak_delegate
     private var delegate: TestHARequestControllerDelegate!
 
@@ -10,7 +10,7 @@ internal class HARequestControllerTests: XCTestCase {
         super.setUp()
 
         delegate = TestHARequestControllerDelegate()
-        controller = HARequestController()
+        controller = HARequestControllerImpl()
         controller.delegate = delegate
     }
 
@@ -224,6 +224,9 @@ internal class HARequestControllerTests: XCTestCase {
         let cancel = try delegate.didPrepare.get(throwing: 1)
         XCTAssertEqual(cancel.request.type, .unsubscribeEvents)
         XCTAssertEqual(cancel.request.data["subscription"] as? Int, identifier.rawValue)
+
+        // just invoking the completion handler to make sure it doesn't crash
+        controller.single(for: cancel.identifier)?.resolve(.success(.empty))
     }
 
     func testClearSingle() {

@@ -10,9 +10,9 @@ public protocol HAConnectionDelegate: AnyObject {
 }
 
 /// State of the connection
-public enum HAConnectionState {
+public enum HAConnectionState: Equatable {
     /// Reason for disconnection state
-    public enum DisconnectReason {
+    public enum DisconnectReason: Equatable {
         case initial
         case error(HAError)
         case waitingToReconnect(atLatest: Date, retryCount: Int)
