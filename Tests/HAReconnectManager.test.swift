@@ -6,6 +6,13 @@ internal class HAReconnectManagerTests: XCTestCase {
     // swiftlint:disable:next weak_delegate
     private var delegate: FakeHAReconnectManagerDelegate!
 
+    override class func setUp() {
+        super.setUp()
+
+        // just make sure the default date getter doesn't crash
+        _ = HAGlobal.date()
+    }
+
     override func setUp() {
         super.setUp()
 
