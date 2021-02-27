@@ -11,6 +11,7 @@ internal class HAConnectionImplTests: XCTestCase {
     private var queueSpecific = DispatchSpecificKey<Bool>()
     private var requestController: FakeHARequestController!
     private var responseController: FakeHAResponseController!
+    private var reconnectManager: FakeHAReconnectManager!
     // swiftlint:disable:next weak_delegate
     private var delegate: FakeHAConnectionDelegate!
 
@@ -23,6 +24,7 @@ internal class HAConnectionImplTests: XCTestCase {
 
         requestController = FakeHARequestController()
         responseController = FakeHAResponseController()
+        reconnectManager = FakeHAReconnectManager()
         delegate = FakeHAConnectionDelegate()
 
         queueSpecific = .init()
@@ -44,7 +46,8 @@ internal class HAConnectionImplTests: XCTestCase {
                 self?.pendingFetchAccessTokens.append(handler)
             }),
             requestController: requestController,
-            responseController: responseController
+            responseController: responseController,
+            reconnectManager: reconnectManager
         )
         connection.callbackQueue = callbackQueue
         connection.delegate = delegate
@@ -84,7 +87,7 @@ internal class HAConnectionImplTests: XCTestCase {
 
     func testCreation() {
         XCTAssertTrue(engine.events.isEmpty)
-        XCTAssertEqual(connection.state, .disconnected(reason: .initial))
+        XCTAssertEqual(connection.state, .disconnected(reason: .disconnected))
     }
 
     func testConnectionConnect() throws {
@@ -97,6 +100,7 @@ internal class HAConnectionImplTests: XCTestCase {
                 return false
             }
         }))
+        XCTAssertTrue(reconnectManager.didStartInitial)
 
         // connect a second time, it shouldn't disconnect but it can call
         // connect again np
@@ -129,19 +133,101 @@ internal class HAConnectionImplTests: XCTestCase {
         }))
 
         XCTAssertTrue(responseController.wasReset)
+        XCTAssertFalse(reconnectManager.didPermanently)
+        XCTAssertFalse(reconnectManager.didTemporarily)
     }
 
-    func testDisconnect() {
+    func testDisconnectedManually() {
         connection.connect()
+        XCTAssertTrue(reconnectManager.didStartInitial)
 
         engine.events.removeAll()
 
         connection.disconnect()
         XCTAssertTrue(engine.events.contains(.stop(CloseCode.goingAway.rawValue)))
+        XCTAssertTrue(reconnectManager.didPermanently)
+        XCTAssertFalse(reconnectManager.didTemporarily)
+
+        XCTAssertEqual(connection.state, .disconnected(reason: .disconnected))
+        XCTAssertEqual(delegate.states.last, .disconnected(reason: .disconnected))
+    }
+
+    func testDisconnectedTemporarilyWithoutError() throws {
+        connection.connect()
+
+        engine.events.removeAll()
+        connection.responseController(responseController, didTransitionTo: .disconnected(error: nil, forReset: false))
+        XCTAssertTrue(requestController.didResetActive)
+        XCTAssertEqual(delegate.states.last, connection.state)
+        XCTAssertTrue(reconnectManager.didTemporarily)
+        XCTAssertFalse(reconnectManager.didPermanently)
+
+        switch connection.state {
+        case let .disconnected(reason: reason):
+            switch reason {
+            case .waitingToReconnect(lastError: nil, atLatest: _, retryCount: _):
+                // pass
+                break
+            default:
+                XCTFail("expected waiting to reconnect")
+            }
+        case .connecting, .ready: XCTFail("expected disconnected")
+        }
+    }
+
+    func testDisconnectedTemporarilyWithError() throws {
+        enum FakeError: Error {
+            case error
+        }
+
+        connection.connect()
+
+        engine.events.removeAll()
+        connection.responseController(
+            responseController,
+            didTransitionTo: .disconnected(error: FakeError.error, forReset: false)
+        )
+        XCTAssertTrue(requestController.didResetActive)
+        XCTAssertTrue(reconnectManager.didTemporarily)
+        XCTAssertFalse(reconnectManager.didPermanently)
+
+        switch connection.state {
+        case let .disconnected(reason: reason):
+            switch reason {
+            case let .waitingToReconnect(lastError: error, atLatest: _, retryCount: _):
+                XCTAssertEqual(FakeError.error as NSError?, error as NSError?)
+            case .disconnected: XCTFail("expected waiting to reconnect")
+            }
+        case .connecting, .ready: XCTFail("expected disconnected")
+        }
+    }
+
+    func testDisconnectedForReset() throws {
+        enum FakeError: Error {
+            case error
+        }
+
+        connection.connect()
+
+        engine.events.removeAll()
+        connection.responseController(
+            responseController,
+            didTransitionTo: .disconnected(error: FakeError.error, forReset: true)
+        )
+        XCTAssertTrue(requestController.didResetActive)
+        XCTAssertFalse(reconnectManager.didTemporarily)
+        XCTAssertFalse(reconnectManager.didPermanently)
+    }
+
+    func testReconnectManagerWantsReconnect() {
+        connection.reconnectManagerWantsReconnection(reconnectManager)
+        XCTAssertFalse(reconnectManager.didPermanently)
+        XCTAssertFalse(reconnectManager.didTemporarily)
+        XCTAssertFalse(reconnectManager.didStartInitial)
     }
 
     func testShouldSendRequestsDuringCommandPhase() {
-        responseController.phase = .disconnected
+        responseController.phase = .disconnected(error: nil, forReset: false)
         XCTAssertFalse(connection.requestControllerShouldSendRequests(requestController))
 
         responseController.phase = .auth
@@ -198,15 +284,14 @@ internal class HAConnectionImplTests: XCTestCase {
 
         let last = try XCTUnwrap(delegate.states.last)
         switch last {
-        case .disconnected(reason: _):
-            // TODO: test reconnect or that it's temporary
-            break
+        case .disconnected(reason: .waitingToReconnect):
+            XCTAssertTrue(reconnectManager.didTemporarily)
         default:
-            XCTFail("last state should have been disconnecting, got \(last)")
+            XCTFail("last state should have been disconnected, got \(last)")
         }
     }
 
-    func testCommandPreparesRequests() {
+    func testCommandPreparesRequestsAndInformsReconnectManager() {
         connection.connect()
 
         engine.events.removeAll()
@@ -216,21 +301,12 @@ internal class HAConnectionImplTests: XCTestCase {
         XCTAssertEqual(delegate.states, [.ready(version: "123")])
 
         XCTAssertTrue(requestController.didPrepare)
-    }
-
-    func testDisconnectResetsActive() {
-        connection.connect()
-
-        engine.events.removeAll()
-
-        responseController.phase = .disconnected
-        connection.responseController(responseController, didTransitionTo: .disconnected)
-        XCTAssertEqual(delegate.states, [.disconnected(reason: .initial)])
-
-        XCTAssertTrue(requestController.didResetActive)
+        XCTAssertTrue(reconnectManager.didFinish)
     }
 
     func testReceivedEventForwardedToResponseController() throws {
+        connection.connect()
+
         for event: WebSocketEvent in [
             .binary(Data()),
             .cancelled,
@@ -244,7 +320,7 @@ internal class HAConnectionImplTests: XCTestCase {
             .viabilityChanged(true),
         ] {
             responseController.received.removeAll()
-            connection.didReceive(event: event, client: connection.configuration.connectionInfo().webSocket())
+            connection.didReceive(event: event, client: try XCTUnwrap(connection.connection))
             XCTAssertEqual(try XCTUnwrap(responseController.received.last), event)
         }
     }
@@ -376,7 +452,7 @@ internal class HAConnectionImplTests: XCTestCase {
     }
 
     func testPlainSendCancelled() throws {
-        let token = connection.send(.init(type: "test1", data: ["data": true]), completion: { result in
+        let token = connection.send(.init(type: "test1", data: ["data": true]), completion: { _ in
             XCTFail("should not have invoked completion when cancelled")
         })
 
@@ -423,9 +499,12 @@ internal class HAConnectionImplTests: XCTestCase {
     }
 
     func testTypedRequestCancelled() throws {
-        let token = connection.send(HATypedRequest<MockTypedRequestResult>(request: .init(type: "typed_type", data: [:])), completion: { result in
-            XCTFail("should not have invoked completion when cancelled")
-        })
+        let token = connection.send(
+            HATypedRequest<MockTypedRequestResult>(request: .init(type: "typed_type", data: [:])),
+            completion: { _ in
+                XCTFail("should not have invoked completion when cancelled")
+            }
+        )
 
         let added = try XCTUnwrap(requestController.added.first(where: { invoc in
             invoc.request.type == "typed_type"
@@ -437,10 +516,13 @@ internal class HAConnectionImplTests: XCTestCase {
 
     func testTypedRequestSentSuccessfullyDecodeSuccessful() throws {
         let expectation = self.expectation(description: "completion")
-        _ = connection.send(HATypedRequest<MockTypedRequestResult>(request: .init(type: "typed_type", data: [:])), completion: { result in
-            XCTAssertNotNil(try? result.get())
-            expectation.fulfill()
-        })
+        _ = connection.send(
+            HATypedRequest<MockTypedRequestResult>(request: .init(type: "typed_type", data: [:])),
+            completion: { result in
+                XCTAssertNotNil(try? result.get())
+                expectation.fulfill()
+            }
+        )
 
         let added = try XCTUnwrap(requestController.added.first(where: { invoc in
             invoc.request.type == "typed_type"
@@ -452,14 +534,20 @@ internal class HAConnectionImplTests: XCTestCase {
 
     func testTypedRequestSentSuccessfullyDecodeFailure() throws {
         let expectation = self.expectation(description: "completion")
-        _ = connection.send(HATypedRequest<MockTypedRequestResult>(request: .init(type: "typed_type", data: [:])), completion: { result in
-            switch result {
-            case .success: XCTFail("expected failure")
-            case let .failure(error):
-                XCTAssertEqual(error, .internal(debugDescription: MockTypedRequestResult.DecodeError.intentional.localizedDescription))
+        _ = connection.send(
+            HATypedRequest<MockTypedRequestResult>(request: .init(type: "typed_type", data: [:])),
+            completion: { result in
+                switch result {
+                case .success: XCTFail("expected failure")
+                case let .failure(error):
+                    XCTAssertEqual(
+                        error,
+                        .internal(debugDescription: MockTypedRequestResult.DecodeError.intentional.localizedDescription)
+                    )
+                }
+                expectation.fulfill()
             }
-            expectation.fulfill()
-        })
+        )
 
         let added = try XCTUnwrap(requestController.added.first(where: { invoc in
             invoc.request.type == "typed_type"
@@ -471,14 +559,17 @@ internal class HAConnectionImplTests: XCTestCase {
 
     func testTypedRequestSentFailure() throws {
         let expectation = self.expectation(description: "completion")
-        _ = connection.send(HATypedRequest<MockTypedRequestResult>(request: .init(type: "typed_type", data: [:])), completion: { result in
-            switch result {
-            case .success: XCTFail("expected failure")
-            case let .failure(error):
-                XCTAssertEqual(error, .internal(debugDescription: "direct"))
+        _ = connection.send(
+            HATypedRequest<MockTypedRequestResult>(request: .init(type: "typed_type", data: [:])),
+            completion: { result in
+                switch result {
+                case .success: XCTFail("expected failure")
+                case let .failure(error):
+                    XCTAssertEqual(error, .internal(debugDescription: "direct"))
+                }
+                expectation.fulfill()
             }
-            expectation.fulfill()
-        })
+        )
 
         let added = try XCTUnwrap(requestController.added.first(where: { invoc in
             invoc.request.type == "typed_type"
@@ -495,7 +586,7 @@ internal class HAConnectionImplTests: XCTestCase {
             XCTFail("did not expect handler to be invoked")
         }
 
-        let handler: HAConnectionProtocol.SubscriptionHandler = { _,_ in
+        let handler: HAConnectionProtocol.SubscriptionHandler = { _, _ in
             XCTFail("did not expect handler to be invoked")
         }
 
@@ -518,7 +609,7 @@ internal class HAConnectionImplTests: XCTestCase {
     func testPlainSubscribeSuccess() throws {
         let request = HARequest(type: "subbysubsub", data: ["ok": true])
 
-        let initiatedExpectation = self.expectation(description: "initiated")
+        let initiatedExpectation = expectation(description: "initiated")
         initiatedExpectation.expectedFulfillmentCount = 1
 
         let initiated: HAConnectionProtocol.SubscriptionInitiatedHandler = { result in
@@ -526,7 +617,7 @@ internal class HAConnectionImplTests: XCTestCase {
             initiatedExpectation.fulfill()
         }
 
-        let handler: HAConnectionProtocol.SubscriptionHandler = { _,_ in
+        let handler: HAConnectionProtocol.SubscriptionHandler = { _, _ in
             XCTFail("did not expect handler to be invoked")
         }
 
@@ -550,7 +641,7 @@ internal class HAConnectionImplTests: XCTestCase {
     func testPlainSubscribeFailure() throws {
         let request = HARequest(type: "subbysubsub", data: ["ok": true])
 
-        let initiatedExpectation = self.expectation(description: "initiated")
+        let initiatedExpectation = expectation(description: "initiated")
         initiatedExpectation.expectedFulfillmentCount = 1
 
         let initiated: HAConnectionProtocol.SubscriptionInitiatedHandler = { result in
@@ -558,7 +649,7 @@ internal class HAConnectionImplTests: XCTestCase {
             initiatedExpectation.fulfill()
         }
 
-        let handler: HAConnectionProtocol.SubscriptionHandler = { _,_ in
+        let handler: HAConnectionProtocol.SubscriptionHandler = { _, _ in
             XCTFail("did not expect handler to be invoked")
         }
 
@@ -582,10 +673,10 @@ internal class HAConnectionImplTests: XCTestCase {
     func testPlainSubscribeEvent() throws {
         let request = HARequest(type: "subbysubsub", data: ["ok": true])
 
-        let handlerExpectation = self.expectation(description: "event")
+        let handlerExpectation = expectation(description: "event")
         handlerExpectation.expectedFulfillmentCount = 2
 
-        let initiated: HAConnectionProtocol.SubscriptionInitiatedHandler = { result in
+        let initiated: HAConnectionProtocol.SubscriptionInitiatedHandler = { _ in
             XCTFail("did not expect handler to be invoked")
         }
 
@@ -621,7 +712,7 @@ internal class HAConnectionImplTests: XCTestCase {
             XCTFail("did not expect handler to be invoked")
         }
 
-        let handler: (HACancellable, MockTypedRequestResult) -> Void = { _,_ in
+        let handler: (HACancellable, MockTypedRequestResult) -> Void = { _, _ in
             XCTFail("did not expect handler to be invoked")
         }
 
@@ -647,7 +738,7 @@ internal class HAConnectionImplTests: XCTestCase {
             data: ["ok": true]
         ))
 
-        let initiatedExpectation = self.expectation(description: "initiated")
+        let initiatedExpectation = expectation(description: "initiated")
         initiatedExpectation.expectedFulfillmentCount = 1
 
         let initiated: HAConnectionProtocol.SubscriptionInitiatedHandler = { result in
@@ -655,7 +746,7 @@ internal class HAConnectionImplTests: XCTestCase {
             initiatedExpectation.fulfill()
         }
 
-        let handler: (HACancellable, MockTypedRequestResult) -> Void = { _,_ in
+        let handler: (HACancellable, MockTypedRequestResult) -> Void = { _, _ in
             XCTFail("did not expect handler to be invoked")
         }
 
@@ -682,7 +773,7 @@ internal class HAConnectionImplTests: XCTestCase {
             data: ["ok": true]
         ))
 
-        let initiatedExpectation = self.expectation(description: "initiated")
+        let initiatedExpectation = expectation(description: "initiated")
         initiatedExpectation.expectedFulfillmentCount = 1
 
         let initiated: HAConnectionProtocol.SubscriptionInitiatedHandler = { result in
@@ -690,7 +781,7 @@ internal class HAConnectionImplTests: XCTestCase {
             initiatedExpectation.fulfill()
         }
 
-        let handler: (HACancellable, MockTypedRequestResult) -> Void = { _,_ in
+        let handler: (HACancellable, MockTypedRequestResult) -> Void = { _, _ in
             XCTFail("did not expect handler to be invoked")
         }
 
@@ -717,14 +808,14 @@ internal class HAConnectionImplTests: XCTestCase {
             data: ["ok": true]
         ))
 
-        let handlerExpectation = self.expectation(description: "event")
+        let handlerExpectation = expectation(description: "event")
         handlerExpectation.expectedFulfillmentCount = 2
 
-        let initiated: HAConnectionProtocol.SubscriptionInitiatedHandler = { result in
+        let initiated: HAConnectionProtocol.SubscriptionInitiatedHandler = { _ in
             XCTFail("did not expect handler to be invoked")
         }
 
-        let handler: (HACancellable, MockTypedRequestResult) -> Void = { _, result in
+        let handler: (HACancellable, MockTypedRequestResult) -> Void = { _, _ in
             handlerExpectation.fulfill()
         }
 
@@ -751,11 +842,11 @@ internal class HAConnectionImplTests: XCTestCase {
             data: ["ok": true]
         ))
 
-        let initiated: HAConnectionProtocol.SubscriptionInitiatedHandler = { result in
+        let initiated: HAConnectionProtocol.SubscriptionInitiatedHandler = { _ in
             XCTFail("did not expect handler to be invoked")
         }
 
-        let handler: (HACancellable, MockTypedRequestResult) -> Void = { _, result in
+        let handler: (HACancellable, MockTypedRequestResult) -> Void = { _, _ in
             XCTFail("did not expect handler to be invoked since decode failed")
         }
 
@@ -887,17 +978,47 @@ private class FakeHARequestController: HARequestController {
 private class FakeHAResponseController: HAResponseController {
     weak var delegate: HAResponseControllerDelegate?
 
-    var phase: HAResponseControllerPhase = .disconnected
+    var phase: HAResponseControllerPhase = .disconnected(error: nil, forReset: true)
 
     var wasReset = false
 
     func reset() {
         wasReset = true
-        phase = .disconnected
+        phase = .disconnected(error: nil, forReset: true)
     }
 
     var received: [WebSocketEvent] = []
     func didReceive(event: WebSocketEvent) {
         received.append(event)
+    }
+}
+
+private class FakeHAReconnectManager: HAReconnectManager {
+    weak var delegate: HAReconnectManagerDelegate?
+
+    var reason: HAConnectionState.DisconnectReason = .disconnected
+
+    var didFinish = false
+    func didFinishConnect() {
+        didFinish = true
+    }
+
+    var didStartInitial = false
+    func didStartInitialConnect() {
+        didStartInitial = true
+    }
+
+    var didPermanently = false
+    func didDisconnectPermanently() {
+        didPermanently = true
+        reason = .disconnected
+    }
+
+    var didTemporarily = false
+    var didTemporarilyError: Error?
+    func didDisconnectTemporarily(error: Error?) {
+        didTemporarily = true
+        didTemporarilyError = error
+        reason = .waitingToReconnect(lastError: error, atLatest: Date(), retryCount: 0)
     }
 }

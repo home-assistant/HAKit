@@ -17,7 +17,7 @@ extension HAConnectionImpl {
                 )
             case let .failure(error):
                 HAGlobal.log("delegate failed to provide access token \(error), bailing")
-                disconnectTemporarily()
+                disconnect(permanently: false, error: error)
             }
         }
     }
@@ -66,13 +66,18 @@ extension HAConnectionImpl: HAResponseControllerDelegate {
         didTransitionTo phase: HAResponseControllerPhase
     ) {
         switch phase {
-        case .auth: sendAuthToken()
-        case .command: requestController.prepare(completion: {})
-        case .disconnected:
-            // TODO: setup retries if not requested
+        case .auth:
+            sendAuthToken()
+            delegate?.connection(self, transitionedTo: state)
+        case .command:
+            reconnectManager.didFinishConnect()
+            requestController.prepare(completion: {})
+            delegate?.connection(self, transitionedTo: state)
+        case let .disconnected(error, forReset: reset):
+            if !reset {
+                disconnect(permanently: false, error: error)
+            }
             requestController.resetActive(completion: {})
         }
-
-        delegate?.connection(self, transitionedTo: state)
     }
 }

@@ -9,11 +9,11 @@ internal class HAConnectionImpl: HAConnectionProtocol {
 
     public var callbackQueue: DispatchQueue = .main
 
-    private var lastDisconnectReason: HAConnectionState.DisconnectReason = .initial
+    private var lastDisconnectError: HAError?
     public var state: HAConnectionState {
         switch responseController.phase {
         case .disconnected:
-            return .disconnected(reason: lastDisconnectReason)
+            return .disconnected(reason: reconnectManager.reason)
         case .auth:
             return .connecting
         case let .command(version):
@@ -21,7 +21,7 @@ internal class HAConnectionImpl: HAConnectionProtocol {
         }
     }
 
-    private var connection: WebSocket? {
+    internal private(set) var connection: WebSocket? {
         didSet {
             connection?.delegate = self
 
@@ -34,31 +34,44 @@ internal class HAConnectionImpl: HAConnectionProtocol {
 
     let requestController: HARequestController
     let responseController: HAResponseController
+    let reconnectManager: HAReconnectManager
 
     required convenience init(configuration: HAConnectionConfiguration) {
         self.init(
             configuration: configuration,
             requestController: HARequestControllerImpl(),
-            responseController: HAResponseControllerImpl()
+            responseController: HAResponseControllerImpl(),
+            reconnectManager: HAReconnectManagerImpl()
         )
     }
 
     init(
         configuration: HAConnectionConfiguration,
         requestController: HARequestController,
-        responseController: HAResponseController
+        responseController: HAResponseController,
+        reconnectManager: HAReconnectManager
     ) {
         self.configuration = configuration
         self.requestController = requestController
         self.responseController = responseController
+        self.reconnectManager = reconnectManager
 
         requestController.delegate = self
         responseController.delegate = self
+        reconnectManager.delegate = self
     }
 
     // MARK: - Connection Handling
 
     public func connect() {
+        connect(resettingState: true)
+    }
+
+    public func disconnect() {
+        disconnect(permanently: true, error: nil)
+    }
+
+    func connect(resettingState: Bool) {
         let connectionInfo = configuration.connectionInfo()
         let connection: WebSocket = {
             guard let existing = self.connection else {
@@ -72,27 +85,26 @@ internal class HAConnectionImpl: HAConnectionProtocol {
             return connectionInfo.webSocket()
         }()
 
+        if resettingState {
+            reconnectManager.didStartInitialConnect()
+        }
+
         self.connection = connection
         connection.connect()
     }
 
-    public func disconnect() {
-        disconnect(reason: .initial)
-    }
+    func disconnect(permanently: Bool, error: Error?) {
+        if permanently {
+            reconnectManager.didDisconnectPermanently()
+        } else {
+            reconnectManager.didDisconnectTemporarily(error: error)
+        }
 
-    func disconnect(reason: HAConnectionState.DisconnectReason) {
-        // TODO: none of the connection handling is good right now
         connection?.delegate = nil
         connection?.disconnect(closeCode: CloseCode.goingAway.rawValue)
         connection = nil
 
-        lastDisconnectReason = reason
-        delegate?.connection(self, transitionedTo: .disconnected(reason: reason))
-    }
-
-    func disconnectTemporarily() {
-        // TODO: none of the connection handling is good right now
-        disconnect(reason: .waitingToReconnect(atLatest: Date(), retryCount: 0))
+        delegate?.connection(self, transitionedTo: state)
     }
 
     // MARK: - Sending
@@ -216,5 +228,11 @@ extension HAConnectionImpl {
         }
 
         connection?.write(string: String(data: data, encoding: .utf8)!)
+    }
+}
+
+extension HAConnectionImpl: HAReconnectManagerDelegate {
+    func reconnectManagerWantsReconnection(_ manager: HAReconnectManager) {
+        connect(resettingState: false)
     }
 }

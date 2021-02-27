@@ -16,11 +16,16 @@ internal class HAResponseControllerTests: XCTestCase {
     }
 
     func testInitialPhase() {
-        XCTAssertEqual(controller.phase, .disconnected)
+        XCTAssertEqual(controller.phase, .disconnected(error: nil, forReset: true))
     }
 
     func testInitialErrored() {
-        fireErrored()
+        enum FakeError: Error {
+            case error
+        }
+
+        fireErrored(error: nil)
+        fireErrored(error: FakeError.error)
     }
 
     func testConnectedThenDisconnected() {
@@ -31,8 +36,8 @@ internal class HAResponseControllerTests: XCTestCase {
     func testConnectedThenReset() {
         fireConnected()
         controller.reset()
-        XCTAssertEqual(controller.phase, .disconnected)
-        XCTAssertEqual(delegate.lastPhase, .disconnected)
+        XCTAssertEqual(controller.phase, .disconnected(error: nil, forReset: true))
+        XCTAssertEqual(delegate.lastPhase, .disconnected(error: nil, forReset: true))
     }
 
     func testConnectedThenCancelled() {
@@ -41,8 +46,12 @@ internal class HAResponseControllerTests: XCTestCase {
     }
 
     func testConnectedThenErrored() {
+        enum FakeError: Error {
+            case error
+        }
+
         fireConnected()
-        fireErrored()
+        fireErrored(error: FakeError.error)
     }
 
     func testIgnoredEvents() {
@@ -115,8 +124,8 @@ private extension HAResponseControllerTests {
         line: UInt = #line
     ) {
         controller.didReceive(event: .disconnected("debug", 0))
-        XCTAssertEqual(controller.phase, .disconnected, file: file, line: line)
-        XCTAssertEqual(delegate.lastPhase, .disconnected, file: file, line: line)
+        XCTAssertEqual(controller.phase, .disconnected(error: nil, forReset: false), file: file, line: line)
+        XCTAssertEqual(delegate.lastPhase, .disconnected(error: nil, forReset: false), file: file, line: line)
     }
 
     func fireCancelled(
@@ -124,17 +133,18 @@ private extension HAResponseControllerTests {
         line: UInt = #line
     ) {
         controller.didReceive(event: .cancelled)
-        XCTAssertEqual(controller.phase, .disconnected, file: file, line: line)
-        XCTAssertEqual(delegate.lastPhase, .disconnected, file: file, line: line)
+        XCTAssertEqual(controller.phase, .disconnected(error: nil, forReset: false), file: file, line: line)
+        XCTAssertEqual(delegate.lastPhase, .disconnected(error: nil, forReset: false), file: file, line: line)
     }
 
     func fireErrored(
+        error: Error?,
         file: StaticString = #file,
         line: UInt = #line
     ) {
-        controller.didReceive(event: .error(nil))
-        XCTAssertEqual(controller.phase, .disconnected, file: file, line: line)
-        XCTAssertEqual(delegate.lastPhase, .disconnected, file: file, line: line)
+        controller.didReceive(event: .error(error))
+        XCTAssertEqual(controller.phase, .disconnected(error: error, forReset: false), file: file, line: line)
+        XCTAssertEqual(delegate.lastPhase, .disconnected(error: error, forReset: false), file: file, line: line)
     }
 
     func fireText(

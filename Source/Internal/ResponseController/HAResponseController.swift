@@ -15,7 +15,19 @@ internal protocol HAResponseControllerDelegate: AnyObject {
 internal enum HAResponseControllerPhase: Equatable {
     case auth
     case command(version: String)
-    case disconnected
+    case disconnected(error: Error?, forReset: Bool)
+
+    static func == (lhs: HAResponseControllerPhase, rhs: HAResponseControllerPhase) -> Bool {
+        switch (lhs, rhs) {
+        case (.auth, .auth):
+            return true
+        case let (.command(lhsVersion), .command(rhsVersion)):
+            return lhsVersion == rhsVersion
+        case let (.disconnected(lhsError, lhsReset), .disconnected(rhsError, rhsReset)):
+            return lhsError as NSError? == rhsError as NSError? && lhsReset == rhsReset
+        default: return false
+        }
+    }
 }
 
 internal protocol HAResponseController: AnyObject {
@@ -29,15 +41,17 @@ internal protocol HAResponseController: AnyObject {
 internal class HAResponseControllerImpl: HAResponseController {
     weak var delegate: HAResponseControllerDelegate?
 
-    private(set) var phase: HAResponseControllerPhase = .disconnected {
+    private(set) var phase: HAResponseControllerPhase = .disconnected(error: nil, forReset: true) {
         didSet {
-            HAGlobal.log("phase transition to \(phase)")
+            if oldValue != phase {
+                HAGlobal.log("phase transition to \(phase)")
+            }
             delegate?.responseController(self, didTransitionTo: phase)
         }
     }
 
     func reset() {
-        phase = .disconnected
+        phase = .disconnected(error: nil, forReset: true)
     }
 
     func didReceive(event: Starscream.WebSocketEvent) {
@@ -47,7 +61,7 @@ internal class HAResponseControllerImpl: HAResponseController {
             phase = .auth
         case let .disconnected(reason, code):
             HAGlobal.log("disconnected: \(reason) with code: \(code)")
-            phase = .disconnected
+            phase = .disconnected(error: nil, forReset: false)
         case let .text(string):
             HAGlobal.log("Received text: \(string)")
             do {
@@ -73,10 +87,10 @@ internal class HAResponseControllerImpl: HAResponseController {
             // doesn't look like the URLSession variant calls this
             break
         case .cancelled:
-            phase = .disconnected
+            phase = .disconnected(error: nil, forReset: false)
         case let .error(error):
             HAGlobal.log("connection error: \(String(describing: error))")
-            phase = .disconnected
+            phase = .disconnected(error: error, forReset: false)
         }
     }
 }

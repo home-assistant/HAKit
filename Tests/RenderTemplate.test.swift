@@ -15,7 +15,7 @@ internal class RenderTemplateTests: XCTestCase {
         let request = HATypedSubscription<HAResponseRenderTemplate>.renderTemplate(
             "{{ test() }}",
             variables: ["a": 1, "b": true],
-            timeout: .init(value: 3000, unit: .milliseconds)
+            timeout: .init(value: 3, unit: .seconds)
         )
         XCTAssertEqual(request.request.type, .renderTemplate)
         XCTAssertEqual(request.request.shouldRetry, true)

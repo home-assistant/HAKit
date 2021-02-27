@@ -13,9 +13,22 @@ public protocol HAConnectionDelegate: AnyObject {
 public enum HAConnectionState: Equatable {
     /// Reason for disconnection state
     public enum DisconnectReason: Equatable {
-        case initial
-        case error(HAError)
-        case waitingToReconnect(atLatest: Date, retryCount: Int)
+        public static func == (lhs: DisconnectReason, rhs: DisconnectReason) -> Bool {
+            switch (lhs, rhs) {
+            case (.disconnected, .disconnected): return true
+            case let (
+                .waitingToReconnect(lhsError, lhsDate, lhsRetry),
+                .waitingToReconnect(rhsError, rhsDate, rhsRetry)
+            ):
+                return lhsError as NSError? == rhsError as NSError?
+                    && lhsDate == rhsDate
+                    && lhsRetry == rhsRetry
+            default: return false
+            }
+        }
+
+        case disconnected
+        case waitingToReconnect(lastError: Error?, atLatest: Date, retryCount: Int)
     }
 
     /// Not connected
