@@ -68,13 +68,14 @@ extension HAConnectionImpl: HAResponseControllerDelegate {
         switch phase {
         case .auth:
             sendAuthToken()
-            delegate?.connection(self, transitionedTo: state)
+            notifyState()
         case .command:
             reconnectManager.didFinishConnect()
             requestController.prepare(completion: {})
-            delegate?.connection(self, transitionedTo: state)
+            notifyState()
         case let .disconnected(error, forReset: reset):
             if !reset {
+                // state will notify from this method call
                 disconnect(permanently: false, error: error)
             }
             requestController.resetActive(completion: {})

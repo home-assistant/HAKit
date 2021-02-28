@@ -150,6 +150,7 @@ internal class HAConnectionImplTests: XCTestCase {
 
         XCTAssertEqual(connection.state, .disconnected(reason: .disconnected))
         XCTAssertEqual(delegate.states.last, .disconnected(reason: .disconnected))
+        XCTAssertEqual(delegate.notifiedCount, 1)
     }
 
     func testDisconnectedTemporarilyWithoutError() throws {
@@ -159,6 +160,7 @@ internal class HAConnectionImplTests: XCTestCase {
         connection.responseController(responseController, didTransitionTo: .disconnected(error: nil, forReset: false))
         XCTAssertTrue(requestController.didResetActive)
         XCTAssertEqual(delegate.states.last, connection.state)
+        XCTAssertEqual(delegate.notifiedCount, 1)
         XCTAssertTrue(reconnectManager.didTemporarily)
         XCTAssertFalse(reconnectManager.didPermanently)
 
@@ -262,6 +264,7 @@ internal class HAConnectionImplTests: XCTestCase {
         responseController.phase = .auth
         connection.responseController(responseController, didTransitionTo: .auth)
         XCTAssertEqual(delegate.states, [.connecting])
+        XCTAssertEqual(delegate.notifiedCount, 1)
 
         XCTAssertTrue(engine.events.isEmpty)
 
@@ -280,6 +283,7 @@ internal class HAConnectionImplTests: XCTestCase {
         responseController.phase = .auth
         connection.responseController(responseController, didTransitionTo: .auth)
         XCTAssertEqual(delegate.states, [.connecting])
+        XCTAssertEqual(delegate.notifiedCount, 1)
 
         XCTAssertTrue(engine.events.isEmpty)
 
@@ -289,6 +293,7 @@ internal class HAConnectionImplTests: XCTestCase {
 
         try XCTUnwrap(pendingFetchAccessTokens.last)(.failure(TestError.any))
         XCTAssertTrue(engine.events.contains(.stop(CloseCode.goingAway.rawValue)))
+        XCTAssertEqual(delegate.notifiedCount, 2)
 
         let last = try XCTUnwrap(delegate.states.last)
         switch last {
@@ -307,6 +312,7 @@ internal class HAConnectionImplTests: XCTestCase {
         responseController.phase = .command(version: "123")
         connection.responseController(responseController, didTransitionTo: .command(version: "123"))
         XCTAssertEqual(delegate.states, [.ready(version: "123")])
+        XCTAssertEqual(delegate.notifiedCount, 1)
 
         XCTAssertTrue(requestController.didPrepare)
         XCTAssertTrue(reconnectManager.didFinish)
@@ -340,6 +346,7 @@ internal class HAConnectionImplTests: XCTestCase {
         XCTAssertTrue(engine.events.isEmpty)
         XCTAssertTrue(responseController.received.isEmpty)
         XCTAssertTrue(delegate.states.isEmpty)
+        XCTAssertEqual(delegate.notifiedCount, 0)
         XCTAssertFalse(requestController.didPrepare)
         XCTAssertFalse(requestController.didResetActive)
     }
@@ -921,8 +928,28 @@ private class MockTypedRequestResult: HADataDecodable {
 }
 
 private class FakeHAConnectionDelegate: HAConnectionDelegate {
+    private var token: Any?
+
+    init() {
+        NotificationCenter.default.addObserver(
+            forName: HAConnection.didTransitionToStateNotification,
+            object: nil,
+            queue: nil,
+            using: { [weak self] _ in
+                self?.notifiedCount += 1
+            }
+        )
+    }
+
+    deinit {
+        if let token = token {
+            NotificationCenter.default.removeObserver(token)
+        }
+    }
+
     var states = [HAConnectionState]()
-    func connection(_ connection: HAConnectionProtocol, transitionedTo state: HAConnectionState) {
+    var notifiedCount = 0
+    func connection(_ connection: HAConnectionProtocol, didTransitionTo state: HAConnectionState) {
         states.append(state)
         XCTAssertEqual(state, connection.state)
     }

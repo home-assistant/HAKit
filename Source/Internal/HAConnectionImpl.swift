@@ -21,6 +21,14 @@ internal class HAConnectionImpl: HAConnectionProtocol {
         }
     }
 
+    internal func notifyState() {
+        delegate?.connection(self, didTransitionTo: state)
+        NotificationCenter.default.post(
+            name: HAConnection.didTransitionToStateNotification,
+            object: self
+        )
+    }
+
     internal private(set) var connection: WebSocket? {
         didSet {
             connection?.delegate = self
@@ -104,7 +112,7 @@ internal class HAConnectionImpl: HAConnectionProtocol {
         connection?.disconnect(closeCode: CloseCode.goingAway.rawValue)
         connection = nil
 
-        delegate?.connection(self, transitionedTo: state)
+        notifyState()
     }
 
     // MARK: - Sending
