@@ -1,0 +1,509 @@
+{
+  "warnings": [
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Convenience/CurrentUser.swift",
+      "line": 30,
+      "symbol": "HAResponseCurrentUser.Credential.type",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Convenience/CurrentUser.swift",
+      "line": 31,
+      "symbol": "HAResponseCurrentUser.Credential.id",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Convenience/CurrentUser.swift",
+      "line": 33,
+      "symbol": "HAResponseCurrentUser.Credential.init(data:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Convenience/CurrentUser.swift",
+      "line": 40,
+      "symbol": "HAResponseCurrentUser.Credential.init(type:id:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Convenience/CurrentUser.swift",
+      "line": 48,
+      "symbol": "HAResponseCurrentUser.MFAModule.id",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Convenience/CurrentUser.swift",
+      "line": 49,
+      "symbol": "HAResponseCurrentUser.MFAModule.name",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Convenience/CurrentUser.swift",
+      "line": 50,
+      "symbol": "HAResponseCurrentUser.MFAModule.isEnabled",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Convenience/CurrentUser.swift",
+      "line": 52,
+      "symbol": "HAResponseCurrentUser.MFAModule.init(data:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Convenience/CurrentUser.swift",
+      "line": 60,
+      "symbol": "HAResponseCurrentUser.MFAModule.init(id:name:isEnabled:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Convenience/CurrentUser.swift",
+      "line": 67,
+      "symbol": "HAResponseCurrentUser.init(data:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Convenience/CurrentUser.swift",
+      "line": 78,
+      "symbol": "HAResponseCurrentUser.init(id:name:isOwner:isAdmin:credentials:mfaModules:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Convenience/Event.swift",
+      "line": 33,
+      "symbol": "HAEventType",
+      "symbol_kind": "source.lang.swift.decl.struct",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Convenience/Event.swift",
+      "line": 47,
+      "symbol": "HAEventType.all",
+      "symbol_kind": "source.lang.swift.decl.var.static",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Convenience/Event.swift",
+      "line": 50,
+      "symbol": "HAEventType.callService",
+      "symbol_kind": "source.lang.swift.decl.var.static",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Convenience/Event.swift",
+      "line": 51,
+      "symbol": "HAEventType.componentLoaded",
+      "symbol_kind": "source.lang.swift.decl.var.static",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Convenience/Event.swift",
+      "line": 52,
+      "symbol": "HAEventType.coreConfigUpdated",
+      "symbol_kind": "source.lang.swift.decl.var.static",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Convenience/Event.swift",
+      "line": 53,
+      "symbol": "HAEventType.homeassistantClose",
+      "symbol_kind": "source.lang.swift.decl.var.static",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Convenience/Event.swift",
+      "line": 54,
+      "symbol": "HAEventType.homeassistantFinalWrite",
+      "symbol_kind": "source.lang.swift.decl.var.static",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Convenience/Event.swift",
+      "line": 55,
+      "symbol": "HAEventType.homeassistantStart",
+      "symbol_kind": "source.lang.swift.decl.var.static",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Convenience/Event.swift",
+      "line": 56,
+      "symbol": "HAEventType.homeassistantStarted",
+      "symbol_kind": "source.lang.swift.decl.var.static",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Convenience/Event.swift",
+      "line": 57,
+      "symbol": "HAEventType.homeassistantStop",
+      "symbol_kind": "source.lang.swift.decl.var.static",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Convenience/Event.swift",
+      "line": 58,
+      "symbol": "HAEventType.logbookEntry",
+      "symbol_kind": "source.lang.swift.decl.var.static",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Convenience/Event.swift",
+      "line": 59,
+      "symbol": "HAEventType.platformDiscovered",
+      "symbol_kind": "source.lang.swift.decl.var.static",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Convenience/Event.swift",
+      "line": 60,
+      "symbol": "HAEventType.serviceRegistered",
+      "symbol_kind": "source.lang.swift.decl.var.static",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Convenience/Event.swift",
+      "line": 61,
+      "symbol": "HAEventType.serviceRemoved",
+      "symbol_kind": "source.lang.swift.decl.var.static",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Convenience/Event.swift",
+      "line": 62,
+      "symbol": "HAEventType.shoppingListUpdated",
+      "symbol_kind": "source.lang.swift.decl.var.static",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Convenience/Event.swift",
+      "line": 63,
+      "symbol": "HAEventType.stateChanged",
+      "symbol_kind": "source.lang.swift.decl.var.static",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Convenience/Event.swift",
+      "line": 64,
+      "symbol": "HAEventType.themesUpdated",
+      "symbol_kind": "source.lang.swift.decl.var.static",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Convenience/Event.swift",
+      "line": 65,
+      "symbol": "HAEventType.timerOutOfSync",
+      "symbol_kind": "source.lang.swift.decl.var.static",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Convenience/Event.swift",
+      "line": 68,
+      "symbol": "HAResponseEvent",
+      "symbol_kind": "source.lang.swift.decl.struct",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Convenience/Event.swift",
+      "line": 69,
+      "symbol": "HAResponseEvent.type",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Convenience/Event.swift",
+      "line": 70,
+      "symbol": "HAResponseEvent.timeFired",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Convenience/Event.swift",
+      "line": 71,
+      "symbol": "HAResponseEvent.data",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Convenience/Event.swift",
+      "line": 72,
+      "symbol": "HAResponseEvent.origin",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Convenience/Event.swift",
+      "line": 73,
+      "symbol": "HAResponseEvent.context",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Convenience/Event.swift",
+      "line": 75,
+      "symbol": "HAResponseEvent.Origin",
+      "symbol_kind": "source.lang.swift.decl.enum",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Convenience/Event.swift",
+      "line": 76,
+      "symbol": "HAResponseEvent.Origin.local",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Convenience/Event.swift",
+      "line": 77,
+      "symbol": "HAResponseEvent.Origin.remote",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Convenience/Event.swift",
+      "line": 80,
+      "symbol": "HAResponseEvent.Context",
+      "symbol_kind": "source.lang.swift.decl.struct",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Convenience/Event.swift",
+      "line": 81,
+      "symbol": "HAResponseEvent.Context.id",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Convenience/Event.swift",
+      "line": 82,
+      "symbol": "HAResponseEvent.Context.userId",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Convenience/Event.swift",
+      "line": 83,
+      "symbol": "HAResponseEvent.Context.parentId",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Convenience/Event.swift",
+      "line": 85,
+      "symbol": "HAResponseEvent.Context.init(data:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Convenience/Event.swift",
+      "line": 93,
+      "symbol": "HAResponseEvent.Context.init(id:userId:parentId:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Convenience/Event.swift",
+      "line": 104,
+      "symbol": "HAResponseEvent.init(data:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Convenience/Event.swift",
+      "line": 114,
+      "symbol": "HAResponseEvent.init(type:timeFired:data:origin:context:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Convenience/RenderTemplate.swift",
+      "line": 53,
+      "symbol": "HAResponseRenderTemplate.Listeners.init(data:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Convenience/RenderTemplate.swift",
+      "line": 62,
+      "symbol": "HAResponseRenderTemplate.Listeners.init(all:time:entities:domains:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Convenience/RenderTemplate.swift",
+      "line": 75,
+      "symbol": "HAResponseRenderTemplate.init(data:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Convenience/RenderTemplate.swift",
+      "line": 82,
+      "symbol": "HAResponseRenderTemplate.init(result:listeners:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Convenience/StateChanged.swift",
+      "line": 27,
+      "symbol": "HAResponseEventStateChanged.init(data:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Convenience/StateChanged.swift",
+      "line": 39,
+      "symbol": "HAResponseEventStateChanged.init(event:entityId:oldState:newState:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Data/HADataDecodable.swift",
+      "line": 9,
+      "symbol": "HADataDecodable.init(data:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Data/HADataDecodable.swift",
+      "line": 14,
+      "symbol": "HADataError.missingKey(_:)",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Data/HADataDecodable.swift",
+      "line": 15,
+      "symbol": "HADataError.incorrectType(key:expected:actual:)",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Data/HADataDecodable.swift",
+      "line": 16,
+      "symbol": "HADataError.couldntTransform(key:)",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Data/HAEntity.swift",
+      "line": 22,
+      "symbol": "HAEntity.init(data:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Data/HAEntity.swift",
+      "line": 33,
+      "symbol": "HAEntity.init(entityId:state:lastChanged:lastUpdated:attributes:context:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/HAConnection.swift",
+      "line": 30,
+      "symbol": "HAConnectionState.DisconnectReason.disconnected",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/HAConnection.swift",
+      "line": 31,
+      "symbol": "HAConnectionState.DisconnectReason.waitingToReconnect(lastError:atLatest:retryCount:)",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/HAGlobal.swift",
+      "line": 3,
+      "symbol": "HAGlobal",
+      "symbol_kind": "source.lang.swift.decl.enum",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/HARequestToken.swift",
+      "line": 5,
+      "symbol": "HACancellable.cancel()",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Requests/HARequestType.swift",
+      "line": 14,
+      "symbol": "HARequestType.auth",
+      "symbol_kind": "source.lang.swift.decl.var.static",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Requests/HARequestType.swift",
+      "line": 18,
+      "symbol": "HARequestType.callService",
+      "symbol_kind": "source.lang.swift.decl.var.static",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Requests/HARequestType.swift",
+      "line": 19,
+      "symbol": "HARequestType.currentUser",
+      "symbol_kind": "source.lang.swift.decl.var.static",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Requests/HARequestType.swift",
+      "line": 20,
+      "symbol": "HARequestType.getStates",
+      "symbol_kind": "source.lang.swift.decl.var.static",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Requests/HARequestType.swift",
+      "line": 21,
+      "symbol": "HARequestType.getConfig",
+      "symbol_kind": "source.lang.swift.decl.var.static",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Requests/HARequestType.swift",
+      "line": 22,
+      "symbol": "HARequestType.getServices",
+      "symbol_kind": "source.lang.swift.decl.var.static",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Requests/HARequestType.swift",
+      "line": 26,
+      "symbol": "HARequestType.subscribeEvents",
+      "symbol_kind": "source.lang.swift.decl.var.static",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Requests/HARequestType.swift",
+      "line": 27,
+      "symbol": "HARequestType.unsubscribeEvents",
+      "symbol_kind": "source.lang.swift.decl.var.static",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Requests/HARequestType.swift",
+      "line": 31,
+      "symbol": "HARequestType.renderTemplate",
+      "symbol_kind": "source.lang.swift.decl.var.static",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/ha-swift-api/ha-swift-api/Source/Requests/HAResponseVoid.swift",
+      "line": 7,
+      "symbol": "HAResponseVoid.init(data:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    }
+  ],
+  "source_directory": "/Users/runner/work/ha-swift-api/ha-swift-api"
+}

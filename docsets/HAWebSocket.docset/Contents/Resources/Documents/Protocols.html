@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Protocols  Reference</title>
+    <link rel="stylesheet" type="text/css" href="css/jazzy.css" />
+    <link rel="stylesheet" type="text/css" href="css/highlight.css" />
+    <meta charset='utf-8'>
+    <script src="js/jquery.min.js" defer></script>
+    <script src="js/jazzy.js" defer></script>
+    
+    <script src="js/lunr.min.js" defer></script>
+    <script src="js/typeahead.jquery.js" defer></script>
+    <script src="js/jazzy.search.js" defer></script>
+  </head>
+  <body>
+    <a name="//apple_ref/swift/Section/Protocols" class="dashAnchor"></a>
+    <a title="Protocols  Reference"></a>
+    <header>
+      <div class="content-wrapper">
+        <p><a href="index.html">HAWebSocket 0.1.0 Docs</a> (63% documented)</p>
+        <p class="header-right">
+          <form role="search" action="search.json">
+            <input type="text" placeholder="Search documentation" data-typeahead>
+          </form>
+        </p>
+      </div>
+    </header>
+    <div class="content-wrapper">
+      <p id="breadcrumbs">
+        <a href="index.html">HAWebSocket Reference</a>
+        <img id="carat" src="img/carat.png" />
+        Protocols  Reference
+      </p>
+    </div>
+    <div class="content-wrapper">
+      <nav class="sidebar">
+        <ul class="nav-groups">
+          <li class="nav-group-name">
+            <a href="Enums.html">Enumerations</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="Enums/HAConnection.html">HAConnection</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Enums/HAConnectionState.html">HAConnectionState</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Enums/HAConnectionState/DisconnectReason.html">– DisconnectReason</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Enums/HAData.html">HAData</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Enums/HADataError.html">HADataError</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Enums/HAError.html">HAError</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Enums/HAError/ExternalError.html">– ExternalError</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Enums/HAGlobal.html">HAGlobal</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="Extensions.html">Extensions</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="Extensions/Array.html">Array</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Extensions/Date.html">Date</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Extensions/Dictionary.html">Dictionary</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Extensions/Optional.html">Optional</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="Protocols.html">Protocols</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="Protocols/HACancellable.html">HACancellable</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Protocols/HAConnectionDelegate.html">HAConnectionDelegate</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Protocols/HAConnectionProtocol.html">HAConnectionProtocol</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Protocols/HADataDecodable.html">HADataDecodable</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Protocols/HADecodeTransformable.html">HADecodeTransformable</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="Structs.html">Structures</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="Structs/HAConnectionConfiguration.html">HAConnectionConfiguration</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/HAConnectionInfo.html">HAConnectionInfo</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/HAEntity.html">HAEntity</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/HAEventType.html">HAEventType</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/HARequest.html">HARequest</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/HARequestType.html">HARequestType</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/HAResponseCurrentUser.html">HAResponseCurrentUser</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/HAResponseCurrentUser/Credential.html">– Credential</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/HAResponseCurrentUser/MFAModule.html">– MFAModule</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/HAResponseEvent.html">HAResponseEvent</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/HAResponseEvent/Origin.html">– Origin</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/HAResponseEvent/Context.html">– Context</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/HAResponseEventStateChanged.html">HAResponseEventStateChanged</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/HAResponseRenderTemplate.html">HAResponseRenderTemplate</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/HAResponseRenderTemplate/Listeners.html">– Listeners</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/HAResponseVoid.html">HAResponseVoid</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/HATypedRequest.html">HATypedRequest</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/HATypedSubscription.html">HATypedSubscription</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+      <article class="main-content">
+        <section>
+          <section class="section">
+            <h1>Protocols</h1>
+            <p>The following protocols are available globally.</p>
+
+          </section>
+          <section class="section task-group-section">
+            <div class="task-group">
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:11HAWebSocket15HADataDecodableP"></a>
+                    <a name="//apple_ref/swift/Protocol/HADataDecodable" class="dashAnchor"></a>
+                    <a class="token" href="#/s:11HAWebSocket15HADataDecodableP">HADataDecodable</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>A type which can be decoded using our data type</p>
+<div class="aside aside-note">
+    <p class="aside-title">Note</p>
+    This differs from <code>Decodable</code> intentionally; <code>Decodable</code> does not support <code>Any</code> types or JSON well when the
+    results are extremely dynamic. This limitation requires that we do it ourselves.
+
+</div>
+
+                        <a href="Protocols/HADataDecodable.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">protocol</span> <span class="kt">HADataDecodable</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:11HAWebSocket21HADecodeTransformableP"></a>
+                    <a name="//apple_ref/swift/Protocol/HADecodeTransformable" class="dashAnchor"></a>
+                    <a class="token" href="#/s:11HAWebSocket21HADecodeTransformableP">HADecodeTransformable</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Decode a value by massagging into another type</p>
+
+<p>For example, this allows decoding a Date from a String without having to do intermediate casting in calling code.</p>
+
+                        <a href="Protocols/HADecodeTransformable.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">protocol</span> <span class="kt">HADecodeTransformable</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:11HAWebSocket20HAConnectionDelegateP"></a>
+                    <a name="//apple_ref/swift/Protocol/HAConnectionDelegate" class="dashAnchor"></a>
+                    <a class="token" href="#/s:11HAWebSocket20HAConnectionDelegateP">HAConnectionDelegate</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Delegate of the connection</p>
+
+                        <a href="Protocols/HAConnectionDelegate.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">protocol</span> <span class="kt">HAConnectionDelegate</span> <span class="p">:</span> <span class="kt">AnyObject</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:11HAWebSocket20HAConnectionProtocolP"></a>
+                    <a name="//apple_ref/swift/Protocol/HAConnectionProtocol" class="dashAnchor"></a>
+                    <a class="token" href="#/s:11HAWebSocket20HAConnectionProtocolP">HAConnectionProtocol</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>The interface for the API itself</p>
+
+                        <a href="Protocols/HAConnectionProtocol.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">protocol</span> <span class="kt">HAConnectionProtocol</span> <span class="p">:</span> <span class="kt">AnyObject</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:11HAWebSocket13HACancellableP"></a>
+                    <a name="//apple_ref/swift/Protocol/HACancellable" class="dashAnchor"></a>
+                    <a class="token" href="#/s:11HAWebSocket13HACancellableP">HACancellable</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>A token representing an individual request or subscription</p>
+
+<p>You do not need to strongly retain this value. Requests are only cancelled explicitly.</p>
+
+                        <a href="Protocols/HACancellable.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">protocol</span> <span class="kt">HACancellable</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </section>
+        </section>
+        <section id="footer">
+          <p>&copy; 2021 <a class="link" href="https://github.com/home-assistant/<tbd" target="_blank" rel="external">Home Assistant</a>. All rights reserved. (Last updated: 2021-02-28)</p>
+          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.13.6</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+        </section>
+      </article>
+    </div>
+  </body>
+</div>
+</html>

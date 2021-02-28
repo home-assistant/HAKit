@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>HATypedSubscription Structure Reference</title>
+    <link rel="stylesheet" type="text/css" href="../css/jazzy.css" />
+    <link rel="stylesheet" type="text/css" href="../css/highlight.css" />
+    <meta charset='utf-8'>
+    <script src="../js/jquery.min.js" defer></script>
+    <script src="../js/jazzy.js" defer></script>
+    
+    <script src="../js/lunr.min.js" defer></script>
+    <script src="../js/typeahead.jquery.js" defer></script>
+    <script src="../js/jazzy.search.js" defer></script>
+  </head>
+  <body>
+    <a name="//apple_ref/swift/Struct/HATypedSubscription" class="dashAnchor"></a>
+    <a title="HATypedSubscription Structure Reference"></a>
+    <header>
+      <div class="content-wrapper">
+        <p><a href="../index.html">HAWebSocket 0.1.0 Docs</a> (63% documented)</p>
+        <p class="header-right">
+          <form role="search" action="../search.json">
+            <input type="text" placeholder="Search documentation" data-typeahead>
+          </form>
+        </p>
+      </div>
+    </header>
+    <div class="content-wrapper">
+      <p id="breadcrumbs">
+        <a href="../index.html">HAWebSocket Reference</a>
+        <img id="carat" src="../img/carat.png" />
+        HATypedSubscription Structure Reference
+      </p>
+    </div>
+    <div class="content-wrapper">
+      <nav class="sidebar">
+        <ul class="nav-groups">
+          <li class="nav-group-name">
+            <a href="../Enums.html">Enumerations</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Enums/HAConnection.html">HAConnection</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/HAConnectionState.html">HAConnectionState</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/HAConnectionState/DisconnectReason.html">– DisconnectReason</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/HAData.html">HAData</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/HADataError.html">HADataError</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/HAError.html">HAError</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/HAError/ExternalError.html">– ExternalError</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/HAGlobal.html">HAGlobal</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Extensions.html">Extensions</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Extensions/Array.html">Array</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Extensions/Date.html">Date</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Extensions/Dictionary.html">Dictionary</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Extensions/Optional.html">Optional</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Protocols.html">Protocols</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Protocols/HACancellable.html">HACancellable</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Protocols/HAConnectionDelegate.html">HAConnectionDelegate</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Protocols/HAConnectionProtocol.html">HAConnectionProtocol</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Protocols/HADataDecodable.html">HADataDecodable</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Protocols/HADecodeTransformable.html">HADecodeTransformable</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Structs.html">Structures</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Structs/HAConnectionConfiguration.html">HAConnectionConfiguration</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/HAConnectionInfo.html">HAConnectionInfo</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/HAEntity.html">HAEntity</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/HAEventType.html">HAEventType</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/HARequest.html">HARequest</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/HARequestType.html">HARequestType</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/HAResponseCurrentUser.html">HAResponseCurrentUser</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/HAResponseCurrentUser/Credential.html">– Credential</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/HAResponseCurrentUser/MFAModule.html">– MFAModule</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/HAResponseEvent.html">HAResponseEvent</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/HAResponseEvent/Origin.html">– Origin</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/HAResponseEvent/Context.html">– Context</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/HAResponseEventStateChanged.html">HAResponseEventStateChanged</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/HAResponseRenderTemplate.html">HAResponseRenderTemplate</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/HAResponseRenderTemplate/Listeners.html">– Listeners</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/HAResponseVoid.html">HAResponseVoid</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/HATypedRequest.html">HATypedRequest</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/HATypedSubscription.html">HATypedSubscription</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+      <article class="main-content">
+        <section>
+          <section class="section">
+            <h1>HATypedSubscription</h1>
+              <div class="declaration">
+                <div class="language">
+                  
+                  <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">struct</span> <span class="kt">HATypedSubscription</span><span class="o">&lt;</span><span class="kt">ResponseType</span><span class="o">&gt;</span> <span class="k">where</span> <span class="kt">ResponseType</span> <span class="p">:</span> <span class="kt"><a href="../Protocols/HADataDecodable.html">HADataDecodable</a></span></code></pre>
+
+                </div>
+              </div>
+            <p>A subscription request which has a strongly-typed handler</p>
+
+          </section>
+          <section class="section task-group-section">
+            <div class="task-group">
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:11HAWebSocket19HATypedSubscriptionV7requestACyxGAA9HARequestV_tcfc"></a>
+                    <a name="//apple_ref/swift/Method/init(request:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:11HAWebSocket19HATypedSubscriptionV7requestACyxGAA9HARequestV_tcfc">init(request:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Create a typed subscription</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="nf">init</span><span class="p">(</span><span class="nv">request</span><span class="p">:</span> <span class="kt"><a href="../Structs/HARequest.html">HARequest</a></span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>request</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The request to be issued to start the subscription</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:11HAWebSocket19HATypedSubscriptionV7requestAA9HARequestVvp"></a>
+                    <a name="//apple_ref/swift/Property/request" class="dashAnchor"></a>
+                    <a class="token" href="#/s:11HAWebSocket19HATypedSubscriptionV7requestAA9HARequestVvp">request</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>The request to be issued</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">request</span><span class="p">:</span> <span class="kt"><a href="../Structs/HARequest.html">HARequest</a></span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:11HAWebSocket19HATypedSubscriptionV6eventsyACyAA15HAResponseEventVGAA11HAEventTypeVFZ"></a>
+                    <a name="//apple_ref/swift/Method/events(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:11HAWebSocket19HATypedSubscriptionV6eventsyACyAA15HAResponseEventVGAA11HAEventTypeVFZ">events(_:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Subscribe to one or all events on the event bus</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">static</span> <span class="kd">func</span> <span class="nf">events</span><span class="p">(</span>
+    <span class="n">_</span> <span class="nv">type</span><span class="p">:</span> <span class="kt"><a href="../Structs/HAEventType.html">HAEventType</a></span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">HATypedSubscription</span><span class="o">&lt;</span><span class="kt"><a href="../Structs/HAResponseEvent.html">HAResponseEvent</a></span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>type</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The event type to subscribe to. Pass <code>.all</code> to subscribe to all events.</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <div>
+                        <h4>Return Value</h4>
+                        <p>A typed subscriptions that can be sent via <code><a href="../Protocols/HAConnectionProtocol.html">HAConnectionProtocol</a></code></p>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:11HAWebSocket19HATypedSubscriptionV14renderTemplate_9variables7timeoutACyAA016HAResponseRenderF0VGSS_SDySSypG10Foundation11MeasurementVySo14NSUnitDurationCGSgtFZ"></a>
+                    <a name="//apple_ref/swift/Method/renderTemplate(_:variables:timeout:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:11HAWebSocket19HATypedSubscriptionV14renderTemplate_9variables7timeoutACyAA016HAResponseRenderF0VGSS_SDySSypG10Foundation11MeasurementVySo14NSUnitDurationCGSgtFZ">renderTemplate(_:<wbr>variables:<wbr>timeout:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Render a template and subscribe to live changes of the template</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">static</span> <span class="kd">func</span> <span class="nf">renderTemplate</span><span class="p">(</span>
+    <span class="n">_</span> <span class="nv">template</span><span class="p">:</span> <span class="kt">String</span><span class="p">,</span>
+    <span class="nv">variables</span><span class="p">:</span> <span class="p">[</span><span class="kt">String</span><span class="p">:</span> <span class="kt">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">[:],</span>
+    <span class="nv">timeout</span><span class="p">:</span> <span class="kt">Measurement</span><span class="o">&lt;</span><span class="kt">UnitDuration</span><span class="o">&gt;</span><span class="p">?</span> <span class="o">=</span> <span class="kc">nil</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">HATypedSubscription</span><span class="o">&lt;</span><span class="kt"><a href="../Structs/HAResponseRenderTemplate.html">HAResponseRenderTemplate</a></span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>template</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The template to render</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>variables</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The variables to provide to the template render on the server</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>timeout</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Optional timeout for how long the template can take to render</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <div>
+                        <h4>Return Value</h4>
+                        <p>A typed subscriptions that can be sent via <code><a href="../Protocols/HAConnectionProtocol.html">HAConnectionProtocol</a></code></p>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:11HAWebSocket19HATypedSubscriptionV12stateChangedACyAA020HAResponseEventStateF0VGyFZ"></a>
+                    <a name="//apple_ref/swift/Method/stateChanged()" class="dashAnchor"></a>
+                    <a class="token" href="#/s:11HAWebSocket19HATypedSubscriptionV12stateChangedACyAA020HAResponseEventStateF0VGyFZ">stateChanged()</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Listen for state changes of all entities</p>
+
+<p>This is a convenient version of listening to the <code>.stateChanged</code> event, but with parsed response values.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">static</span> <span class="kd">func</span> <span class="nf">stateChanged</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kt">HATypedSubscription</span><span class="o">&lt;</span><span class="kt"><a href="../Structs/HAResponseEventStateChanged.html">HAResponseEventStateChanged</a></span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Return Value</h4>
+                        <p>A typed subscriptions that can be sent via <code><a href="../Protocols/HAConnectionProtocol.html">HAConnectionProtocol</a></code></p>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </section>
+        </section>
+        <section id="footer">
+          <p>&copy; 2021 <a class="link" href="https://github.com/home-assistant/<tbd" target="_blank" rel="external">Home Assistant</a>. All rights reserved. (Last updated: 2021-02-28)</p>
+          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.13.6</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+        </section>
+      </article>
+    </div>
+  </body>
+</div>
+</html>

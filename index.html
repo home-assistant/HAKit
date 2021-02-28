@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>HAWebSocket  Reference</title>
+    <link rel="stylesheet" type="text/css" href="css/jazzy.css" />
+    <link rel="stylesheet" type="text/css" href="css/highlight.css" />
+    <meta charset='utf-8'>
+    <script src="js/jquery.min.js" defer></script>
+    <script src="js/jazzy.js" defer></script>
+    
+    <script src="js/lunr.min.js" defer></script>
+    <script src="js/typeahead.jquery.js" defer></script>
+    <script src="js/jazzy.search.js" defer></script>
+  </head>
+  <body>
+    <a title="HAWebSocket  Reference"></a>
+    <header>
+      <div class="content-wrapper">
+        <p><a href="index.html">HAWebSocket 0.1.0 Docs</a> (63% documented)</p>
+        <p class="header-right">
+          <form role="search" action="search.json">
+            <input type="text" placeholder="Search documentation" data-typeahead>
+          </form>
+        </p>
+      </div>
+    </header>
+    <div class="content-wrapper">
+      <p id="breadcrumbs">
+        <a href="index.html">HAWebSocket Reference</a>
+        <img id="carat" src="img/carat.png" />
+        HAWebSocket  Reference
+      </p>
+    </div>
+    <div class="content-wrapper">
+      <nav class="sidebar">
+        <ul class="nav-groups">
+          <li class="nav-group-name">
+            <a href="Enums.html">Enumerations</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="Enums/HAConnection.html">HAConnection</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Enums/HAConnectionState.html">HAConnectionState</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Enums/HAConnectionState/DisconnectReason.html">– DisconnectReason</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Enums/HAData.html">HAData</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Enums/HADataError.html">HADataError</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Enums/HAError.html">HAError</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Enums/HAError/ExternalError.html">– ExternalError</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Enums/HAGlobal.html">HAGlobal</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="Extensions.html">Extensions</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="Extensions/Array.html">Array</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Extensions/Date.html">Date</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Extensions/Dictionary.html">Dictionary</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Extensions/Optional.html">Optional</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="Protocols.html">Protocols</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="Protocols/HACancellable.html">HACancellable</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Protocols/HAConnectionDelegate.html">HAConnectionDelegate</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Protocols/HAConnectionProtocol.html">HAConnectionProtocol</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Protocols/HADataDecodable.html">HADataDecodable</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Protocols/HADecodeTransformable.html">HADecodeTransformable</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="Structs.html">Structures</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="Structs/HAConnectionConfiguration.html">HAConnectionConfiguration</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/HAConnectionInfo.html">HAConnectionInfo</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/HAEntity.html">HAEntity</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/HAEventType.html">HAEventType</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/HARequest.html">HARequest</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/HARequestType.html">HARequestType</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/HAResponseCurrentUser.html">HAResponseCurrentUser</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/HAResponseCurrentUser/Credential.html">– Credential</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/HAResponseCurrentUser/MFAModule.html">– MFAModule</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/HAResponseEvent.html">HAResponseEvent</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/HAResponseEvent/Origin.html">– Origin</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/HAResponseEvent/Context.html">– Context</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/HAResponseEventStateChanged.html">HAResponseEventStateChanged</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/HAResponseRenderTemplate.html">HAResponseRenderTemplate</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/HAResponseRenderTemplate/Listeners.html">– Listeners</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/HAResponseVoid.html">HAResponseVoid</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/HATypedRequest.html">HATypedRequest</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/HATypedSubscription.html">HATypedSubscription</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+      <article class="main-content">
+        <section>
+          <section class="section">
+            
+            <h1 id='ha-swift-api' class='heading'>ha-swift-api</h1>
+
+<p><strong>This is still in development. You should not yet use this library.</strong></p>
+
+<p><a href="https://codecov.io/gh/zacwest/ha-swift-api"><img src="https://codecov.io/gh/zacwest/ha-swift-api/branch/main/graph/badge.svg?token=M0ZUCTQMBM" alt="codecov"></a><a href="https://github.com/zacwest/ha-swift-api/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-Apache%202.0-green.svg?style=flat" alt="License Apache 2.0"></a></p>
+
+<p>This library allows you to connect to the <a href="https://developers.home-assistant.io/docs/api/websocket">Home Assistant WebSocket API</a> to issue commands and subscribe to events. Future plans include offering minimal <a href="https://developers.home-assistant.io/docs/api/rest">Rest API</a> support.</p>
+<h2 id='api-reference' class='heading'>API Reference</h2>
+
+<p>You can find the available methods and their documentation in the <a href="Source/HAConnection.swift">HAConnectionProtocol</a> protocol. This protocol acts as the main entrypoint to talking to a Home Assistant instance.</p>
+
+<p>// TODO: Generate using <code>jazzy</code> and link to it here</p>
+<h2 id='creating-and-connecting' class='heading'>Creating and connecting</h2>
+
+<p>Creating a connection needs two pieces of information: the server URL and an access token. Both are retrieved when a connection attempt is made. Since Home Assistant instances&rsquo; connectivity may differ based on the current network, these values are re-queried on each connection attempt.</p>
+
+<p>You can get a connection instance using the exposed initializer:</p>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">connection</span> <span class="o">=</span> <span class="kt">HAConnection</span><span class="o">.</span><span class="nf">api</span><span class="p">(</span><span class="nv">configuration</span><span class="p">:</span> <span class="o">.</span><span class="nf">init</span><span class="p">(</span>
+  <span class="nv">connectionInfo</span><span class="p">:</span> <span class="p">{</span>
+    <span class="c1">// Connection is required to be returned synchronously.</span>
+    <span class="o">.</span><span class="nf">init</span><span class="p">(</span><span class="nv">url</span><span class="p">:</span> <span class="kt">URL</span><span class="p">(</span><span class="nv">string</span><span class="p">:</span> <span class="s">"http://homeassistant.local:8123"</span><span class="p">)</span><span class="o">!</span><span class="p">)</span>
+  <span class="p">},</span>
+  <span class="nv">fetchAuthToken</span><span class="p">:</span> <span class="p">{</span> <span class="n">completion</span> <span class="k">in</span>
+    <span class="c1">// Access tokens are retrieved asynchronously, but be aware that Home Assistant</span>
+    <span class="c1">// has a timeout of 10 seconds for sending your access token.</span>
+    <span class="nf">completion</span><span class="p">(</span><span class="o">.</span><span class="nf">success</span><span class="p">(</span><span class="s">"API_Token_Here"</span><span class="p">))</span>
+  <span class="p">}</span>
+<span class="p">))</span>
+</code></pre>
+
+<p>You may further configure other attributes of this connection, such as <code>callbackQueue</code> (where your handlers are invoked), as well as triggering manual connection attempts. See the protocol for more information.</p>
+
+<p>Once you invoke <code>.connection()</code> and until you invoke <code>.disconnect()</code> the connection will try to stay connected by attempting to reconnect when network status changes and after a retry period following disconnection.</p>
+<h2 id='sending-and-subscribing' class='heading'>Sending and subscribing</h2>
+
+<p>There are two types of requests: those with an immediate result and those which fire events until cancelled. The actions for these are &ldquo;sending&rdquo; and &ldquo;subscribing.&rdquo; For example, you might <em>send</em> a service call but <em>subscribe to</em> a template&rsquo;s rendering.</p>
+
+<p>Requests issued will continue to retry across reconnects until executed once, and subscriptions will automatically re-register when necessary until cancelled. Each <code>send</code> or <code>subscribe</code> returns an <code><a href="Protocols/HACancellable.html">HACancellable</a></code> token which you can cancel and each subscription handler includes a token as well.</p>
+
+<p>Retrieving the current user for example, like <a href="tree/main/Source/Convenience">many calls</a>, has helper methods to offer strongly-typed values. For example, you could write it one of two ways:</p>
+<pre class="highlight swift"><code><span class="c1">// with the CallService convenience helper</span>
+<span class="n">connection</span><span class="o">.</span><span class="nf">send</span><span class="p">(</span><span class="o">.</span><span class="nf">currentUser</span><span class="p">())</span> <span class="p">{</span> <span class="n">result</span> <span class="k">in</span>
+  <span class="k">switch</span> <span class="n">result</span> <span class="p">{</span>
+  <span class="k">case</span> <span class="kd">let</span> <span class="o">.</span><span class="nf">success</span><span class="p">(</span><span class="n">user</span><span class="p">):</span>
+    <span class="c1">// e.g. user.id or user.name are available on the result object</span>
+  <span class="k">case</span> <span class="kd">let</span> <span class="o">.</span><span class="nf">failure</span><span class="p">(</span><span class="n">error</span><span class="p">):</span>
+    <span class="c1">// an error occurred with the request</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// or issued directly, and getting the raw response</span>
+<span class="n">connection</span><span class="o">.</span><span class="nf">send</span><span class="p">(</span><span class="o">.</span><span class="nf">init</span><span class="p">(</span><span class="nv">type</span><span class="p">:</span> <span class="o">.</span><span class="n">currentUser</span><span class="p">,</span> <span class="nv">data</span><span class="p">:</span> <span class="p">[:]))</span> <span class="p">{</span> <span class="n">result</span> <span class="k">in</span>
+  <span class="k">switch</span> <span class="n">result</span> <span class="p">{</span>
+  <span class="k">case</span> <span class="kd">let</span> <span class="o">.</span><span class="nf">success</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="c1">// data is an `HAData` which wraps possible responses and provides decoding</span>
+  <span class="k">case</span> <span class="kd">let</span> <span class="o">.</span><span class="nf">failure</span><span class="p">(</span><span class="n">error</span><span class="p">):</span>
+    <span class="c1">// an error occurred with the request</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre>
+
+<p>Similarly, subscribing to events can be done both using the convenience helper or directly. </p>
+<pre class="highlight swift"><code><span class="c1">// with the RenderTemplate convenience helper</span>
+<span class="n">connection</span><span class="o">.</span><span class="nf">subscribe</span><span class="p">(</span>
+  <span class="nv">to</span><span class="p">:</span> <span class="o">.</span><span class="nf">renderTemplate</span><span class="p">(</span><span class="s">"{{ states('sun.sun') }} {{ states.device_tracker | count }}"</span><span class="p">),</span>
+  <span class="nv">initiated</span><span class="p">:</span> <span class="p">{</span> <span class="n">result</span> <span class="k">in</span>
+    <span class="c1">// when the initiated method is provided, this is the result of the subscription</span>
+  <span class="p">},</span>
+  <span class="nv">handler</span><span class="p">:</span> <span class="p">{</span> <span class="p">[</span><span class="n">textView</span><span class="p">]</span> <span class="n">cancelToken</span><span class="p">,</span> <span class="n">response</span> <span class="k">in</span>
+    <span class="c1">// the overall response is parsed for type, but native template rendering means</span>
+    <span class="c1">// the rendered type will be a Dictionary, Array, etc.</span>
+    <span class="n">textView</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="kt">String</span><span class="p">(</span><span class="nv">describing</span><span class="p">:</span> <span class="n">response</span><span class="o">.</span><span class="n">result</span><span class="p">)</span>
+    <span class="c1">// you could call `cancelToken.cancel()` to end the subscription here if desired</span>
+  <span class="p">}</span>
+<span class="p">)</span>
+
+<span class="c1">// or issued directly, and getting the raw response</span>
+<span class="n">connection</span><span class="o">.</span><span class="nf">subscribe</span><span class="p">(</span>
+  <span class="nv">to</span><span class="p">:</span> <span class="o">.</span><span class="nf">init</span><span class="p">(</span><span class="nv">type</span><span class="p">:</span> <span class="o">.</span><span class="n">renderTemplate</span><span class="p">,</span> <span class="nv">data</span><span class="p">:</span> <span class="p">[</span>
+    <span class="s">"template"</span><span class="p">:</span> <span class="s">"{{ states('sun.sun') }} {{ states.device_tracker | count }}"</span>
+  <span class="p">]),</span>
+  <span class="nv">initiated</span><span class="p">:</span> <span class="p">{</span> <span class="n">result</span> <span class="k">in</span>
+    <span class="c1">// when the initiated method is provided, this is the result of the subscription</span>
+  <span class="p">},</span>
+  <span class="nv">handler</span><span class="p">:</span> <span class="p">{</span> <span class="p">[</span><span class="n">textView</span><span class="p">]</span> <span class="n">cancelToken</span><span class="p">,</span> <span class="n">data</span> <span class="k">in</span>
+    <span class="c1">// data is an `HAData` which wraps possible responses and provides decoding</span>
+    <span class="c1">// the decode methods infer which type you're asking for and attempt to convert</span>
+    <span class="n">textView</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="k">try</span><span class="p">?</span> <span class="n">data</span><span class="o">.</span><span class="nf">decode</span><span class="p">(</span><span class="s">"result"</span><span class="p">)</span>
+    <span class="c1">// you could call `cancelToken.cancel()` to end the subscription here if desired</span>
+  <span class="p">}</span>
+<span class="p">)</span>  
+</code></pre>
+
+<p>You can also invoke any request or subscription, even those without convenience accessors around their name. The event names and request types conform to <code>ExpressibleByStringLiteral</code> or you can initialize them with a raw value.</p>
+<h2 id='decoding' class='heading'>Decoding</h2>
+
+<p>Many methods will deliver results as <code><a href="Enums/HAData.html">HAData</a></code> when not using convenience wrappers. This is delivered in place of an underlying dictionary or array response and it features convenience methods to decode keys from the dictionaries as particular types. This works similarly to <code>Decodable</code> but not identically &ndash; many Home Assistant calls will return results that <em>must</em> be preserved as <code>Any</code> and Swift&rsquo;s JSON coding does not handle this well.</p>
+
+<p>See <a href="Source/Data/HADataDecodable.swift"><code><a href="Protocols/HADataDecodable.html">HADataDecodable</a></code></a> for the available methods.</p>
+<h2 id='installation' class='heading'>Installation</h2>
+<h3 id='swift-package-manager' class='heading'>Swift Package Manager</h3>
+
+<p>To install the library, either add it as a dependency in a <code>Package.swift</code> like:</p>
+<pre class="highlight swift"><code><span class="o">.</span><span class="kt">Package</span><span class="p">(</span><span class="nv">url</span><span class="p">:</span> <span class="s">"https://github.com/zacwest/ha-swift-api.git"</span><span class="p">,</span> <span class="nv">majorVersion</span><span class="p">:</span> <span class="mi">1</span><span class="p">)</span>
+</code></pre>
+
+<p>To add it to an Xcode project, you can do this by adding the URL to File &gt; Swift Packages &gt; Add Package Dependency and.</p>
+<h3 id='cocoapods' class='heading'>CocoaPods</h3>
+
+<p>Add the following line to your Podfile:</p>
+<pre class="highlight ruby"><code><span class="n">pod</span> <span class="s2">"TODO: What am I naming this? lol"</span><span class="p">,</span> <span class="s2">"~&gt; 1.0"</span>
+</code></pre>
+<h2 id='contributing' class='heading'>Contributing</h2>
+
+<p>See <a href="CONTRIBUTING.md">CONTRIBUTING.md</a> more information on how to build and modify this library.</p>
+<h2 id='license' class='heading'>License</h2>
+
+<p>This library is available under the <a href="LICENSE.md">Apache 2.0 license</a>. It also has an underlying dependency on <a href="https://github.com/daltoniam/Starscream">Starscream</a> for WebSocket connectivity on older versions of iOS. Starscream is also available under the Apache 2.0 license.</p>
+
+          </section>
+        </section>
+        <section id="footer">
+          <p>&copy; 2021 <a class="link" href="https://github.com/home-assistant/<tbd" target="_blank" rel="external">Home Assistant</a>. All rights reserved. (Last updated: 2021-02-28)</p>
+          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.13.6</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+        </section>
+      </article>
+    </div>
+  </body>
+</div>
+</html>
