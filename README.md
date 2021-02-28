@@ -40,7 +40,7 @@ There are two types of requests: those with an immediate result and those which 
 
 Requests issued will continue to retry across reconnects until executed once, and subscriptions will automatically re-register when necessary until cancelled. Each `send` or `subscribe` returns an `HACancellable` token which you can cancel and each subscription handler includes a token as well.
 
-Retrieving the current user for example, like [many calls](tree/main/Source/Convenience), has helper methods to offer strongly-typed values. For example, you could write it one of two ways:
+Retrieving the current user for example, like other calls in [HATypedRequest](https://zacwest.github.io/ha-swift-api/Structs/HATypedRequest.html) and [HATypedSubscription](https://zacwest.github.io/ha-swift-api/Structs/HATypedSubscription.html), has helper methods to offer strongly-typed values. For example, you could write it one of two ways:
 
 ```swift
 // with the CallService convenience helper
