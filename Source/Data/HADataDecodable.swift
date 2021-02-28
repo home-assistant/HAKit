@@ -12,8 +12,11 @@ public protocol HADataDecodable {
 
 /// Parse error
 public enum HADataError: Error, Equatable {
+    /// The given key was missing
     case missingKey(String)
+    /// The given key was present but the type could not be converted
     case incorrectType(key: String, expected: String, actual: String)
+    /// The given key was present but couldn't be converted
     case couldntTransform(key: String)
 }
 

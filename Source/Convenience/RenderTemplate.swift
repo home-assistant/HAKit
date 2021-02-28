@@ -45,11 +45,14 @@ public struct HAResponseRenderTemplate: HADataDecodable {
         public var all: Bool
         /// The current time is listened to
         public var time: Bool
-        /// Set of entities that are listened to
+        /// Entities that are listened to
         public var entities: [String]
-        /// Set of domains (e.g. `light`) that are listened to
+        /// Domains (e.g. `light`) that are listened to
         public var domains: [String]
 
+        /// Create with data
+        /// - Parameter data: The data from the server
+        /// - Throws: If any required keys are missing
         public init(data: HAData) throws {
             self.init(
                 all: data.decode("all", fallback: false),
@@ -59,6 +62,12 @@ public struct HAResponseRenderTemplate: HADataDecodable {
             )
         }
 
+        /// Create with information
+        /// - Parameters:
+        ///   - all: Whether all states are listened to
+        ///   - time: Whether the current time is listened to
+        ///   - entities: Entities that are listened to
+        ///   - domains: Domains that are listened to
         public init(
             all: Bool,
             time: Bool,
@@ -72,6 +81,9 @@ public struct HAResponseRenderTemplate: HADataDecodable {
         }
     }
 
+    /// Create with data
+    /// - Parameter data: The data from the server
+    /// - Throws: If any required keys are missing
     public init(data: HAData) throws {
         self.init(
             result: try data.decode("result"),
@@ -79,6 +91,10 @@ public struct HAResponseRenderTemplate: HADataDecodable {
         )
     }
 
+    /// Create with information
+    /// - Parameters:
+    ///   - result: The result of the render template
+    ///   - listeners: The listeners of the render template
     public init(result: Any, listeners: Listeners) {
         self.result = result
         self.listeners = listeners

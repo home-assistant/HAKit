@@ -28,7 +28,10 @@ public enum HAConnectionState: Equatable {
             }
         }
 
+        /// Disconnected and not going to automatically reconnect
+        /// This can either be the initial state or after `disconnect()` is called
         case disconnected
+        /// Waiting to reconnect, either by timer (with given Date) or network state changes
         case waitingToReconnect(lastError: Error?, atLatest: Date, retryCount: Int)
     }
 

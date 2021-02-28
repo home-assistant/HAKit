@@ -24,6 +24,9 @@ public struct HAResponseEventStateChanged: HADataDecodable {
     /// The new state of the entity, if there is one
     public var newState: HAEntity?
 
+    /// Create with data
+    /// - Parameter data: The data from the server
+    /// - Throws: If any required keys are missing
     public init(data: HAData) throws {
         let event = try HAResponseEvent(data: data)
         let eventData = HAData.dictionary(event.data)
@@ -36,6 +39,12 @@ public struct HAResponseEventStateChanged: HADataDecodable {
         )
     }
 
+    /// Create with information
+    /// - Parameters:
+    ///   - event: The event
+    ///   - entityId: The entity id
+    ///   - oldState: The old state, or nil
+    ///   - newState: The new state, or nil
     public init(
         event: HAResponseEvent,
         entityId: String,
