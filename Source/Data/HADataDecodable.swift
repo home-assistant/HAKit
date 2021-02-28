@@ -7,6 +7,9 @@ import Foundation
 public protocol HADataDecodable {
     /// Create an instance from data
     /// One day, if Decodable can handle 'Any' types well, this can be init(decoder:).
+    ///
+    /// - Parameter data: The data to decode
+    /// - Throws: When unable to decode
     init(data: HAData) throws
 }
 
@@ -24,8 +27,8 @@ public extension HAData {
     /// Convenience access to the dictionary case for a particular key, with an expected type
     ///
     /// - Parameter key: The key to look up in `dictionary` case
-    /// - Returns: The value from the dictionary
     /// - Throws: If the key was not present in the dictionary or the type was not the expected type or convertable
+    /// - Returns: The value from the dictionary
     func decode<T>(_ key: String) throws -> T {
         guard case let .dictionary(dictionary) = self, let value = dictionary[key] else {
             throw HADataError.missingKey(key)
@@ -49,10 +52,12 @@ public extension HAData {
 
     /// Convenience access to the dictionary case for a particular key, with an expected type, with a transform applied
     ///
-    /// - Parameter key: The key to look up in `dictionary` case
-    /// - Returns: The value from the dictionary
+    /// - Parameters:
+    ///   - key: The key to look up in `dictionary` case
+    ///   - transform: The transform to apply to the value, when found
     /// - Throws: If the key was not present in the dictionary or the type was not the expected type or the value
     ///           couldn't be transformed
+    /// - Returns: The value from the dictionary
     func decode<Value, Transform>(_ key: String, transform: (Value) throws -> Transform?) throws -> Transform {
         let base: Value = try decode(key)
 
@@ -65,8 +70,9 @@ public extension HAData {
 
     /// Convenience access to the dictionary case for a particular key, with an expected type
     ///
-    /// - Parameter key: The key to look up in `dictionary` case
-    /// - Parameter fallback: The fallback value to use if not found in the dictionary
+    /// - Parameters:
+    ///   - key: The key to look up in `dictionary` case
+    ///   - fallback: The fallback value to use if not found in the dictionary
     /// - Returns: The value from the dictionary
     func decode<T>(_ key: String, fallback: @autoclosure () -> T) -> T {
         guard let value: T = try? decode(key) else {
