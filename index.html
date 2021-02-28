@@ -169,14 +169,12 @@
 
 <p><strong>This is still in development. You should not yet use this library.</strong></p>
 
-<p><a href="https://codecov.io/gh/zacwest/ha-swift-api"><img src="https://codecov.io/gh/zacwest/ha-swift-api/branch/main/graph/badge.svg?token=M0ZUCTQMBM" alt="codecov"></a><a href="https://github.com/zacwest/ha-swift-api/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-Apache%202.0-green.svg?style=flat" alt="License Apache 2.0"></a></p>
+<p><a href="https://zacwest.github.io/ha-swift-api/"><img src="https://zacwest.github.io/ha-swift-api/badge.svg" alt="Documentation"></a> <a href="https://codecov.io/gh/zacwest/ha-swift-api"><img src="https://codecov.io/gh/zacwest/ha-swift-api/branch/main/graph/badge.svg?token=M0ZUCTQMBM" alt="codecov"></a> <a href="https://github.com/zacwest/ha-swift-api/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-Apache%202.0-green.svg?style=flat" alt="License Apache 2.0"></a></p>
 
 <p>This library allows you to connect to the <a href="https://developers.home-assistant.io/docs/api/websocket">Home Assistant WebSocket API</a> to issue commands and subscribe to events. Future plans include offering minimal <a href="https://developers.home-assistant.io/docs/api/rest">Rest API</a> support.</p>
 <h2 id='api-reference' class='heading'>API Reference</h2>
 
-<p>You can find the available methods and their documentation in the <a href="Source/HAConnection.swift">HAConnectionProtocol</a> protocol. This protocol acts as the main entrypoint to talking to a Home Assistant instance.</p>
-
-<p>// TODO: Generate using <code>jazzy</code> and link to it here</p>
+<p>You can view the <a href="https://zacwest.github.io/ha-swift-api/">full set of documentation</a>. The most important set of available method sare on the <a href="https://zacwest.github.io/ha-swift-api/Protocols/HAConnectionProtocol.html">HAConnectionProtocol</a> protocol. This protocol acts as the main entrypoint to talking to a Home Assistant instance.</p>
 <h2 id='creating-and-connecting' class='heading'>Creating and connecting</h2>
 
 <p>Creating a connection needs two pieces of information: the server URL and an access token. Both are retrieved when a connection attempt is made. Since Home Assistant instances&rsquo; connectivity may differ based on the current network, these values are re-queried on each connection attempt.</p>
