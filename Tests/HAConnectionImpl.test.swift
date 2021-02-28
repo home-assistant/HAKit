@@ -931,7 +931,7 @@ private class FakeHAConnectionDelegate: HAConnectionDelegate {
     private var token: Any?
 
     init() {
-        NotificationCenter.default.addObserver(
+        self.token = NotificationCenter.default.addObserver(
             forName: HAConnection.didTransitionToStateNotification,
             object: nil,
             queue: nil,
