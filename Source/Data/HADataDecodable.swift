@@ -5,7 +5,8 @@ import Foundation
 /// - Note: This differs from `Decodable` intentionally; `Decodable` does not support `Any` types or JSON well when the
 ///         results are extremely dynamic. This limitation requires that we do it ourselves.
 public protocol HADataDecodable {
-    // one day, if Decodable can handle 'Any' types well, this can be init(decoder:)
+    /// Create an instance from data
+    /// One day, if Decodable can handle 'Any' types well, this can be init(decoder:).
     init(data: HAData) throws
 }
 

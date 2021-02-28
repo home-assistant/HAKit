@@ -22,6 +22,7 @@ only_rules:
   - legacy_multiple
   - legacy_nsgeometry_functions
   - legacy_random
+  - missing_docs
   - nsobject_prefer_isequal
   - override_in_extension
   - prefer_self_type_over_type_of_self

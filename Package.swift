@@ -2,6 +2,7 @@
 
 import PackageDescription
 
+/// The Package
 public let package = Package(
     name: "HAWebSocket",
     platforms: [

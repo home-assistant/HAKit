@@ -19,6 +19,9 @@ public struct HAEntity {
     /// - TODO: as strongly typed
     var context: [String: Any]
 
+    /// Create an entity from a data response
+    /// - Parameter data: The data to create from
+    /// - Throws: When the data is missing any required fields
     public init(data: HAData) throws {
         self.init(
             entityId: try data.decode("entity_id"),
@@ -30,6 +33,14 @@ public struct HAEntity {
         )
     }
 
+    /// Create an entity from individual items
+    /// - Parameters:
+    ///   - entityId: The entity ID
+    ///   - state: The state
+    ///   - lastChanged: The date last changed
+    ///   - lastUpdated: The date last updated
+    ///   - attributes: The attributes of the entity
+    ///   - context: The context of the entity
     public init(
         entityId: String,
         state: String,
