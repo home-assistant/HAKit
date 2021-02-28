@@ -2,6 +2,14 @@
 import XCTest
 
 internal class HAErrorTests: XCTestCase {
+    func testLocalizedDescription() {
+        let error1 = HAError.internal(debugDescription: "msg1")
+        XCTAssertEqual(error1.localizedDescription, "msg1")
+
+        let error2 = HAError.external(.init(code: "code", message: "msg2"))
+        XCTAssertEqual(error2.localizedDescription, "msg2")
+    }
+
     func testExternalErrorInitWithBad() {
         XCTAssertEqual(HAError.ExternalError(true), .invalid)
         XCTAssertEqual(HAError.ExternalError([:]), .invalid)

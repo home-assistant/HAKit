@@ -1,9 +1,19 @@
+import Foundation
+
 /// Overall error wrapper for the library
-public enum HAError: Error, Equatable {
+public enum HAError: Error, Equatable, LocalizedError {
     /// An error occurred in parsing or other internal handling
     case `internal`(debugDescription: String)
     /// An error response from the server indicating a request problem
     case external(ExternalError)
+
+    /// A description of the error, see `LocalizedError` or access via `localizedDescription`
+    public var errorDescription: String? {
+        switch self {
+        case let .external(error): return error.message
+        case let .internal(debugDescription): return debugDescription
+        }
+    }
 
     /// Description of a server-delivered error
     public struct ExternalError: Equatable {
