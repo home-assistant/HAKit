@@ -1,0 +1,27 @@
+name: docs
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+env:
+  DEVELOPER_DIR: /Applications/Xcode_12.4.app/Contents/Developer
+  HOMEBREW_NO_INSTALL_CLEANUP: TRUE
+
+jobs:
+  generate:
+    runs-on: macos-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@master
+      - name: Install Jazzy
+        run: gem install jazzy
+      - name: Build Docs
+        run: make docs
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs

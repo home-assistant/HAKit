@@ -1,3 +1,9 @@
+# jazzy output
+build/
+docs/
+
+# Local Netlify folder
+.netlify
 
 # Created by https://www.toptal.com/developers/gitignore/api/macos,swiftpm,cocoapods,homebrew
 # Edit at https://www.toptal.com/developers/gitignore?templates=macos,swiftpm,cocoapods,homebrew

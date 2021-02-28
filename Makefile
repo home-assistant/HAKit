@@ -5,6 +5,10 @@ generate-project:
 	swift package generate-xcodeproj --enable-code-coverage
 open:
 	open Package.swift
+docs:
+	jazzy
+
+.PHONY: docs
 
 swiftlint:
 ifeq (${CI}, true)

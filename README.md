@@ -2,15 +2,13 @@
 
 **This is still in development. You should not yet use this library.**
 
-[![codecov](https://codecov.io/gh/zacwest/ha-swift-api/branch/main/graph/badge.svg?token=M0ZUCTQMBM)](https://codecov.io/gh/zacwest/ha-swift-api)[![License Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-green.svg?style=flat)](https://github.com/zacwest/ha-swift-api/blob/master/LICENSE)
+[![Documentation](https://zacwest.github.io/ha-swift-api/badge.svg)](https://zacwest.github.io/ha-swift-api/) [![codecov](https://codecov.io/gh/zacwest/ha-swift-api/branch/main/graph/badge.svg?token=M0ZUCTQMBM)](https://codecov.io/gh/zacwest/ha-swift-api) [![License Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-green.svg?style=flat)](https://github.com/zacwest/ha-swift-api/blob/master/LICENSE)
 
 This library allows you to connect to the [Home Assistant WebSocket API](https://developers.home-assistant.io/docs/api/websocket) to issue commands and subscribe to events. Future plans include offering minimal [Rest API](https://developers.home-assistant.io/docs/api/rest) support.
 
 ## API Reference
 
-You can find the available methods and their documentation in the [HAConnectionProtocol](Source/HAConnection.swift) protocol. This protocol acts as the main entrypoint to talking to a Home Assistant instance.
-
-// TODO: Generate using `jazzy` and link to it here
+You can view the [full set of documentation](https://zacwest.github.io/ha-swift-api/). The most important set of available method sare on the [HAConnectionProtocol](https://zacwest.github.io/ha-swift-api/Protocols/HAConnectionProtocol.html) protocol. This protocol acts as the main entrypoint to talking to a Home Assistant instance.
 
 ## Creating and connecting
 
