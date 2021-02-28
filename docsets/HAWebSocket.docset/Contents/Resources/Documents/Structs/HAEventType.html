@@ -17,7 +17,7 @@
     <a title="HAEventType Structure Reference"></a>
     <header>
       <div class="content-wrapper">
-        <p><a href="../index.html">HAWebSocket 0.1.0 Docs</a> (68% documented)</p>
+        <p><a href="../index.html">HAWebSocket 0.1.0 Docs</a> (100% documented)</p>
         <p class="header-right"><a href="https://www.github.com/zacwest/ha-swift/api"><img src="../img/gh.png"/>View on GitHub</a></p>
         <p class="header-right">
           <form role="search" action="../search.json">
@@ -174,7 +174,7 @@
 
                 </div>
               </div>
-            <p>Undocumented</p>
+            <p>The type of the event</p>
 
           </section>
           <section class="section task-group-section">
@@ -183,9 +183,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:SY8rawValue03RawB0Qzvp"></a>
+                    <a name="/s:11HAWebSocket11HAEventTypeV8rawValueSSSgvp"></a>
                     <a name="//apple_ref/swift/Property/rawValue" class="dashAnchor"></a>
-                    <a class="token" href="#/s:SY8rawValue03RawB0Qzvp">rawValue</a>
+                    <a class="token" href="#/s:11HAWebSocket11HAEventTypeV8rawValueSSSgvp">rawValue</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -193,7 +193,8 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        
+                        <p>The underlying string representing the event, or nil for all events</p>
+
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
@@ -209,9 +210,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:SY8rawValuexSg03RawB0Qz_tcfc"></a>
+                    <a name="/s:11HAWebSocket11HAEventTypeV8rawValueACSSSg_tcfc"></a>
                     <a name="//apple_ref/swift/Method/init(rawValue:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:SY8rawValuexSg03RawB0Qz_tcfc">init(rawValue:<wbr>)</a>
+                    <a class="token" href="#/s:11HAWebSocket11HAEventTypeV8rawValueACSSSg_tcfc">init(rawValue:<wbr>)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -219,7 +220,8 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        
+                        <p>Create a type instance with a given string name</p>
+
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
@@ -229,15 +231,34 @@
 
                         </div>
                       </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>rawValue</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The string name</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
                     </section>
                   </div>
                 </li>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:s26ExpressibleByStringLiteralP06stringD0x0cD4TypeQz_tcfc"></a>
+                    <a name="/s:11HAWebSocket11HAEventTypeV13stringLiteralACSS_tcfc"></a>
                     <a name="//apple_ref/swift/Method/init(stringLiteral:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:s26ExpressibleByStringLiteralP06stringD0x0cD4TypeQz_tcfc">init(stringLiteral:<wbr>)</a>
+                    <a class="token" href="#/s:11HAWebSocket11HAEventTypeV13stringLiteralACSS_tcfc">init(stringLiteral:<wbr>)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -245,7 +266,8 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        
+                        <p>Create a type instance via a string literal</p>
+
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
@@ -255,15 +277,34 @@
 
                         </div>
                       </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>value</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The string literal</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
                     </section>
                   </div>
                 </li>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:s23ExpressibleByNilLiteralP03nilD0xyt_tcfc"></a>
+                    <a name="/s:11HAWebSocket11HAEventTypeV10nilLiteralACyt_tcfc"></a>
                     <a name="//apple_ref/swift/Method/init(nilLiteral:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:s23ExpressibleByNilLiteralP03nilD0xyt_tcfc">init(nilLiteral:<wbr>)</a>
+                    <a class="token" href="#/s:11HAWebSocket11HAEventTypeV10nilLiteralACyt_tcfc">init(nilLiteral:<wbr>)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -271,7 +312,8 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        
+                        <p>Create a type instance via a nil literal, representing all events</p>
+
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
@@ -280,6 +322,25 @@
                           <pre class="highlight swift"><code><span class="kd">public</span> <span class="nf">init</span><span class="p">(</span><span class="nv">nilLiteral</span><span class="p">:</span> <span class="p">())</span></code></pre>
 
                         </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>nilLiteral</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Unused</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
                       </div>
                     </section>
                   </div>
@@ -297,7 +358,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p>All events</p>
 
                       </div>
                       <div class="declaration">
@@ -324,7 +385,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p><code>call_service</code></p>
 
                       </div>
                       <div class="declaration">
@@ -351,7 +412,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p><code>component_loaded</code></p>
 
                       </div>
                       <div class="declaration">
@@ -378,7 +439,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p><code>core_config_updated</code></p>
 
                       </div>
                       <div class="declaration">
@@ -405,7 +466,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p><code>homeassistant_close</code></p>
 
                       </div>
                       <div class="declaration">
@@ -432,7 +493,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p><code>homeassistant_final_write</code></p>
 
                       </div>
                       <div class="declaration">
@@ -459,7 +520,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p><code>homeassistant_start</code></p>
 
                       </div>
                       <div class="declaration">
@@ -486,7 +547,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p><code>homeassistant_started</code></p>
 
                       </div>
                       <div class="declaration">
@@ -513,7 +574,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p><code>homeassistant_stop</code></p>
 
                       </div>
                       <div class="declaration">
@@ -540,7 +601,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p><code>logbook_entry</code></p>
 
                       </div>
                       <div class="declaration">
@@ -567,7 +628,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p><code>platform_discovered</code></p>
 
                       </div>
                       <div class="declaration">
@@ -594,7 +655,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p><code>service_registered</code></p>
 
                       </div>
                       <div class="declaration">
@@ -621,7 +682,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p><code>service_removed</code></p>
 
                       </div>
                       <div class="declaration">
@@ -648,7 +709,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p><code>shopping_list_updated</code></p>
 
                       </div>
                       <div class="declaration">
@@ -675,7 +736,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p><code>state_changed</code></p>
 
                       </div>
                       <div class="declaration">
@@ -702,7 +763,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p><code>themes_updated</code></p>
 
                       </div>
                       <div class="declaration">
@@ -729,7 +790,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p><code>timer_out_of_sync</code></p>
 
                       </div>
                       <div class="declaration">

@@ -17,7 +17,7 @@
     <a title="HAResponseEvent Structure Reference"></a>
     <header>
       <div class="content-wrapper">
-        <p><a href="../index.html">HAWebSocket 0.1.0 Docs</a> (68% documented)</p>
+        <p><a href="../index.html">HAWebSocket 0.1.0 Docs</a> (100% documented)</p>
         <p class="header-right"><a href="https://www.github.com/zacwest/ha-swift/api"><img src="../img/gh.png"/>View on GitHub</a></p>
         <p class="header-right">
           <form role="search" action="../search.json">
@@ -174,7 +174,7 @@
 
                 </div>
               </div>
-            <p>Undocumented</p>
+            <p>An event fired on the event bus</p>
 
           </section>
           <section class="section task-group-section">
@@ -193,7 +193,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p>The type of event</p>
 
                       </div>
                       <div class="declaration">
@@ -220,7 +220,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p>When the event was fired</p>
 
                       </div>
                       <div class="declaration">
@@ -247,7 +247,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p>Data that came with the event</p>
 
                       </div>
                       <div class="declaration">
@@ -274,7 +274,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p>The origin of the event</p>
 
                       </div>
                       <div class="declaration">
@@ -301,7 +301,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p>The context of the event, e.g. who executed it</p>
 
                       </div>
                       <div class="declaration">
@@ -328,7 +328,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p>The origin of the event</p>
 
                         <a href="../Structs/HAResponseEvent/Origin.html" class="slightly-smaller">See more</a>
                       </div>
@@ -356,7 +356,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p>The context of the event</p>
 
                         <a href="../Structs/HAResponseEvent/Context.html" class="slightly-smaller">See more</a>
                       </div>
@@ -374,9 +374,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:11HAWebSocket15HADataDecodableP4dataxAA0C0O_tKcfc"></a>
+                    <a name="/s:11HAWebSocket15HAResponseEventV4dataAcA6HADataO_tKcfc"></a>
                     <a name="//apple_ref/swift/Method/init(data:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:11HAWebSocket15HADataDecodableP4dataxAA0C0O_tKcfc">init(data:<wbr>)</a>
+                    <a class="token" href="#/s:11HAWebSocket15HAResponseEventV4dataAcA6HADataO_tKcfc">init(data:<wbr>)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -384,7 +384,13 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        
+                        <p>Create with data</p>
+<div class="aside aside-throws">
+    <p class="aside-title">Throws</p>
+    If any required keys are missing
+
+</div>
+
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
@@ -393,6 +399,25 @@
                           <pre class="highlight swift"><code><span class="kd">public</span> <span class="nf">init</span><span class="p">(</span><span class="nv">data</span><span class="p">:</span> <span class="kt"><a href="../Enums/HAData.html">HAData</a></span><span class="p">)</span> <span class="k">throws</span></code></pre>
 
                         </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>data</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The data from the server</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
                       </div>
                     </section>
                   </div>
@@ -410,7 +435,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p>Create with information</p>
 
                       </div>
                       <div class="declaration">
@@ -426,6 +451,73 @@
 <span class="p">)</span></code></pre>
 
                         </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>type</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The type of the event</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>timeFired</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The time fired</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>data</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The data</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>origin</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The origin</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>context</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The context</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
                       </div>
                     </section>
                   </div>

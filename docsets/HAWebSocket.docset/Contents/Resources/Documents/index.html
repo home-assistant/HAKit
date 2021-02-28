@@ -16,7 +16,7 @@
     <a title="HAWebSocket  Reference"></a>
     <header>
       <div class="content-wrapper">
-        <p><a href="index.html">HAWebSocket 0.1.0 Docs</a> (68% documented)</p>
+        <p><a href="index.html">HAWebSocket 0.1.0 Docs</a> (100% documented)</p>
         <p class="header-right"><a href="https://www.github.com/zacwest/ha-swift/api"><img src="img/gh.png"/>View on GitHub</a></p>
         <p class="header-right">
           <form role="search" action="search.json">
@@ -203,7 +203,7 @@
 
 <p>Requests issued will continue to retry across reconnects until executed once, and subscriptions will automatically re-register when necessary until cancelled. Each <code>send</code> or <code>subscribe</code> returns an <code><a href="Protocols/HACancellable.html">HACancellable</a></code> token which you can cancel and each subscription handler includes a token as well.</p>
 
-<p>Retrieving the current user for example, like <a href="tree/main/Source/Convenience">many calls</a>, has helper methods to offer strongly-typed values. For example, you could write it one of two ways:</p>
+<p>Retrieving the current user for example, like other calls in <a href="https://zacwest.github.io/ha-swift-api/Structs/HATypedRequest.html">HATypedRequest</a> and <a href="https://zacwest.github.io/ha-swift-api/Structs/HATypedSubscription.html">HATypedSubscription</a>, has helper methods to offer strongly-typed values. For example, you could write it one of two ways:</p>
 <pre class="highlight swift"><code><span class="c1">// with the CallService convenience helper</span>
 <span class="n">connection</span><span class="o">.</span><span class="nf">send</span><span class="p">(</span><span class="o">.</span><span class="nf">currentUser</span><span class="p">())</span> <span class="p">{</span> <span class="n">result</span> <span class="k">in</span>
   <span class="k">switch</span> <span class="n">result</span> <span class="p">{</span>
