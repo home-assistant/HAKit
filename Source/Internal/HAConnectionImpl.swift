@@ -227,15 +227,16 @@ extension HAConnectionImpl {
         // this is bad API from Apple that I don't feel like dealing with :grimace:
 
         // swiftlint:disable:next force_try
-        let data = try! JSONSerialization.data(withJSONObject: dictionary, options: [])
+        let data = try! JSONSerialization.data(withJSONObject: dictionary, options: [.sortedKeys])
+        let string = String(data: data, encoding: .utf8)!
 
         if request.type == .auth {
-            HAGlobal.log("sending auth")
+            HAGlobal.log("Sending Text: (auth)")
         } else {
-            HAGlobal.log("sending \(data)")
+            HAGlobal.log("Sending Text: \(string)")
         }
 
-        connection?.write(string: String(data: data, encoding: .utf8)!)
+        connection?.write(string: string)
     }
 }
 
