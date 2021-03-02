@@ -159,12 +159,15 @@ internal class HAConnectionImplTests: XCTestCase {
             default:
                 XCTFail("expected waiting to reconnect")
             }
-        case .connecting, .ready: XCTFail("expected disconnected")
+        case .connecting, .ready, .authenticating: XCTFail("expected disconnected")
         }
     }
 
     func testDisconnectedManually() {
         connection.connect()
+        XCTAssertEqual(delegate.states, [.connecting])
+        XCTAssertEqual(delegate.notifiedCount, 1)
+
         XCTAssertTrue(reconnectManager.didStartInitial)
 
         engine.events.removeAll()
@@ -176,17 +179,19 @@ internal class HAConnectionImplTests: XCTestCase {
 
         XCTAssertEqual(connection.state, .disconnected(reason: .disconnected))
         XCTAssertEqual(delegate.states.last, .disconnected(reason: .disconnected))
-        XCTAssertEqual(delegate.notifiedCount, 1)
+        XCTAssertEqual(delegate.notifiedCount, 2)
     }
 
     func testDisconnectedTemporarilyWithoutError() throws {
         connection.connect()
+        XCTAssertEqual(delegate.states, [.connecting])
+        XCTAssertEqual(delegate.notifiedCount, 1)
 
         engine.events.removeAll()
         connection.responseController(responseController, didTransitionTo: .disconnected(error: nil, forReset: false))
         XCTAssertTrue(requestController.didResetActive)
         XCTAssertEqual(delegate.states.last, connection.state)
-        XCTAssertEqual(delegate.notifiedCount, 1)
+        XCTAssertEqual(delegate.notifiedCount, 2)
         XCTAssertTrue(reconnectManager.didTemporarily)
         XCTAssertFalse(reconnectManager.didPermanently)
 
@@ -199,7 +204,7 @@ internal class HAConnectionImplTests: XCTestCase {
             default:
                 XCTFail("expected waiting to reconnect")
             }
-        case .connecting, .ready: XCTFail("expected disconnected")
+        case .connecting, .ready, .authenticating: XCTFail("expected disconnected")
         }
     }
 
@@ -226,7 +231,7 @@ internal class HAConnectionImplTests: XCTestCase {
                 XCTAssertEqual(FakeError.error as NSError?, error as NSError?)
             case .disconnected: XCTFail("expected waiting to reconnect")
             }
-        case .connecting, .ready: XCTFail("expected disconnected")
+        case .connecting, .ready, .authenticating: XCTFail("expected disconnected")
         }
     }
 
@@ -289,8 +294,8 @@ internal class HAConnectionImplTests: XCTestCase {
 
         responseController.phase = .auth
         connection.responseController(responseController, didTransitionTo: .auth)
-        XCTAssertEqual(delegate.states, [.connecting])
-        XCTAssertEqual(delegate.notifiedCount, 1)
+        XCTAssertEqual(delegate.states, [.connecting, .authenticating])
+        XCTAssertEqual(delegate.notifiedCount, 2)
 
         XCTAssertTrue(engine.events.isEmpty)
 
@@ -303,23 +308,28 @@ internal class HAConnectionImplTests: XCTestCase {
 
     func testConnectedSendsAuthTokenGetFails() throws {
         connection.connect()
+        XCTAssertEqual(delegate.states, [.connecting])
+        XCTAssertEqual(delegate.notifiedCount, 1)
 
         engine.events.removeAll()
 
         responseController.phase = .auth
         connection.responseController(responseController, didTransitionTo: .auth)
-        XCTAssertEqual(delegate.states, [.connecting])
-        XCTAssertEqual(delegate.notifiedCount, 1)
+        XCTAssertEqual(delegate.states, [.connecting, .authenticating])
+        XCTAssertEqual(delegate.notifiedCount, 2)
 
         XCTAssertTrue(engine.events.isEmpty)
+
+        XCTAssertEqual(pendingFetchAccessTokens.count, 1)
+        let accessTokenBlock = try XCTUnwrap(pendingFetchAccessTokens.get(throwing: 0))
 
         enum TestError: Error {
             case any
         }
 
-        try XCTUnwrap(pendingFetchAccessTokens.last)(.failure(TestError.any))
+        accessTokenBlock(.failure(TestError.any))
         XCTAssertTrue(engine.events.contains(.stop(CloseCode.goingAway.rawValue)))
-        XCTAssertEqual(delegate.notifiedCount, 2)
+        XCTAssertEqual(delegate.notifiedCount, 3)
 
         let last = try XCTUnwrap(delegate.states.last)
         switch last {
@@ -332,13 +342,15 @@ internal class HAConnectionImplTests: XCTestCase {
 
     func testCommandPreparesRequestsAndInformsReconnectManager() {
         connection.connect()
+        XCTAssertEqual(delegate.states, [.connecting])
+        XCTAssertEqual(delegate.notifiedCount, 1)
 
         engine.events.removeAll()
 
         responseController.phase = .command(version: "123")
         connection.responseController(responseController, didTransitionTo: .command(version: "123"))
-        XCTAssertEqual(delegate.states, [.ready(version: "123")])
-        XCTAssertEqual(delegate.notifiedCount, 1)
+        XCTAssertEqual(delegate.states, [.connecting, .ready(version: "123")])
+        XCTAssertEqual(delegate.notifiedCount, 2)
 
         XCTAssertTrue(requestController.didPrepare)
         XCTAssertTrue(reconnectManager.didFinish)

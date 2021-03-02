@@ -40,6 +40,8 @@ public enum HAConnectionState: Equatable {
     case disconnected(reason: DisconnectReason)
     /// Connection is actively being attempted
     case connecting
+    /// Connection established, getting/sending authentication details
+    case authenticating
     /// The connection has been made and can process commands
     case ready(version: String)
 }

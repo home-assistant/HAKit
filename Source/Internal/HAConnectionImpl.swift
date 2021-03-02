@@ -13,9 +13,13 @@ internal class HAConnectionImpl: HAConnectionProtocol {
     public var state: HAConnectionState {
         switch responseController.phase {
         case .disconnected:
-            return .disconnected(reason: reconnectManager.reason)
+            if connection == nil {
+                return .disconnected(reason: reconnectManager.reason)
+            } else {
+                return .connecting
+            }
         case .auth:
-            return .connecting
+            return .authenticating
         case let .command(version):
             return .ready(version: version)
         }
@@ -105,11 +109,16 @@ internal class HAConnectionImpl: HAConnectionProtocol {
             reconnectManager.didStartInitialConnect()
         }
 
+        HAGlobal.log("connecting using \(connectionInfo)")
+
         self.connection = connection
         connection.connect()
+        notifyState()
     }
 
     func disconnect(permanently: Bool, error: Error?) {
+        HAGlobal.log("disconnecting; permanently: \(permanently), error: \(String(describing: error))")
+
         if permanently {
             reconnectManager.didDisconnectPermanently()
         } else {
