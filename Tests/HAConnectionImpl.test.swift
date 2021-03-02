@@ -287,6 +287,32 @@ internal class HAConnectionImplTests: XCTestCase {
         try assertSent(identifier: identifier, request: request)
     }
 
+    func testConnectedSendsAuthTokenGetInvokedTwice() throws {
+        connection.connect()
+
+        engine.events.removeAll()
+
+        responseController.phase = .auth
+        connection.responseController(responseController, didTransitionTo: .auth)
+        XCTAssertEqual(delegate.states, [.connecting, .authenticating])
+        XCTAssertEqual(delegate.notifiedCount, 2)
+
+        XCTAssertTrue(engine.events.isEmpty)
+
+        let tokenBlock = try XCTUnwrap(pendingFetchAccessTokens.last)
+
+        tokenBlock(.success("token!"))
+        try assertSent(identifier: nil, request: .init(
+            type: .auth,
+            data: ["access_token": "token!"]
+        ))
+
+        let previousCount = engine.events.count
+
+        tokenBlock(.success("second!"))
+        XCTAssertEqual(engine.events.count, previousCount)
+    }
+
     func testConnectedSendsAuthTokenGetSucceeds() throws {
         connection.connect()
 

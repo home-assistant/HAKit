@@ -8,7 +8,7 @@ extension HAConnectionImpl: Starscream.WebSocketDelegate {
 
 extension HAConnectionImpl {
     private func sendAuthToken() {
-        configuration.fetchAuthToken { [self] result in
+        let lock = HAResetLock<(Result<String, Error>) -> Void> { [self] result in
             switch result {
             case let .success(token):
                 sendRaw(
@@ -19,6 +19,10 @@ extension HAConnectionImpl {
                 HAGlobal.log("delegate failed to provide access token \(error), bailing")
                 disconnect(permanently: false, error: error)
             }
+        }
+
+        configuration.fetchAuthToken { result in
+            lock.pop()?(result)
         }
     }
 }
