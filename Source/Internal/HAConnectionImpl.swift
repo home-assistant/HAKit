@@ -9,7 +9,6 @@ internal class HAConnectionImpl: HAConnectionProtocol {
 
     public var callbackQueue: DispatchQueue = .main
 
-    private var lastDisconnectError: HAError?
     public var state: HAConnectionState {
         switch responseController.phase {
         case .disconnected:
