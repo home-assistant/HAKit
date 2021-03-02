@@ -2,7 +2,15 @@
 import XCTest
 
 internal class HAConnectionConfigurationTests: XCTestCase {
-    func testConnectionInfo() {
+    func testNilConnectionInfo() {
+        let configuration = HAConnectionConfiguration(
+            connectionInfo: { nil },
+            fetchAuthToken: { _ in fatalError() }
+        )
+        XCTAssertNil(configuration.connectionInfo())
+    }
+
+    func testConnectionInfo() throws {
         let url1 = URL(string: "http://example.com/1")!
         let url2 = URL(string: "http://example.com/2")!
 
@@ -11,10 +19,10 @@ internal class HAConnectionConfigurationTests: XCTestCase {
             fetchAuthToken: { _ in fatalError() }
         )
 
-        XCTAssertEqual(configuration.connectionInfo().url, url1)
+        try XCTAssertEqual(XCTUnwrap(configuration.connectionInfo()).url, url1)
 
         configuration.connectionInfo = { .init(url: url2) }
-        XCTAssertEqual(configuration.connectionInfo().url, url2)
+        try XCTAssertEqual(XCTUnwrap(configuration.connectionInfo()).url, url2)
     }
 
     func testFetchAuthToken() throws {

@@ -40,6 +40,10 @@ internal class HAConnectionImpl: HAConnectionProtocol {
         }
     }
 
+    internal enum ConnectError: Error {
+        case noConnectionInfo
+    }
+
     let requestController: HARequestController
     let responseController: HAResponseController
     let reconnectManager: HAReconnectManager
@@ -80,7 +84,11 @@ internal class HAConnectionImpl: HAConnectionProtocol {
     }
 
     func connect(resettingState: Bool) {
-        let connectionInfo = configuration.connectionInfo()
+        guard let connectionInfo = configuration.connectionInfo() else {
+            disconnect(permanently: false, error: ConnectError.noConnectionInfo)
+            return
+        }
+
         let connection: WebSocket = {
             guard let existing = self.connection else {
                 return connectionInfo.webSocket()

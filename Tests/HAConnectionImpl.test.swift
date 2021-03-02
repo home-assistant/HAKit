@@ -3,7 +3,7 @@ import Starscream
 import XCTest
 
 internal class HAConnectionImplTests: XCTestCase {
-    private var url: URL!
+    private var url: URL?
     private var engine: FakeEngine!
     private var pendingFetchAccessTokens: [(Result<String, Error>) -> Void]!
     private var connection: HAConnectionImpl!
@@ -39,8 +39,8 @@ internal class HAConnectionImplTests: XCTestCase {
                 if let url = self?.url, let engine = self?.engine {
                     return .init(url: url, engine: engine)
                 } else {
-                    XCTFail("invoked after deallocated")
-                    return .init(url: URL(string: "http://example.com/invalid")!)
+                    XCTAssertNotNil(self?.engine, "invoked after deallocated")
+                    return nil
                 }
             }, fetchAuthToken: { [weak self] handler in
                 self?.pendingFetchAccessTokens.append(handler)
@@ -92,7 +92,7 @@ internal class HAConnectionImplTests: XCTestCase {
 
     func testConnectionConnect() throws {
         connection.connect()
-        let expectedURL = HAConnectionInfo(url: url).webSocketURL
+        let expectedURL = HAConnectionInfo(url: try XCTUnwrap(url)).webSocketURL
         XCTAssertTrue(engine.events.contains(where: { event in
             if case let .start(request) = event {
                 return request.url == expectedURL
@@ -119,8 +119,8 @@ internal class HAConnectionImplTests: XCTestCase {
 
         let oldEngine = try XCTUnwrap(engine)
         engine = FakeEngine()
-        url = url.appendingPathComponent("hi")
-        let newExpectedURL = HAConnectionInfo(url: url).webSocketURL
+        url = try XCTUnwrap(url).appendingPathComponent("hi")
+        let newExpectedURL = HAConnectionInfo(url: try XCTUnwrap(url)).webSocketURL
 
         connection.connect()
         XCTAssertTrue(oldEngine.events.contains(.stop(CloseCode.goingAway.rawValue)))
@@ -135,6 +135,33 @@ internal class HAConnectionImplTests: XCTestCase {
         XCTAssertTrue(responseController.wasReset)
         XCTAssertFalse(reconnectManager.didPermanently)
         XCTAssertFalse(reconnectManager.didTemporarily)
+    }
+
+    func testConnectWithoutConnectionInfo() {
+        url = nil
+        connection.connect()
+
+        XCTAssertEqual(delegate.states.last, connection.state)
+        XCTAssertEqual(delegate.notifiedCount, 1)
+        XCTAssertTrue(reconnectManager.didTemporarily)
+        XCTAssertFalse(reconnectManager.didPermanently)
+
+        switch connection.state {
+        case let .disconnected(reason: reason):
+            switch reason {
+            case .waitingToReconnect(
+                lastError: HAConnectionImpl.ConnectError.noConnectionInfo?,
+                atLatest: _,
+                retryCount: _
+            ):
+                // pass
+                break
+            default:
+                XCTFail("expected waiting to reconnect")
+            }
+        case .connecting, .ready: XCTFail("expected disconnected")
+        }
+
     }
 
     func testDisconnectedManually() {
