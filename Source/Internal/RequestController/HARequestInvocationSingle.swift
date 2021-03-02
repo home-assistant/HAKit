@@ -1,26 +1,24 @@
 internal class HARequestInvocationSingle: HARequestInvocation {
-    private var completion: HAConnectionProtocol.RequestCompletion?
+    private var completion: HAResetLock<HAConnectionProtocol.RequestCompletion>
 
     init(
         request: HARequest,
         completion: @escaping HAConnectionProtocol.RequestCompletion
     ) {
-        self.completion = completion
+        self.completion = .init(value: completion)
         super.init(request: request)
     }
 
     override func cancel() {
         super.cancel()
-        completion = nil
+        completion.reset()
     }
 
     override var needsAssignment: Bool {
-        super.needsAssignment && completion != nil
+        super.needsAssignment && completion.read() != nil
     }
 
     func resolve(_ result: Result<HAData, HAError>) {
-        // we need to make it impossible to call the completion handler more than once
-        completion?(result)
-        completion = nil
+        completion.pop()?(result)
     }
 }

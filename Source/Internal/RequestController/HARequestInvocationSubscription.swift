@@ -1,25 +1,26 @@
 internal class HARequestInvocationSubscription: HARequestInvocation {
-    private var handler: HAConnectionProtocol.SubscriptionHandler?
-    private var initiated: HAConnectionProtocol.SubscriptionInitiatedHandler?
+    private var handler: HAResetLock<HAConnectionProtocol.SubscriptionHandler>
+    private var initiated: HAResetLock<HAConnectionProtocol.SubscriptionInitiatedHandler>
 
     init(
         request: HARequest,
         initiated: HAConnectionProtocol.SubscriptionInitiatedHandler?,
         handler: @escaping HAConnectionProtocol.SubscriptionHandler
     ) {
-        self.initiated = initiated
-        self.handler = handler
+        self.initiated = .init(value: initiated)
+        self.handler = .init(value: handler)
         super.init(request: request)
     }
 
     override func cancel() {
         super.cancel()
-        handler = nil
-        initiated = nil
+        handler.reset()
+        initiated.reset()
     }
 
     override var needsAssignment: Bool {
-        super.needsAssignment && handler != nil
+        // not initiated, since it is optional
+        super.needsAssignment && handler.read() != nil
     }
 
     override func cancelRequest() -> HATypedRequest<HAResponseVoid>? {
@@ -31,10 +32,10 @@ internal class HARequestInvocationSubscription: HARequestInvocation {
     }
 
     func resolve(_ result: Result<HAData, HAError>) {
-        initiated?(result)
+        initiated.read()?(result)
     }
 
     func invoke(token: HACancellableImpl, event: HAData) {
-        handler?(token, event)
+        handler.read()?(token, event)
     }
 }

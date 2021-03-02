@@ -161,7 +161,6 @@ internal class HAConnectionImplTests: XCTestCase {
             }
         case .connecting, .ready: XCTFail("expected disconnected")
         }
-
     }
 
     func testDisconnectedManually() {
