@@ -17,7 +17,7 @@
     <header>
       <div class="content-wrapper">
         <p><a href="index.html">HAWebSocket 0.1.0 Docs</a> (100% documented)</p>
-        <p class="header-right"><a href="https://www.github.com/zacwest/ha-swift/api"><img src="img/gh.png"/>View on GitHub</a></p>
+        <p class="header-right"><a href="https://www.github.com/home-assistant/ha-swift-api"><img src="img/gh.png"/>View on GitHub</a></p>
         <p class="header-right">
           <form role="search" action="search.json">
             <input type="text" placeholder="Search documentation" data-typeahead>
@@ -170,12 +170,12 @@
 
 <p><strong>This is still in development. You should not yet use this library.</strong></p>
 
-<p><a href="https://zacwest.github.io/ha-swift-api/"><img src="https://zacwest.github.io/ha-swift-api/badge.svg" alt="Documentation"></a> <a href="https://codecov.io/gh/zacwest/ha-swift-api"><img src="https://codecov.io/gh/zacwest/ha-swift-api/branch/main/graph/badge.svg?token=M0ZUCTQMBM" alt="codecov"></a> <a href="https://github.com/zacwest/ha-swift-api/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-Apache%202.0-green.svg?style=flat" alt="License Apache 2.0"></a></p>
+<p><a href="https://home-assistant.github.io/ha-swift-api/"><img src="https://home-assistant.github.io/ha-swift-api/badge.svg" alt="Documentation"></a> <a href="https://codecov.io/gh/home-assistant/ha-swift-api"><img src="https://codecov.io/gh/home-assistant/ha-swift-api/branch/main/graph/badge.svg?token=M0ZUCTQMBM" alt="codecov"></a> <a href="https://github.com/home-assistant/ha-swift-api/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-Apache%202.0-green.svg?style=flat" alt="License Apache 2.0"></a></p>
 
 <p>This library allows you to connect to the <a href="https://developers.home-assistant.io/docs/api/websocket">Home Assistant WebSocket API</a> to issue commands and subscribe to events. Future plans include offering minimal <a href="https://developers.home-assistant.io/docs/api/rest">Rest API</a> support.</p>
 <h2 id='api-reference' class='heading'>API Reference</h2>
 
-<p>You can view the <a href="https://zacwest.github.io/ha-swift-api/">full set of documentation</a>. The most important set of available method sare on the <a href="https://zacwest.github.io/ha-swift-api/Protocols/HAConnectionProtocol.html">HAConnectionProtocol</a> protocol. This protocol acts as the main entrypoint to talking to a Home Assistant instance.</p>
+<p>You can view the <a href="https://home-assistant.github.io/ha-swift-api/">full set of documentation</a>. The most important set of available method sare on the <a href="https://home-assistant.github.io/ha-swift-api/Protocols/HAConnectionProtocol.html">HAConnectionProtocol</a> protocol. This protocol acts as the main entrypoint to talking to a Home Assistant instance.</p>
 <h2 id='creating-and-connecting' class='heading'>Creating and connecting</h2>
 
 <p>Creating a connection needs two pieces of information: the server URL and an access token. Both are retrieved when a connection attempt is made. Since Home Assistant instances&rsquo; connectivity may differ based on the current network, these values are re-queried on each connection attempt.</p>
@@ -203,7 +203,7 @@
 
 <p>Requests issued will continue to retry across reconnects until executed once, and subscriptions will automatically re-register when necessary until cancelled. Each <code>send</code> or <code>subscribe</code> returns an <code><a href="Protocols/HACancellable.html">HACancellable</a></code> token which you can cancel and each subscription handler includes a token as well.</p>
 
-<p>Retrieving the current user for example, like other calls in <a href="https://zacwest.github.io/ha-swift-api/Structs/HATypedRequest.html">HATypedRequest</a> and <a href="https://zacwest.github.io/ha-swift-api/Structs/HATypedSubscription.html">HATypedSubscription</a>, has helper methods to offer strongly-typed values. For example, you could write it one of two ways:</p>
+<p>Retrieving the current user for example, like other calls in <a href="https://home-assistant.github.io/ha-swift-api/Structs/HATypedRequest.html">HATypedRequest</a> and <a href="https://home-assistant.github.io/ha-swift-api/Structs/HATypedSubscription.html">HATypedSubscription</a>, has helper methods to offer strongly-typed values. For example, you could write it one of two ways:</p>
 <pre class="highlight swift"><code><span class="c1">// with the CallService convenience helper</span>
 <span class="n">connection</span><span class="o">.</span><span class="nf">send</span><span class="p">(</span><span class="o">.</span><span class="nf">currentUser</span><span class="p">())</span> <span class="p">{</span> <span class="n">result</span> <span class="k">in</span>
   <span class="k">switch</span> <span class="n">result</span> <span class="p">{</span>
@@ -267,7 +267,7 @@
 <h3 id='swift-package-manager' class='heading'>Swift Package Manager</h3>
 
 <p>To install the library, either add it as a dependency in a <code>Package.swift</code> like:</p>
-<pre class="highlight swift"><code><span class="o">.</span><span class="kt">Package</span><span class="p">(</span><span class="nv">url</span><span class="p">:</span> <span class="s">"https://github.com/zacwest/ha-swift-api.git"</span><span class="p">,</span> <span class="nv">majorVersion</span><span class="p">:</span> <span class="mi">1</span><span class="p">)</span>
+<pre class="highlight swift"><code><span class="o">.</span><span class="kt">Package</span><span class="p">(</span><span class="nv">url</span><span class="p">:</span> <span class="s">"https://github.com/home-assistant/ha-swift-api.git"</span><span class="p">,</span> <span class="nv">majorVersion</span><span class="p">:</span> <span class="mi">1</span><span class="p">)</span>
 </code></pre>
 
 <p>To add it to an Xcode project, you can do this by adding the URL to File &gt; Swift Packages &gt; Add Package Dependency and.</p>
@@ -286,7 +286,7 @@
           </section>
         </section>
         <section id="footer">
-          <p>&copy; 2021 <a class="link" href="https://github.com/home-assistant/<tbd" target="_blank" rel="external">Home Assistant</a>. All rights reserved. (Last updated: 2021-03-02)</p>
+          <p>&copy; 2021 <a class="link" href="https://github.com/home-assistant/<tbd" target="_blank" rel="external">Home Assistant</a>. All rights reserved. (Last updated: 2021-03-03)</p>
           <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.13.6</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external">Realm</a> project.</p>
         </section>
       </article>
