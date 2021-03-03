@@ -19,8 +19,8 @@ public let package = Package(
     ],
     dependencies: [
         .package(
-            url: "https://github.com/daltoniam/Starscream",
-            from: "4.0.4"
+            url: "https://github.com/zacwest/Starscream",
+            .branch("ha-swift-api")
         ),
     ],
     targets: [
