@@ -1,14 +1,14 @@
-# ha-swift-api
+# HAKit
 
-**This is still in development. You should not yet use this library.**
+**This is still in early development.**
 
-[![Documentation](https://home-assistant.github.io/ha-swift-api/badge.svg)](https://home-assistant.github.io/ha-swift-api/) [![codecov](https://codecov.io/gh/home-assistant/ha-swift-api/branch/main/graph/badge.svg?token=M0ZUCTQMBM)](https://codecov.io/gh/home-assistant/ha-swift-api) [![License Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-green.svg?style=flat)](https://github.com/home-assistant/ha-swift-api/blob/master/LICENSE)
+[![Documentation](https://home-assistant.github.io/HAKit/badge.svg)](https://home-assistant.github.io/HAKit/) [![codecov](https://codecov.io/gh/home-assistant/HAKit/branch/main/graph/badge.svg?token=M0ZUCTQMBM)](https://codecov.io/gh/home-assistant/HAKit) [![License Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-green.svg?style=flat)](https://github.com/home-assistant/HAKit/blob/master/LICENSE)
 
 This library allows you to connect to the [Home Assistant WebSocket API](https://developers.home-assistant.io/docs/api/websocket) to issue commands and subscribe to events. Future plans include offering minimal [REST API](https://developers.home-assistant.io/docs/api/rest) support, largely around authentication.
 
 ## API Reference
 
-You can view the [full set of documentation](https://home-assistant.github.io/ha-swift-api/). The most important set of available method sare on the [HAConnectionProtocol](https://home-assistant.github.io/ha-swift-api/Protocols/HAConnectionProtocol.html) protocol. This protocol acts as the main entrypoint to talking to a Home Assistant instance.
+You can view the [full set of documentation](https://home-assistant.github.io/HAKit/). The most important set of available methods are on the [HAConnection](https://home-assistant.github.io/HAKit/Protocols/HAConnection.html) protocol. This protocol acts as the main entrypoint to talking to a Home Assistant instance.
 
 ## Creating and connecting
 
@@ -40,7 +40,7 @@ There are two types of requests: those with an immediate result and those which 
 
 Requests issued will continue to retry across reconnects until executed once, and subscriptions will automatically re-register when necessary until cancelled. Each `send` or `subscribe` returns an `HACancellable` token which you can cancel and each subscription handler includes a token as well.
 
-Retrieving the current user for example, like other calls in [HATypedRequest](https://home-assistant.github.io/ha-swift-api/Structs/HATypedRequest.html) and [HATypedSubscription](https://home-assistant.github.io/ha-swift-api/Structs/HATypedSubscription.html), has helper methods to offer strongly-typed values. For example, you could write it one of two ways:
+Retrieving the current user for example, like other calls in [HATypedRequest](https://home-assistant.github.io/HAKit/Structs/HATypedRequest.html) and [HATypedSubscription](https://home-assistant.github.io/HAKit/Structs/HATypedSubscription.html), has helper methods to offer strongly-typed values. For example, you could write it one of two ways:
 
 ```swift
 // with the CurrentUser convenience helper
@@ -113,7 +113,7 @@ See [`HADataDecodable`](Source/Data/HADataDecodable.swift) for the available met
 To install the library, either add it as a dependency in a `Package.swift` like:
 
 ```swift
-.Package(url: "https://github.com/home-assistant/ha-swift-api.git", majorVersion: 1)
+.Package(url: "https://github.com/home-assistant/HAKit.git", majorVersion: 1)
 ```
 
 To add it to an Xcode project, you can do this by adding the URL to File > Swift Packages > Add Package Dependency and.

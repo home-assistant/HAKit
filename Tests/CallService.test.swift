@@ -1,4 +1,4 @@
-@testable import HAWebSocket
+@testable import HAKit
 import XCTest
 
 internal class CallServiceTests: XCTestCase {

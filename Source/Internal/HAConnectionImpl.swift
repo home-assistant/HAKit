@@ -3,7 +3,7 @@ import Starscream
 
 // NOTE: see HAConnection.swift for how to access these types
 
-internal class HAConnectionImpl: HAConnectionProtocol {
+internal class HAConnectionImpl: HAConnection {
     public weak var delegate: HAConnectionDelegate?
     public var configuration: HAConnectionConfiguration
 
@@ -27,7 +27,7 @@ internal class HAConnectionImpl: HAConnectionProtocol {
     internal func notifyState() {
         delegate?.connection(self, didTransitionTo: state)
         NotificationCenter.default.post(
-            name: HAConnection.didTransitionToStateNotification,
+            name: HAConnectionState.didTransitionToStateNotification,
             object: self
         )
     }

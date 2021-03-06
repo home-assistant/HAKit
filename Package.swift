@@ -4,7 +4,7 @@ import PackageDescription
 
 /// The Package
 public let package = Package(
-    name: "HAWebSocket",
+    name: "HAKit",
     platforms: [
         .iOS(.v12),
         .macOS(.v10_14),
@@ -13,8 +13,8 @@ public let package = Package(
     ],
     products: [
         .library(
-            name: "HAWebSocket",
-            targets: ["HAWebSocket"]
+            name: "HAKit",
+            targets: ["HAKit"]
         ),
     ],
     dependencies: [
@@ -25,7 +25,7 @@ public let package = Package(
     ],
     targets: [
         .target(
-            name: "HAWebSocket",
+            name: "HAKit",
             dependencies: [
                 .byName(name: "Starscream"),
             ],
@@ -33,7 +33,7 @@ public let package = Package(
         ),
         .testTarget(
             name: "Tests",
-            dependencies: ["HAWebSocket"],
+            dependencies: ["HAKit"],
             path: "Tests"
         ),
     ]

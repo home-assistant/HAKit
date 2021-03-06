@@ -1,11 +1,11 @@
 internal class HARequestInvocationSubscription: HARequestInvocation {
-    private var handler: HAResetLock<HAConnectionProtocol.SubscriptionHandler>
-    private var initiated: HAResetLock<HAConnectionProtocol.SubscriptionInitiatedHandler>
+    private var handler: HAResetLock<HAConnection.SubscriptionHandler>
+    private var initiated: HAResetLock<HAConnection.SubscriptionInitiatedHandler>
 
     init(
         request: HARequest,
-        initiated: HAConnectionProtocol.SubscriptionInitiatedHandler?,
-        handler: @escaping HAConnectionProtocol.SubscriptionHandler
+        initiated: HAConnection.SubscriptionInitiatedHandler?,
+        handler: @escaping HAConnection.SubscriptionHandler
     ) {
         self.initiated = .init(value: initiated)
         self.handler = .init(value: handler)

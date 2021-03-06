@@ -1,4 +1,4 @@
-@testable import HAWebSocket
+@testable import HAKit
 import Starscream
 import XCTest
 
@@ -661,11 +661,11 @@ internal class HAConnectionImplTests: XCTestCase {
     func testPlainSubscribeCancelled() throws {
         let request = HARequest(type: "subbysubsub", data: ["ok": true])
 
-        let initiated: HAConnectionProtocol.SubscriptionInitiatedHandler = { _ in
+        let initiated: HAConnection.SubscriptionInitiatedHandler = { _ in
             XCTFail("did not expect handler to be invoked")
         }
 
-        let handler: HAConnectionProtocol.SubscriptionHandler = { _, _ in
+        let handler: HAConnection.SubscriptionHandler = { _, _ in
             XCTFail("did not expect handler to be invoked")
         }
 
@@ -691,12 +691,12 @@ internal class HAConnectionImplTests: XCTestCase {
         let initiatedExpectation = expectation(description: "initiated")
         initiatedExpectation.expectedFulfillmentCount = 1
 
-        let initiated: HAConnectionProtocol.SubscriptionInitiatedHandler = { result in
+        let initiated: HAConnection.SubscriptionInitiatedHandler = { result in
             XCTAssertEqual(result, .success(.dictionary(["yo": true])))
             initiatedExpectation.fulfill()
         }
 
-        let handler: HAConnectionProtocol.SubscriptionHandler = { _, _ in
+        let handler: HAConnection.SubscriptionHandler = { _, _ in
             XCTFail("did not expect handler to be invoked")
         }
 
@@ -723,12 +723,12 @@ internal class HAConnectionImplTests: XCTestCase {
         let initiatedExpectation = expectation(description: "initiated")
         initiatedExpectation.expectedFulfillmentCount = 1
 
-        let initiated: HAConnectionProtocol.SubscriptionInitiatedHandler = { result in
+        let initiated: HAConnection.SubscriptionInitiatedHandler = { result in
             XCTAssertEqual(result, .failure(.internal(debugDescription: "you like dags?")))
             initiatedExpectation.fulfill()
         }
 
-        let handler: HAConnectionProtocol.SubscriptionHandler = { _, _ in
+        let handler: HAConnection.SubscriptionHandler = { _, _ in
             XCTFail("did not expect handler to be invoked")
         }
 
@@ -755,11 +755,11 @@ internal class HAConnectionImplTests: XCTestCase {
         let handlerExpectation = expectation(description: "event")
         handlerExpectation.expectedFulfillmentCount = 2
 
-        let initiated: HAConnectionProtocol.SubscriptionInitiatedHandler = { _ in
+        let initiated: HAConnection.SubscriptionInitiatedHandler = { _ in
             XCTFail("did not expect handler to be invoked")
         }
 
-        let handler: HAConnectionProtocol.SubscriptionHandler = { _, result in
+        let handler: HAConnection.SubscriptionHandler = { _, result in
             XCTAssertEqual(result, .dictionary(["event": true]))
             handlerExpectation.fulfill()
         }
@@ -787,7 +787,7 @@ internal class HAConnectionImplTests: XCTestCase {
             data: ["ok": true]
         ))
 
-        let initiated: HAConnectionProtocol.SubscriptionInitiatedHandler = { _ in
+        let initiated: HAConnection.SubscriptionInitiatedHandler = { _ in
             XCTFail("did not expect handler to be invoked")
         }
 
@@ -820,7 +820,7 @@ internal class HAConnectionImplTests: XCTestCase {
         let initiatedExpectation = expectation(description: "initiated")
         initiatedExpectation.expectedFulfillmentCount = 1
 
-        let initiated: HAConnectionProtocol.SubscriptionInitiatedHandler = { result in
+        let initiated: HAConnection.SubscriptionInitiatedHandler = { result in
             XCTAssertEqual(result, .success(.dictionary(["yo": true])))
             initiatedExpectation.fulfill()
         }
@@ -855,7 +855,7 @@ internal class HAConnectionImplTests: XCTestCase {
         let initiatedExpectation = expectation(description: "initiated")
         initiatedExpectation.expectedFulfillmentCount = 1
 
-        let initiated: HAConnectionProtocol.SubscriptionInitiatedHandler = { result in
+        let initiated: HAConnection.SubscriptionInitiatedHandler = { result in
             XCTAssertEqual(result, .failure(.internal(debugDescription: "you like dags?")))
             initiatedExpectation.fulfill()
         }
@@ -890,7 +890,7 @@ internal class HAConnectionImplTests: XCTestCase {
         let handlerExpectation = expectation(description: "event")
         handlerExpectation.expectedFulfillmentCount = 2
 
-        let initiated: HAConnectionProtocol.SubscriptionInitiatedHandler = { _ in
+        let initiated: HAConnection.SubscriptionInitiatedHandler = { _ in
             XCTFail("did not expect handler to be invoked")
         }
 
@@ -921,7 +921,7 @@ internal class HAConnectionImplTests: XCTestCase {
             data: ["ok": true]
         ))
 
-        let initiated: HAConnectionProtocol.SubscriptionInitiatedHandler = { _ in
+        let initiated: HAConnection.SubscriptionInitiatedHandler = { _ in
             XCTFail("did not expect handler to be invoked")
         }
 
@@ -996,7 +996,7 @@ private class FakeHAConnectionDelegate: HAConnectionDelegate {
 
     init() {
         self.token = NotificationCenter.default.addObserver(
-            forName: HAConnection.didTransitionToStateNotification,
+            forName: HAConnectionState.didTransitionToStateNotification,
             object: nil,
             queue: nil,
             using: { [weak self] _ in
@@ -1013,7 +1013,7 @@ private class FakeHAConnectionDelegate: HAConnectionDelegate {
 
     var states = [HAConnectionState]()
     var notifiedCount = 0
-    func connection(_ connection: HAConnectionProtocol, didTransitionTo state: HAConnectionState) {
+    func connection(_ connection: HAConnection, didTransitionTo state: HAConnectionState) {
         states.append(state)
         XCTAssertEqual(state, connection.state)
     }

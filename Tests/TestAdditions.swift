@@ -1,5 +1,5 @@
 import Foundation
-import HAWebSocket
+import HAKit
 
 internal extension Array {
     enum GetError: Error {

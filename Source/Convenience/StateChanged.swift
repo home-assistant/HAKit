@@ -3,7 +3,7 @@ public extension HATypedSubscription {
     ///
     /// This is a convenient version of listening to the `.stateChanged` event, but with parsed response values.
     ///
-    /// - Returns: A typed subscriptions that can be sent via `HAConnectionProtocol`
+    /// - Returns: A typed subscriptions that can be sent via `HAConnection`
     static func stateChanged() -> HATypedSubscription<HAResponseEventStateChanged> {
         .init(request: .init(type: .subscribeEvents, data: [
             "event_type": HAEventType.stateChanged.rawValue!,

@@ -7,7 +7,7 @@ public extension HATypedSubscription {
     ///   - template: The template to render
     ///   - variables: The variables to provide to the template render on the server
     ///   - timeout: Optional timeout for how long the template can take to render
-    /// - Returns: A typed subscriptions that can be sent via `HAConnectionProtocol`
+    /// - Returns: A typed subscriptions that can be sent via `HAConnection`
     static func renderTemplate(
         _ template: String,
         variables: [String: Any] = [:],

@@ -6,12 +6,19 @@ public protocol HAConnectionDelegate: AnyObject {
     /// - Parameters:
     ///   - connection: The connection invoking this function
     ///   - state: The new state of the connection being transitioned to
-    /// - SeeAlso: `HAConnection.didTransitionToStateNotification`
-    func connection(_ connection: HAConnectionProtocol, didTransitionTo state: HAConnectionState)
+    /// - SeeAlso: `HAConnectionState.didTransitionToStateNotification`
+    func connection(_ connection: HAConnection, didTransitionTo state: HAConnectionState)
 }
 
 /// State of the connection
 public enum HAConnectionState: Equatable {
+    /// Notification fired when state transitions occur
+    ///
+    /// The object of the notification will be the connection.
+    /// UserInfo will be nil.
+    /// Notification fires on `NotificationCenter.default`.
+    public static var didTransitionToStateNotification: Notification.Name { .init("HAConnectionDidTransitiontoState") }
+
     /// Reason for disconnection state
     public enum DisconnectReason: Equatable {
         public static func == (lhs: DisconnectReason, rhs: DisconnectReason) -> Bool {
@@ -46,30 +53,9 @@ public enum HAConnectionState: Equatable {
     case ready(version: String)
 }
 
-/// Namespace for creating a new connection
-public enum HAConnection {
-    /// Notification fired when state transitions occur
-    ///
-    /// The object of the notification will be the connection.
-    /// UserInfo will be nil.
-    /// Notification fires on `NotificationCenter.default`.
-    ///
-    /// - SeeAlso: `HAConnectionDelegate`
-    public static var didTransitionToStateNotification: Notification.Name { .init("HAConnectionDidTransitiontoState") }
-
-    /// The type which represents an API connection
-    public static var API: HAConnectionProtocol.Type = { HAConnectionImpl.self }()
-    /// Create a new connection
-    /// - Parameter configuration: The configuration for the connection
-    /// - Returns: The connection itself
-    public static func api(configuration: HAConnectionConfiguration) -> HAConnectionProtocol {
-        // swiftformat:disable:next redundantInit
-        Self.API.init(configuration: configuration)
-    }
-}
-
 /// The interface for the API itself
-public protocol HAConnectionProtocol: AnyObject {
+/// - SeeAlso: `HAKit` for how to create an instance
+public protocol HAConnection: AnyObject {
     /// Handler invoked when a request completes
     typealias RequestCompletion = (Result<HAData, HAError>) -> Void
     /// Handler invoked when the initial request to start a subscription completes

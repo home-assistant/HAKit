@@ -1,14 +1,10 @@
-@testable import HAWebSocket
+@testable import HAKit
 import XCTest
 
 internal class HAConnectionTests: XCTestCase {
-    func testSingletonClass() {
-        XCTAssertTrue(HAConnection.API === HAConnectionImpl.self)
-    }
-
     func testCreation() {
         let configuration = HAConnectionConfiguration.test
-        let connection = HAConnection.api(configuration: configuration)
+        let connection = HAKit.connection(configuration: configuration)
         XCTAssertEqual(connection.configuration.connectionInfo(), configuration.connectionInfo())
 
         let expectation = self.expectation(description: "access token")

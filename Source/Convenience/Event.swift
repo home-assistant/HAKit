@@ -4,7 +4,7 @@ public extension HATypedSubscription {
     /// Subscribe to one or all events on the event bus
     ///
     /// - Parameter type: The event type to subscribe to. Pass `.all` to subscribe to all events.
-    /// - Returns: A typed subscriptions that can be sent via `HAConnectionProtocol`
+    /// - Returns: A typed subscriptions that can be sent via `HAConnection`
     static func events(
         _ type: HAEventType
     ) -> HATypedSubscription<HAResponseEvent> {

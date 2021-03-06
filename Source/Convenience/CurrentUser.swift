@@ -1,7 +1,7 @@
 public extension HATypedRequest {
     /// Retrieve the current user
     ///
-    /// - Returns: A typed request that can be sent via `HAConnectionProtocol`
+    /// - Returns: A typed request that can be sent via `HAConnection`
     static func currentUser() -> HATypedRequest<HAResponseCurrentUser> {
         .init(request: .init(type: .currentUser, data: [:]))
     }

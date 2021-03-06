@@ -1,9 +1,9 @@
 internal class HARequestInvocationSingle: HARequestInvocation {
-    private var completion: HAResetLock<HAConnectionProtocol.RequestCompletion>
+    private var completion: HAResetLock<HAConnection.RequestCompletion>
 
     init(
         request: HARequest,
-        completion: @escaping HAConnectionProtocol.RequestCompletion
+        completion: @escaping HAConnection.RequestCompletion
     ) {
         self.completion = .init(value: completion)
         super.init(request: request)

@@ -1,14 +1,12 @@
 Pod::Spec.new do |s|
-  s.name = 'HAWebSocket'
+  s.name = 'HAKit'
   s.version = '0.1.0'
-  s.summary = 'A short description of WebSocket.'
+  s.summary = 'Communicate with a Home Assistant instance.'
   s.author = 'Home Assistant'
 
-  s.description = 'Home Assistant WebSocket'
-
-  s.homepage = 'https://github.com/home-assistant/<tbd>'
+  s.homepage = 'https://github.com/home-assistant/HAKit'
   s.license = { type: 'Apache 2', file: 'LICENSE.md' }
-  s.source = { git: 'https://github.com/home-assistant.git', tag: s.version.to_s }
+  s.source = { git: 'https://github.com/home-assistant/HAKit.git', tag: s.version.to_s }
 
   s.ios.deployment_target = '12.0'
   s.watchos.deployment_target = '5.0'
