@@ -203,7 +203,7 @@ internal class HADataTests: XCTestCase {
         let date: Date = try XCTUnwrap(value.decode("some_key") as Date?)
 
         let components = Calendar.current.dateComponents(
-            in: TimeZone(identifier: "UTC+6")!,
+            in: try XCTUnwrap(TimeZone(identifier: "GMT+0600")),
             from: date
         )
         XCTAssertEqual(components.year, 2021)
@@ -220,7 +220,7 @@ internal class HADataTests: XCTestCase {
         let date: Date = try value.decode("some_key")
 
         let components = Calendar.current.dateComponents(
-            in: TimeZone(identifier: "UTC+6")!,
+            in: try XCTUnwrap(TimeZone(identifier: "GMT+0600")),
             from: date
         )
         XCTAssertEqual(components.year, 2021)
