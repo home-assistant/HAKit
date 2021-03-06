@@ -113,7 +113,7 @@ See [`HADataDecodable`](Source/Data/HADataDecodable.swift) for the available met
 To install the library, either add it as a dependency in a `Package.swift` like:
 
 ```swift
-.Package(url: "https://github.com/home-assistant/HAKit.git", majorVersion: 1)
+.Package(url: "https://github.com/home-assistant/HAKit.git", majorVersion: 0)
 ```
 
 To add it to an Xcode project, you can do this by adding the URL to File > Swift Packages > Add Package Dependency and.
@@ -122,7 +122,7 @@ To add it to an Xcode project, you can do this by adding the URL to File > Swift
 Add the following line to your Podfile:
 
 ```ruby
-pod "TODO: What am I naming this? lol", "~> 1.0"
+pod "HAKit", "~> 0.1"
 ```
 
 ## Contributing
