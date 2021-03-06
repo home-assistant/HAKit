@@ -4,7 +4,7 @@
 
 [![Documentation](https://home-assistant.github.io/ha-swift-api/badge.svg)](https://home-assistant.github.io/ha-swift-api/) [![codecov](https://codecov.io/gh/home-assistant/ha-swift-api/branch/main/graph/badge.svg?token=M0ZUCTQMBM)](https://codecov.io/gh/home-assistant/ha-swift-api) [![License Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-green.svg?style=flat)](https://github.com/home-assistant/ha-swift-api/blob/master/LICENSE)
 
-This library allows you to connect to the [Home Assistant WebSocket API](https://developers.home-assistant.io/docs/api/websocket) to issue commands and subscribe to events. Future plans include offering minimal [Rest API](https://developers.home-assistant.io/docs/api/rest) support.
+This library allows you to connect to the [Home Assistant WebSocket API](https://developers.home-assistant.io/docs/api/websocket) to issue commands and subscribe to events. Future plans include offering minimal [REST API](https://developers.home-assistant.io/docs/api/rest) support, largely around authentication.
 
 ## API Reference
 
@@ -43,7 +43,7 @@ Requests issued will continue to retry across reconnects until executed once, an
 Retrieving the current user for example, like other calls in [HATypedRequest](https://home-assistant.github.io/ha-swift-api/Structs/HATypedRequest.html) and [HATypedSubscription](https://home-assistant.github.io/ha-swift-api/Structs/HATypedSubscription.html), has helper methods to offer strongly-typed values. For example, you could write it one of two ways:
 
 ```swift
-// with the CallService convenience helper
+// with the CurrentUser convenience helper
 connection.send(.currentUser()) { result in
   switch result {
   case let .success(user):
