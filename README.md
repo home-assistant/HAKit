@@ -17,7 +17,7 @@ Creating a connection needs two pieces of information: the server URL and an acc
 You can get a connection instance using the exposed initializer:
 
 ```swift
-let connection = HAConnection.api(configuration: .init(
+let connection = HAKit.connection(configuration: .init(
   connectionInfo: {
     // Connection is required to be returned synchronously.
     .init(url: URL(string: "http://homeassistant.local:8123")!)
