@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>HARequest Structure Reference</title>
+    <title>HAKit Enumeration Reference</title>
     <link rel="stylesheet" type="text/css" href="../css/jazzy.css" />
     <link rel="stylesheet" type="text/css" href="../css/highlight.css" />
     <meta charset='utf-8'>
@@ -13,8 +13,8 @@
     <script src="../js/jazzy.search.js" defer></script>
   </head>
   <body>
-    <a name="//apple_ref/swift/Struct/HARequest" class="dashAnchor"></a>
-    <a title="HARequest Structure Reference"></a>
+    <a name="//apple_ref/swift/Enum/HAKit" class="dashAnchor"></a>
+    <a title="HAKit Enumeration Reference"></a>
     <header>
       <div class="content-wrapper">
         <p><a href="../index.html">HAKit 0.1.0 Docs</a> (100% documented)</p>
@@ -30,7 +30,7 @@
       <p id="breadcrumbs">
         <a href="../index.html">HAKit Reference</a>
         <img id="carat" src="../img/carat.png" />
-        HARequest Structure Reference
+        HAKit Enumeration Reference
       </p>
     </div>
     <div class="content-wrapper">
@@ -166,15 +166,15 @@
       <article class="main-content">
         <section>
           <section class="section">
-            <h1>HARequest</h1>
+            <h1>HAKit</h1>
               <div class="declaration">
                 <div class="language">
                   
-                  <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">struct</span> <span class="kt">HARequest</span></code></pre>
+                  <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">enum</span> <span class="kt">HAKit</span></code></pre>
 
                 </div>
               </div>
-            <p>A request, with data, to be issued</p>
+            <p>Namespace entrypoint of the library</p>
 
           </section>
           <section class="section task-group-section">
@@ -183,9 +183,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:5HAKit9HARequestV4type4data11shouldRetryAcA0B4TypeV_SDySSypGSbtcfc"></a>
-                    <a name="//apple_ref/swift/Method/init(type:data:shouldRetry:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:5HAKit9HARequestV4type4data11shouldRetryAcA0B4TypeV_SDySSypGSbtcfc">init(type:<wbr>data:<wbr>shouldRetry:<wbr>)</a>
+                    <a name="/s:5HAKitAAO10connection13configurationAA12HAConnection_pAA0D13ConfigurationV_tFZ"></a>
+                    <a name="//apple_ref/swift/Method/connection(configuration:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:5HAKitAAO10connection13configurationAA12HAConnection_pAA0D13ConfigurationV_tFZ">connection(configuration:<wbr>)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -193,25 +193,14 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Create a request</p>
-<div class="aside aside-precondition">
-    <p class="aside-title">Precondition</p>
-    data is a JSON-encodable value. From <code>JSONSerialization</code> documentation:
-
-<ul>
-<li>All objects are <code>String</code>, numbers (<code>Int</code>, <code>Float</code>, etc.), <code>Array</code>, <code>Dictionary</code>, or <code>nil</code></li>
-<li>All dictionary keys are <code>String</code></li>
-<li>Numbers (<code>Int</code>, <code>Float</code>, etc.) are not <code>.nan</code> or <code>.infinity</code></li>
-</ul>
-
-</div>
+                        <p>Create a new connection</p>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="nf">init</span><span class="p">(</span><span class="nv">type</span><span class="p">:</span> <span class="kt"><a href="../Structs/HARequestType.html">HARequestType</a></span><span class="p">,</span> <span class="nv">data</span><span class="p">:</span> <span class="p">[</span><span class="kt">String</span> <span class="p">:</span> <span class="kt">Any</span><span class="p">],</span> <span class="nv">shouldRetry</span><span class="p">:</span> <span class="kt">Bool</span> <span class="o">=</span> <span class="kc">true</span><span class="p">)</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">static</span> <span class="kd">func</span> <span class="nf">connection</span><span class="p">(</span><span class="nv">configuration</span><span class="p">:</span> <span class="kt"><a href="../Structs/HAConnectionConfiguration.html">HAConnectionConfiguration</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt"><a href="../Protocols/HAConnection.html">HAConnection</a></span></code></pre>
 
                         </div>
                       </div>
@@ -222,122 +211,21 @@
                             <tr>
                               <td>
                                 <code>
-                                <em>type</em>
+                                <em>configuration</em>
                                 </code>
                               </td>
                               <td>
                                 <div>
-                                  <p>The type of the request to issue</p>
-                                </div>
-                              </td>
-                            </tr>
-                            <tr>
-                              <td>
-                                <code>
-                                <em>data</em>
-                                </code>
-                              </td>
-                              <td>
-                                <div>
-                                  <p>The data to accompany with the request, at the top level</p>
-                                </div>
-                              </td>
-                            </tr>
-                            <tr>
-                              <td>
-                                <code>
-                                <em>shouldRetry</em>
-                                </code>
-                              </td>
-                              <td>
-                                <div>
-                                  <p>Whether to retry the request when a connection change occurs</p>
+                                  <p>The configuration for the connection</p>
                                 </div>
                               </td>
                             </tr>
                           </tbody>
                         </table>
                       </div>
-                    </section>
-                  </div>
-                </li>
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/s:5HAKit9HARequestV4typeAA0B4TypeVvp"></a>
-                    <a name="//apple_ref/swift/Property/type" class="dashAnchor"></a>
-                    <a class="token" href="#/s:5HAKit9HARequestV4typeAA0B4TypeVvp">type</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>The type of the request to be issued</p>
-
-                      </div>
-                      <div class="declaration">
-                        <h4>Declaration</h4>
-                        <div class="language">
-                          <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">type</span><span class="p">:</span> <span class="kt"><a href="../Structs/HARequestType.html">HARequestType</a></span></code></pre>
-
-                        </div>
-                      </div>
-                    </section>
-                  </div>
-                </li>
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/s:5HAKit9HARequestV4dataSDySSypGvp"></a>
-                    <a name="//apple_ref/swift/Property/data" class="dashAnchor"></a>
-                    <a class="token" href="#/s:5HAKit9HARequestV4dataSDySSypGvp">data</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>Additional top-level data to include in the request</p>
-
-                      </div>
-                      <div class="declaration">
-                        <h4>Declaration</h4>
-                        <div class="language">
-                          <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">data</span><span class="p">:</span> <span class="p">[</span><span class="kt">String</span> <span class="p">:</span> <span class="kt">Any</span><span class="p">]</span></code></pre>
-
-                        </div>
-                      </div>
-                    </section>
-                  </div>
-                </li>
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/s:5HAKit9HARequestV11shouldRetrySbvp"></a>
-                    <a name="//apple_ref/swift/Property/shouldRetry" class="dashAnchor"></a>
-                    <a class="token" href="#/s:5HAKit9HARequestV11shouldRetrySbvp">shouldRetry</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>Whether the request should be retried if the connection closes and reopens</p>
-
-                      </div>
-                      <div class="declaration">
-                        <h4>Declaration</h4>
-                        <div class="language">
-                          <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">shouldRetry</span><span class="p">:</span> <span class="kt">Bool</span></code></pre>
-
-                        </div>
+                      <div>
+                        <h4>Return Value</h4>
+                        <p>The connection itself</p>
                       </div>
                     </section>
                   </div>
