@@ -3,11 +3,11 @@
     "pins": [
       {
         "package": "Starscream",
-        "repositoryURL": "https://github.com/zacwest/Starscream",
+        "repositoryURL": "https://github.com/daltoniam/Starscream",
         "state": {
-          "branch": "ha-swift-api",
-          "revision": "35db1249f572e81c480f7159051194f688c16825",
-          "version": null
+          "branch": null,
+          "revision": "df8d82047f6654d8e4b655d1b1525c64e1059d21",
+          "version": "4.0.4"
         }
       }
     ]
