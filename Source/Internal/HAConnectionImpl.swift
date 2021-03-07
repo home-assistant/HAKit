@@ -39,6 +39,7 @@ internal class HAConnectionImpl: HAConnection {
             if oldValue !== connection {
                 oldValue?.disconnect(closeCode: CloseCode.goingAway.rawValue)
                 responseController.reset()
+                connection?.connect()
             }
         }
     }
@@ -109,9 +110,7 @@ internal class HAConnectionImpl: HAConnection {
         }
 
         HAGlobal.log("connecting using \(connectionInfo)")
-
         self.connection = connection
-        connection.connect()
         notifyState()
     }
 
