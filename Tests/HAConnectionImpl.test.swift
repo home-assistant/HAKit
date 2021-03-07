@@ -102,10 +102,9 @@ internal class HAConnectionImplTests: XCTestCase {
         }))
         XCTAssertTrue(reconnectManager.didStartInitial)
 
-        // connect a second time, it shouldn't disconnect but it can call
-        // connect again np
+        // connect a second time, it shouldn't disconnect
         connection.connect()
-        XCTAssertEqual(engine.events.count, 2)
+        XCTAssertEqual(engine.events.count, 1)
         XCTAssertFalse(engine.events.contains(where: { event in
             if case .stop = event {
                 return true
