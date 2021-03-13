@@ -11,6 +11,14 @@ public extension HATypedSubscription {
     }
 }
 
+public extension HATypedRequest {
+    /// Get the state of all entities
+    /// - Returns: A typed request that can be sent via `HAConnection`
+    static func getStates() -> HATypedRequest<[HAEntity]> {
+        .init(request: .init(type: .getStates, data: [:]))
+    }
+}
+
 /// State changed event
 public struct HAResponseEventStateChanged: HADataDecodable {
     /// The underlying event and the information it contains
