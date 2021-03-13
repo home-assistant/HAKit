@@ -1,14 +1,14 @@
 @testable import HAKit
 import XCTest
 
-internal class StateChangedTests: XCTestCase {
-    func testRequest() {
+internal class StatesTests: XCTestCase {
+    func testStateChangedRequest() {
         let request = HATypedSubscription<HAResponseEventStateChanged>.stateChanged()
         XCTAssertEqual(request.request.type, .subscribeEvents)
         XCTAssertEqual(request.request.data["event_type"] as? String, HAEventType.stateChanged.rawValue)
     }
 
-    func testResponseFull() throws {
+    func testStateChangedResponseFull() throws {
         let data = HAData(testJsonString: """
         {
             "event_type": "state_changed",
@@ -73,7 +73,7 @@ internal class StateChangedTests: XCTestCase {
         XCTAssertEqual(response.newState?.entityId, "input_select.muffin")
     }
 
-    func testResponseNoOld() throws {
+    func testStateChangedResponseNoOld() throws {
         let data = HAData(testJsonString: """
         {
             "event_type": "state_changed",
@@ -117,7 +117,7 @@ internal class StateChangedTests: XCTestCase {
         XCTAssertEqual(response.newState?.entityId, "input_select.muffin")
     }
 
-    func testResponseNoOldOrNew() throws {
+    func testStateChangedResponseNoOldOrNew() throws {
         let data = HAData(testJsonString: """
         {
             "event_type": "state_changed",
@@ -138,5 +138,10 @@ internal class StateChangedTests: XCTestCase {
         XCTAssertEqual(response.entityId, "input_select.muffin")
         XCTAssertNil(response.oldState)
         XCTAssertNil(response.newState)
+    }
+
+    func testGetStatesRequest() throws {
+        let request = HATypedRequest<[HAEntity]>.getStates()
+        XCTAssertEqual(request.request.type, .getStates)
     }
 }

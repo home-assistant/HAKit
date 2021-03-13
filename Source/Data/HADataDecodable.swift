@@ -13,6 +13,19 @@ public protocol HADataDecodable {
     init(data: HAData) throws
 }
 
+extension Array: HADataDecodable where Element: HADataDecodable {
+    /// Construct an array of decodable elements
+    /// - Parameter data: The data to decode
+    /// - Throws: When unable to decode, e.g. the data isn't an array
+    public init(data: HAData) throws {
+        guard case let .array(array) = data else {
+            throw HADataError.couldntTransform(key: "root")
+        }
+
+        self.init(try array.map { try Element(data: $0) })
+    }
+}
+
 /// Parse error
 public enum HADataError: Error, Equatable {
     /// The given key was missing

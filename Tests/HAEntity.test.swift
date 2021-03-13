@@ -7,6 +7,24 @@ internal class HAEntityTests: XCTestCase {
         XCTAssertThrowsError(try HAEntity(data: data))
     }
 
+    func testWithInvalidEntityId() throws {
+        let data = HAData(testJsonString: """
+        {
+            "entity_id": "bob",
+            "state": "two",
+            "attributes": {},
+            "last_changed": "2021-02-20T05:14:52.625818+00:00",
+            "last_updated": "2021-02-23T05:55:17.008448+00:00",
+            "context": {
+                "id": "27f121fd8bfa49f92f7094d8cb3eb2c1",
+                "parent_id": null,
+                "user_id": null
+            }
+        }
+        """)
+        XCTAssertThrowsError(try HAEntity(data: data))
+    }
+
     func testWithData() throws {
         let data = HAData(testJsonString: """
         {
@@ -33,6 +51,7 @@ internal class HAEntityTests: XCTestCase {
         """)
         let entity = try HAEntity(data: data)
         XCTAssertEqual(entity.entityId, "input_select.muffin")
+        XCTAssertEqual(entity.domain, "input_select")
         XCTAssertEqual(entity.state, "two")
         XCTAssertEqual(entity.attributes["options"] as? [String], ["one", "two", "three"])
         XCTAssertEqual(entity.attributes["editable"] as? Bool, true)
