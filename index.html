@@ -196,7 +196,7 @@
 
 <p>You may further configure other attributes of this connection, such as <code>callbackQueue</code> (where your handlers are invoked), as well as triggering manual connection attempts. See the protocol for more information.</p>
 
-<p>Once you invoke <code>.connection()</code> and until you invoke <code>.disconnect()</code> the connection will try to stay connected by attempting to reconnect when network status changes and after a retry period following disconnection.</p>
+<p>Once you invoke <code>.connect()</code> (or it is invoked automatically) and until you invoke <code>.disconnect()</code> the connection will try to stay connected by attempting to reconnect when network status changes and after a retry period following disconnection.</p>
 <h2 id='sending-and-subscribing' class='heading'>Sending and subscribing</h2>
 
 <p>There are two types of requests: those with an immediate result and those which fire events until cancelled. The actions for these are &ldquo;sending&rdquo; and &ldquo;subscribing.&rdquo; For example, you might <em>send</em> a service call but <em>subscribe to</em> a template&rsquo;s rendering.</p>

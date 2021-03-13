@@ -183,9 +183,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:5HAKitAAO10connection13configurationAA12HAConnection_pAA0D13ConfigurationV_tFZ"></a>
-                    <a name="//apple_ref/swift/Method/connection(configuration:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:5HAKitAAO10connection13configurationAA12HAConnection_pAA0D13ConfigurationV_tFZ">connection(configuration:<wbr>)</a>
+                    <a name="/s:5HAKitAAO10connection13configuration20connectAutomaticallyAA12HAConnection_pAA0F13ConfigurationV_SbtFZ"></a>
+                    <a name="//apple_ref/swift/Method/connection(configuration:connectAutomatically:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:5HAKitAAO10connection13configuration20connectAutomaticallyAA12HAConnection_pAA0F13ConfigurationV_SbtFZ">connection(configuration:<wbr>connectAutomatically:<wbr>)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -200,7 +200,10 @@
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">static</span> <span class="kd">func</span> <span class="nf">connection</span><span class="p">(</span><span class="nv">configuration</span><span class="p">:</span> <span class="kt"><a href="../Structs/HAConnectionConfiguration.html">HAConnectionConfiguration</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt"><a href="../Protocols/HAConnection.html">HAConnection</a></span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">static</span> <span class="kd">func</span> <span class="nf">connection</span><span class="p">(</span>
+    <span class="nv">configuration</span><span class="p">:</span> <span class="kt"><a href="../Structs/HAConnectionConfiguration.html">HAConnectionConfiguration</a></span><span class="p">,</span>
+    <span class="nv">connectAutomatically</span><span class="p">:</span> <span class="kt">Bool</span> <span class="o">=</span> <span class="kc">true</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kt"><a href="../Protocols/HAConnection.html">HAConnection</a></span></code></pre>
 
                         </div>
                       </div>
@@ -217,6 +220,18 @@
                               <td>
                                 <div>
                                   <p>The configuration for the connection</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>connectAutomatically</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Defaults to <code>true</code>. Whether to call .connect() automatically.</p>
                                 </div>
                               </td>
                             </tr>
