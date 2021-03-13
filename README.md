@@ -106,6 +106,10 @@ Many methods will deliver results as `HAData` when not using convenience wrapper
 
 See [`HADataDecodable`](Source/Data/HADataDecodable.swift) for the available methods.
 
+## PromiseKit
+
+This library contains optional additions for use with PromiseKit. See the [source](https://github.com/home-assistant/HAKit/blob/main/Extensions/PromiseKit) for more information.
+
 ## Installation
 
 ### Swift Package Manager
@@ -116,13 +120,17 @@ To install the library, either add it as a dependency in a `Package.swift` like:
 .Package(url: "https://github.com/home-assistant/HAKit.git", majorVersion: 0)
 ```
 
-To add it to an Xcode project, you can do this by adding the URL to File > Swift Packages > Add Package Dependency and.
+To add it to an Xcode project, you can do this by adding the URL to File > Swift Packages > Add Package Dependency. You will find a few targets available:
+
+- `HAKit`, the library itself
+- `HAKit+PromiseKit`, which includes the PromiseKit additions
 
 ### CocoaPods
 Add the following line to your Podfile:
 
 ```ruby
 pod "HAKit", "~> 0.1"
+# pod "HAKit/PromiseKit" # optional, for PromiseKit support
 ```
 
 ## Contributing

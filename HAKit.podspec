@@ -18,6 +18,11 @@ Pod::Spec.new do |s|
   s.source_files = 'Source/**/*.swift'
   s.dependency 'Starscream', '~> 4.0.4'
 
+  s.subspec 'PromiseKit' do |subspec|
+    subspec.dependency 'PromiseKit', '~> 6.13'
+    subspec.source_files = 'Extensions/PromiseKit/**/*.swift'
+  end
+
   s.test_spec 'Tests' do |test_spec|
     test_spec.platform = { ios: '12.0', tvos: '12.0', macos: '10.14' }
     test_spec.macos.deployment_target = '10.14'
