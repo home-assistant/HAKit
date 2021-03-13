@@ -151,7 +151,19 @@
                 <a href="../Structs/HAResponseRenderTemplate/Listeners.html">– Listeners</a>
               </li>
               <li class="nav-group-task">
+                <a href="../Structs/HAResponseServices.html">HAResponseServices</a>
+              </li>
+              <li class="nav-group-task">
                 <a href="../Structs/HAResponseVoid.html">HAResponseVoid</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/HAServiceDefinition.html">HAServiceDefinition</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/HAServicesDomain.html">HAServicesDomain</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/HAServicesService.html">HAServicesService</a>
               </li>
               <li class="nav-group-task">
                 <a href="../Structs/HATypedRequest.html">HATypedRequest</a>
@@ -256,9 +268,40 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:5HAKit14HATypedRequestV11callService6domain7service4dataACyAA14HAResponseVoidVGSS_SSSDySSypGtFZ"></a>
+                    <a name="/s:5HAKit14HATypedRequestV11currentUserACyAA017HAResponseCurrentE0VGyFZ"></a>
+                    <a name="//apple_ref/swift/Method/currentUser()" class="dashAnchor"></a>
+                    <a class="token" href="#/s:5HAKit14HATypedRequestV11currentUserACyAA017HAResponseCurrentE0VGyFZ">currentUser()</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Retrieve the current user</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">static</span> <span class="kd">func</span> <span class="nf">currentUser</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kt">HATypedRequest</span><span class="o">&lt;</span><span class="kt"><a href="../Structs/HAResponseCurrentUser.html">HAResponseCurrentUser</a></span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Return Value</h4>
+                        <p>A typed request that can be sent via <code><a href="../Protocols/HAConnection.html">HAConnection</a></code></p>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:5HAKit14HATypedRequestV11callService6domain7service4dataACyAA14HAResponseVoidVGAA16HAServicesDomainV_AA0kE0VSDySSypGtFZ"></a>
                     <a name="//apple_ref/swift/Method/callService(domain:service:data:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:5HAKit14HATypedRequestV11callService6domain7service4dataACyAA14HAResponseVoidVGSS_SSSDySSypGtFZ">callService(domain:<wbr>service:<wbr>data:<wbr>)</a>
+                    <a class="token" href="#/s:5HAKit14HATypedRequestV11callService6domain7service4dataACyAA14HAResponseVoidVGAA16HAServicesDomainV_AA0kE0VSDySSypGtFZ">callService(domain:<wbr>service:<wbr>data:<wbr>)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -267,6 +310,11 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Call a service</p>
+<div class="aside aside-note">
+    <p class="aside-title">Note</p>
+    Parameters are <code>ExpressibleByStringLiteral</code>. You can use strings instead of using <code>.init(rawValue:)</code>.
+
+</div>
 
                       </div>
                       <div class="declaration">
@@ -274,8 +322,8 @@
                         <div class="language">
                           <p class="aside-title">Swift</p>
                           <pre class="highlight swift"><code><span class="kd">static</span> <span class="kd">func</span> <span class="nf">callService</span><span class="p">(</span>
-    <span class="nv">domain</span><span class="p">:</span> <span class="kt">String</span><span class="p">,</span>
-    <span class="nv">service</span><span class="p">:</span> <span class="kt">String</span><span class="p">,</span>
+    <span class="nv">domain</span><span class="p">:</span> <span class="kt"><a href="../Structs/HAServicesDomain.html">HAServicesDomain</a></span><span class="p">,</span>
+    <span class="nv">service</span><span class="p">:</span> <span class="kt"><a href="../Structs/HAServicesService.html">HAServicesService</a></span><span class="p">,</span>
     <span class="nv">data</span><span class="p">:</span> <span class="p">[</span><span class="kt">String</span><span class="p">:</span> <span class="kt">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">[:]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">HATypedRequest</span><span class="o">&lt;</span><span class="kt"><a href="../Structs/HAResponseVoid.html">HAResponseVoid</a></span><span class="o">&gt;</span></code></pre>
 
@@ -334,9 +382,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:5HAKit14HATypedRequestV11currentUserACyAA017HAResponseCurrentE0VGyFZ"></a>
-                    <a name="//apple_ref/swift/Method/currentUser()" class="dashAnchor"></a>
-                    <a class="token" href="#/s:5HAKit14HATypedRequestV11currentUserACyAA017HAResponseCurrentE0VGyFZ">currentUser()</a>
+                    <a name="/s:5HAKit14HATypedRequestV11getServicesACyAA010HAResponseE0VGyFZ"></a>
+                    <a name="//apple_ref/swift/Method/getServices()" class="dashAnchor"></a>
+                    <a class="token" href="#/s:5HAKit14HATypedRequestV11getServicesACyAA010HAResponseE0VGyFZ">getServices()</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -344,14 +392,14 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Retrieve the current user</p>
+                        <p>Retrieve definition of all services</p>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">static</span> <span class="kd">func</span> <span class="nf">currentUser</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kt">HATypedRequest</span><span class="o">&lt;</span><span class="kt"><a href="../Structs/HAResponseCurrentUser.html">HAResponseCurrentUser</a></span><span class="o">&gt;</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">static</span> <span class="kd">func</span> <span class="nf">getServices</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kt">HATypedRequest</span><span class="o">&lt;</span><span class="kt"><a href="../Structs/HAResponseServices.html">HAResponseServices</a></span><span class="o">&gt;</span></code></pre>
 
                         </div>
                       </div>

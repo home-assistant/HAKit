@@ -151,7 +151,19 @@
                 <a href="Structs/HAResponseRenderTemplate/Listeners.html">– Listeners</a>
               </li>
               <li class="nav-group-task">
+                <a href="Structs/HAResponseServices.html">HAResponseServices</a>
+              </li>
+              <li class="nav-group-task">
                 <a href="Structs/HAResponseVoid.html">HAResponseVoid</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/HAServiceDefinition.html">HAServiceDefinition</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/HAServicesDomain.html">HAServicesDomain</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/HAServicesService.html">HAServicesService</a>
               </li>
               <li class="nav-group-task">
                 <a href="Structs/HATypedRequest.html">HATypedRequest</a>
@@ -344,6 +356,62 @@
                 <li class="item">
                   <div>
                     <code>
+                    <a name="/s:5HAKit19HAServiceDefinitionV"></a>
+                    <a name="//apple_ref/swift/Struct/HAServiceDefinition" class="dashAnchor"></a>
+                    <a class="token" href="#/s:5HAKit19HAServiceDefinitionV">HAServiceDefinition</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>A service definition</p>
+
+                        <a href="Structs/HAServiceDefinition.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">struct</span> <span class="kt">HAServiceDefinition</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:5HAKit18HAResponseServicesV"></a>
+                    <a name="//apple_ref/swift/Struct/HAResponseServices" class="dashAnchor"></a>
+                    <a class="token" href="#/s:5HAKit18HAResponseServicesV">HAResponseServices</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>The services available</p>
+
+                        <a href="Structs/HAResponseServices.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">struct</span> <span class="kt">HAResponseServices</span> <span class="p">:</span> <span class="kt"><a href="Protocols/HADataDecodable.html">HADataDecodable</a></span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
                     <a name="/s:5HAKit27HAResponseEventStateChangedV"></a>
                     <a name="//apple_ref/swift/Struct/HAResponseEventStateChanged" class="dashAnchor"></a>
                     <a class="token" href="#/s:5HAKit27HAResponseEventStateChangedV">HAResponseEventStateChanged</a>
@@ -391,6 +459,68 @@
                         <div class="language">
                           <p class="aside-title">Swift</p>
                           <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">struct</span> <span class="kt">HAEntity</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:5HAKit16HAServicesDomainV"></a>
+                    <a name="//apple_ref/swift/Struct/HAServicesDomain" class="dashAnchor"></a>
+                    <a class="token" href="#/s:5HAKit16HAServicesDomainV">HAServicesDomain</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>The domain of a service</p>
+
+<p>For example, <code>light</code> in <code>light.turn_on</code> is the domain.</p>
+
+                        <a href="Structs/HAServicesDomain.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">struct</span> <span class="kt">HAServicesDomain</span> <span class="p">:</span> <span class="kt">RawRepresentable</span><span class="p">,</span> <span class="kt">Hashable</span><span class="p">,</span> <span class="kt">ExpressibleByStringLiteral</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:5HAKit17HAServicesServiceV"></a>
+                    <a name="//apple_ref/swift/Struct/HAServicesService" class="dashAnchor"></a>
+                    <a class="token" href="#/s:5HAKit17HAServicesServiceV">HAServicesService</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>The service itself in a service call</p>
+
+<p>Many services can be used on multiple domains, but you should consult the full results to see which are available.</p>
+
+<p>For example, <code>turn_on</code> in <code>light.turn_on</code> is the service.</p>
+
+                        <a href="Structs/HAServicesService.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">struct</span> <span class="kt">HAServicesService</span> <span class="p">:</span> <span class="kt">RawRepresentable</span><span class="p">,</span> <span class="kt">Hashable</span><span class="p">,</span> <span class="kt">ExpressibleByStringLiteral</span></code></pre>
 
                         </div>
                       </div>
