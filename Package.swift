@@ -22,6 +22,10 @@ public let package = Package(
             url: "https://github.com/daltoniam/Starscream",
             from: "4.0.4"
         ),
+        .package(
+            url: "https://github.com/mxcl/PromiseKit",
+            from: "6.13.2"
+        ),
     ],
     targets: [
         .target(
@@ -31,9 +35,20 @@ public let package = Package(
             ],
             path: "Source"
         ),
+        .target(
+            name: "HAKit+PromiseKit",
+            dependencies: [
+                .byName(name: "HAKit"),
+                .byName(name: "PromiseKit"),
+            ],
+            path: "Extensions/PromiseKit"
+        ),
         .testTarget(
             name: "Tests",
-            dependencies: ["HAKit"],
+            dependencies: [
+                .byName(name: "HAKit"),
+                .byName(name: "HAKit+PromiseKit"),
+            ],
             path: "Tests"
         ),
     ]

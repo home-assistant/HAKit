@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "HAWebSocket"
-               BuildableName = "HAWebSocket"
-               BlueprintName = "HAWebSocket"
+               BlueprintIdentifier = "HAKit"
+               BuildableName = "HAKit"
+               BlueprintName = "HAKit"
                ReferencedContainer = "container:">
             </BuildableReference>
          </BuildActionEntry>
@@ -28,9 +28,37 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "HAWebSocketTests"
-               BuildableName = "HAWebSocketTests"
-               BlueprintName = "HAWebSocketTests"
+               BlueprintIdentifier = "Tests"
+               BuildableName = "Tests"
+               BlueprintName = "Tests"
+               ReferencedContainer = "container:">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "HAKit+Promises"
+               BuildableName = "HAKit+Promises"
+               BlueprintName = "HAKit+Promises"
+               ReferencedContainer = "container:">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "HAKit+PromiseKit"
+               BuildableName = "HAKit+PromiseKit"
+               BlueprintName = "HAKit+PromiseKit"
                ReferencedContainer = "container:">
             </BuildableReference>
          </BuildActionEntry>
@@ -75,9 +103,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "HAWebSocket"
-            BuildableName = "HAWebSocket"
-            BlueprintName = "HAWebSocket"
+            BlueprintIdentifier = "HAKit"
+            BuildableName = "HAKit"
+            BlueprintName = "HAKit"
             ReferencedContainer = "container:">
          </BuildableReference>
       </MacroExpansion>

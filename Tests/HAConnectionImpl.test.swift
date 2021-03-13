@@ -1,11 +1,13 @@
 @testable import HAKit
+@testable import HAKit_PromiseKit
+import PromiseKit
 import Starscream
 import XCTest
 
 internal class HAConnectionImplTests: XCTestCase {
     private var url: URL?
     private var engine: FakeEngine!
-    private var pendingFetchAccessTokens: [(Result<String, Error>) -> Void]!
+    private var pendingFetchAccessTokens: [(Swift.Result<String, Error>) -> Void]!
     private var connection: HAConnectionImpl!
     private var callbackQueue: DispatchQueue!
     private var queueSpecific = DispatchSpecificKey<Bool>()
@@ -422,7 +424,7 @@ internal class HAConnectionImplTests: XCTestCase {
     }
 
     func testResponseResultSingle() {
-        let expectedResult: Result<HAData, HAError> = .success(.dictionary(["yep": true]))
+        let expectedResult: Swift.Result<HAData, HAError> = .success(.dictionary(["yep": true]))
 
         let expectation = self.expectation(description: "invoked completion")
 
@@ -448,7 +450,7 @@ internal class HAConnectionImplTests: XCTestCase {
     }
 
     func testResponseResultSubscription() {
-        let expectedResult: Result<HAData, HAError> = .success(.dictionary(["yep": true]))
+        let expectedResult: Swift.Result<HAData, HAError> = .success(.dictionary(["yep": true]))
 
         let expectation = self.expectation(description: "invoked completion")
 
@@ -542,6 +544,17 @@ internal class HAConnectionImplTests: XCTestCase {
         XCTAssertTrue(requestController.cancelled.contains(added))
     }
 
+    func testPlainSendCancelledPromise() throws {
+        let (_, cancel) = connection.send(.init(type: "test1", data: ["data": true]))
+
+        let added = try XCTUnwrap(requestController.added.first(where: { invoc in
+            invoc.request.type == "test1" && invoc.request.data["data"] as? Bool == true
+        }))
+
+        cancel()
+        XCTAssertTrue(requestController.cancelled.contains(added))
+    }
+
     func testPlainSendSentSuccessful() throws {
         let expectation = self.expectation(description: "completion")
         responseController.phase = .command(version: "a")
@@ -549,6 +562,24 @@ internal class HAConnectionImplTests: XCTestCase {
             XCTAssertEqual(result, .success(.dictionary(["still_happy": true])))
             expectation.fulfill()
         })
+
+        let added = try XCTUnwrap(requestController.added.first(where: { invoc in
+            invoc.request.type == "happy" && invoc.request.data["data"] as? Bool == true
+        }) as? HARequestInvocationSingle)
+
+        // we test the "when something is added" flow elsewhere; skip end-to-end and invoke directly
+        added.resolve(.success(.dictionary(["still_happy": true])))
+        waitForExpectations(timeout: 10.0)
+    }
+
+    func testPlainSendSentSuccessfulPromise() throws {
+        let expectation = self.expectation(description: "completion")
+        responseController.phase = .command(version: "a")
+
+        _ = connection.send(.init(type: "happy", data: ["data": true])).promise.done { data in
+            XCTAssertEqual(data, .dictionary(["still_happy": true]))
+            expectation.fulfill()
+        }.cauterize()
 
         let added = try XCTUnwrap(requestController.added.first(where: { invoc in
             invoc.request.type == "happy" && invoc.request.data["data"] as? Bool == true
@@ -576,6 +607,23 @@ internal class HAConnectionImplTests: XCTestCase {
         waitForExpectations(timeout: 10.0)
     }
 
+    func testPlainSendSentFailurePromise() throws {
+        let expectation = self.expectation(description: "completion")
+        responseController.phase = .command(version: "a")
+        _ = connection.send(.init(type: "happy", data: ["data": true])).promise.catch { error in
+            XCTAssertEqual(error as? HAError, .internal(debugDescription: "moo"))
+            expectation.fulfill()
+        }
+
+        let added = try XCTUnwrap(requestController.added.first(where: { invoc in
+            invoc.request.type == "happy" && invoc.request.data["data"] as? Bool == true
+        }) as? HARequestInvocationSingle)
+
+        // we test the "when something is added" flow elsewhere; skip end-to-end and invoke directly
+        added.resolve(.failure(.internal(debugDescription: "moo")))
+        waitForExpectations(timeout: 10.0)
+    }
+
     func testTypedRequestCancelled() throws {
         let token = connection.send(
             HATypedRequest<MockTypedRequestResult>(request: .init(type: "typed_type", data: [:])),
@@ -592,6 +640,19 @@ internal class HAConnectionImplTests: XCTestCase {
         XCTAssertTrue(requestController.cancelled.contains(added))
     }
 
+    func testTypedRequestCancelledPromise() throws {
+        let (_, cancel) = connection.send(
+            HATypedRequest<MockTypedRequestResult>(request: .init(type: "typed_type", data: [:]))
+        )
+
+        let added = try XCTUnwrap(requestController.added.first(where: { invoc in
+            invoc.request.type == "typed_type"
+        }))
+
+        cancel()
+        XCTAssertTrue(requestController.cancelled.contains(added))
+    }
+
     func testTypedRequestSentSuccessfullyDecodeSuccessful() throws {
         let expectation = self.expectation(description: "completion")
         _ = connection.send(
@@ -601,6 +662,22 @@ internal class HAConnectionImplTests: XCTestCase {
                 expectation.fulfill()
             }
         )
+
+        let added = try XCTUnwrap(requestController.added.first(where: { invoc in
+            invoc.request.type == "typed_type"
+        }) as? HARequestInvocationSingle)
+
+        added.resolve(.success(.dictionary(["success": true])))
+        waitForExpectations(timeout: 10)
+    }
+
+    func testTypedRequestSentSuccessfulPromise() throws {
+        let expectation = self.expectation(description: "completion")
+        connection.send(
+            HATypedRequest<MockTypedRequestResult>(request: .init(type: "typed_type", data: [:]))
+        ).promise.done { _ in
+            expectation.fulfill()
+        }.cauterize()
 
         let added = try XCTUnwrap(requestController.added.first(where: { invoc in
             invoc.request.type == "typed_type"
@@ -648,6 +725,23 @@ internal class HAConnectionImplTests: XCTestCase {
                 expectation.fulfill()
             }
         )
+
+        let added = try XCTUnwrap(requestController.added.first(where: { invoc in
+            invoc.request.type == "typed_type"
+        }) as? HARequestInvocationSingle)
+
+        added.resolve(.failure(.internal(debugDescription: "direct")))
+        waitForExpectations(timeout: 10)
+    }
+
+    func testTypedRequestSentFailurePromise() throws {
+        let expectation = self.expectation(description: "completion")
+        connection.send(
+            HATypedRequest<MockTypedRequestResult>(request: .init(type: "typed_type", data: [:]))
+        ).promise.catch { error in
+            XCTAssertEqual(error as? HAError, .internal(debugDescription: "direct"))
+            expectation.fulfill()
+        }
 
         let added = try XCTUnwrap(requestController.added.first(where: { invoc in
             invoc.request.type == "typed_type"
