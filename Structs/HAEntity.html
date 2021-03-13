@@ -182,7 +182,7 @@
               <div class="declaration">
                 <div class="language">
                   
-                  <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">struct</span> <span class="kt">HAEntity</span></code></pre>
+                  <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">struct</span> <span class="kt">HAEntity</span> <span class="p">:</span> <span class="kt"><a href="../Protocols/HADataDecodable.html">HADataDecodable</a></span></code></pre>
 
                 </div>
               </div>
@@ -192,6 +192,205 @@
           <section class="section task-group-section">
             <div class="task-group">
               <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:5HAKit8HAEntityV8entityIdSSvp"></a>
+                    <a name="//apple_ref/swift/Property/entityId" class="dashAnchor"></a>
+                    <a class="token" href="#/s:5HAKit8HAEntityV8entityIdSSvp">entityId</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>The entity id, e.g. <code>sun.sun</code> or <code>light.office</code></p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">entityId</span><span class="p">:</span> <span class="kt">String</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:5HAKit8HAEntityV6domainSSvp"></a>
+                    <a name="//apple_ref/swift/Property/domain" class="dashAnchor"></a>
+                    <a class="token" href="#/s:5HAKit8HAEntityV6domainSSvp">domain</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>The domain of the entity id, e.g. <code>light</code> in <code>light.office</code></p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">domain</span><span class="p">:</span> <span class="kt">String</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:5HAKit8HAEntityV5stateSSvp"></a>
+                    <a name="//apple_ref/swift/Property/state" class="dashAnchor"></a>
+                    <a class="token" href="#/s:5HAKit8HAEntityV5stateSSvp">state</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>The current state of the entity</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">state</span><span class="p">:</span> <span class="kt">String</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:5HAKit8HAEntityV11lastChanged10Foundation4DateVvp"></a>
+                    <a name="//apple_ref/swift/Property/lastChanged" class="dashAnchor"></a>
+                    <a class="token" href="#/s:5HAKit8HAEntityV11lastChanged10Foundation4DateVvp">lastChanged</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>When the entity was last changed</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">lastChanged</span><span class="p">:</span> <span class="kt">Date</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:5HAKit8HAEntityV11lastUpdated10Foundation4DateVvp"></a>
+                    <a name="//apple_ref/swift/Property/lastUpdated" class="dashAnchor"></a>
+                    <a class="token" href="#/s:5HAKit8HAEntityV11lastUpdated10Foundation4DateVvp">lastUpdated</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>When the entity was last updated</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">lastUpdated</span><span class="p">:</span> <span class="kt">Date</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:5HAKit8HAEntityV10attributesSDySSypGvp"></a>
+                    <a name="//apple_ref/swift/Property/attributes" class="dashAnchor"></a>
+                    <a class="token" href="#/s:5HAKit8HAEntityV10attributesSDySSypGvp">attributes</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Attributes of the entity</p>
+<div class="aside aside-todo">
+    <p class="aside-title">Todo</p>
+    as strongly typed
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">attributes</span><span class="p">:</span> <span class="p">[</span><span class="kt">String</span> <span class="p">:</span> <span class="kt">Any</span><span class="p">]</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:5HAKit8HAEntityV7contextSDySSypGvp"></a>
+                    <a name="//apple_ref/swift/Property/context" class="dashAnchor"></a>
+                    <a class="token" href="#/s:5HAKit8HAEntityV7contextSDySSypGvp">context</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Context of the entity&rsquo;s last update</p>
+<div class="aside aside-todo">
+    <p class="aside-title">Todo</p>
+    as strongly typed
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">context</span><span class="p">:</span> <span class="p">[</span><span class="kt">String</span> <span class="p">:</span> <span class="kt">Any</span><span class="p">]</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
                 <li class="item">
                   <div>
                     <code>
@@ -246,9 +445,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:5HAKit8HAEntityV8entityId5state11lastChanged0F7Updated10attributes7contextACSS_SS10Foundation4DateVALSDySSypGAMtcfc"></a>
-                    <a name="//apple_ref/swift/Method/init(entityId:state:lastChanged:lastUpdated:attributes:context:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:5HAKit8HAEntityV8entityId5state11lastChanged0F7Updated10attributes7contextACSS_SS10Foundation4DateVALSDySSypGAMtcfc">init(entityId:<wbr>state:<wbr>lastChanged:<wbr>lastUpdated:<wbr>attributes:<wbr>context:<wbr>)</a>
+                    <a name="/s:5HAKit8HAEntityV8entityId6domain5state11lastChanged0G7Updated10attributes7contextACSS_S2S10Foundation4DateVAMSDySSypGANtcfc"></a>
+                    <a name="//apple_ref/swift/Method/init(entityId:domain:state:lastChanged:lastUpdated:attributes:context:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:5HAKit8HAEntityV8entityId6domain5state11lastChanged0G7Updated10attributes7contextACSS_S2S10Foundation4DateVAMSDySSypGANtcfc">init(entityId:<wbr>domain:<wbr>state:<wbr>lastChanged:<wbr>lastUpdated:<wbr>attributes:<wbr>context:<wbr>)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -265,6 +464,7 @@
                           <p class="aside-title">Swift</p>
                           <pre class="highlight swift"><code><span class="kd">public</span> <span class="nf">init</span><span class="p">(</span>
     <span class="nv">entityId</span><span class="p">:</span> <span class="kt">String</span><span class="p">,</span>
+    <span class="nv">domain</span><span class="p">:</span> <span class="kt">String</span><span class="p">,</span>
     <span class="nv">state</span><span class="p">:</span> <span class="kt">String</span><span class="p">,</span>
     <span class="nv">lastChanged</span><span class="p">:</span> <span class="kt">Date</span><span class="p">,</span>
     <span class="nv">lastUpdated</span><span class="p">:</span> <span class="kt">Date</span><span class="p">,</span>
@@ -287,6 +487,18 @@
                               <td>
                                 <div>
                                   <p>The entity ID</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>domain</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The domain of the entity ID</p>
                                 </div>
                               </td>
                             </tr>
