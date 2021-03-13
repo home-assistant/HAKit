@@ -268,6 +268,62 @@ internal class HAConnectionImplTests: XCTestCase {
         }))
     }
 
+    func testAutomaticConnection() throws {
+        XCTAssertTrue(engine.events.isEmpty)
+
+        connection.connectAutomatically = false
+        connection.send(.init(type: "test", data: [:]), completion: { _ in })
+        connection.subscribe(to: .init(type: "test", data: [:]), handler: { _, _ in })
+        XCTAssertTrue(engine.events.isEmpty)
+
+        connection.connectAutomatically = true
+
+        connection.send(.init(type: "test", data: [:]), completion: { _ in })
+        XCTAssertTrue(engine.events.contains(where: { event in
+            if case .start = event {
+                return true
+            } else {
+                return false
+            }
+        }))
+
+        engine.events.removeAll()
+        connection.send(.init(type: "test", data: [:]), completion: { _ in })
+
+        // don't try and call connect _again_
+        XCTAssertFalse(engine.events.contains(where: { event in
+            if case .start = event {
+                return true
+            } else {
+                return false
+            }
+        }))
+
+        connection.disconnect()
+        engine.events.removeAll()
+
+        connection.subscribe(to: .init(type: "test", data: [:]), handler: { _, _ in })
+        XCTAssertTrue(engine.events.contains(where: { event in
+            if case .start = event {
+                return true
+            } else {
+                return false
+            }
+        }))
+
+        engine.events.removeAll()
+        connection.subscribe(to: .init(type: "test", data: [:]), handler: { _, _ in })
+
+        // don't try and call connect _again_
+        XCTAssertFalse(engine.events.contains(where: { event in
+            if case .start = event {
+                return true
+            } else {
+                return false
+            }
+        }))
+    }
+
     func testShouldSendRequestsDuringCommandPhase() {
         responseController.phase = .disconnected(error: nil, forReset: false)
         XCTAssertFalse(connection.requestControllerShouldSendRequests(requestController))

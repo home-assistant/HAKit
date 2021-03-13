@@ -1,7 +1,7 @@
 @testable import HAKit
 import XCTest
 
-internal class HAConnectionTests: XCTestCase {
+internal class HAKitTests: XCTestCase {
     func testCreation() {
         let configuration = HAConnectionConfiguration.test
         let connection = HAKit.connection(configuration: configuration)

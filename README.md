@@ -32,7 +32,7 @@ let connection = HAKit.connection(configuration: .init(
 
 You may further configure other attributes of this connection, such as `callbackQueue` (where your handlers are invoked), as well as triggering manual connection attempts. See the protocol for more information.
 
-Once you invoke `.connection()` and until you invoke `.disconnect()` the connection will try to stay connected by attempting to reconnect when network status changes and after a retry period following disconnection.
+Once you invoke `.connect()` (or it is invoked automatically) and until you invoke `.disconnect()` the connection will try to stay connected by attempting to reconnect when network status changes and after a retry period following disconnection.
 
 ## Sending and subscribing
 

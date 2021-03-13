@@ -51,26 +51,20 @@ internal class HAConnectionImpl: HAConnection {
     let requestController: HARequestController
     let responseController: HAResponseController
     let reconnectManager: HAReconnectManager
-
-    required convenience init(configuration: HAConnectionConfiguration) {
-        self.init(
-            configuration: configuration,
-            requestController: HARequestControllerImpl(),
-            responseController: HAResponseControllerImpl(),
-            reconnectManager: HAReconnectManagerImpl()
-        )
-    }
+    var connectAutomatically: Bool
 
     init(
         configuration: HAConnectionConfiguration,
-        requestController: HARequestController,
-        responseController: HAResponseController,
-        reconnectManager: HAReconnectManager
+        requestController: HARequestController = HARequestControllerImpl(),
+        responseController: HAResponseController = HAResponseControllerImpl(),
+        reconnectManager: HAReconnectManager = HAReconnectManagerImpl(),
+        connectAutomatically: Bool = false
     ) {
         self.configuration = configuration
         self.requestController = requestController
         self.responseController = responseController
         self.reconnectManager = reconnectManager
+        self.connectAutomatically = connectAutomatically
 
         requestController.delegate = self
         responseController.delegate = self
@@ -85,6 +79,11 @@ internal class HAConnectionImpl: HAConnection {
 
     public func disconnect() {
         disconnect(permanently: true, error: nil)
+    }
+
+    private func connectAutomaticallyIfNeeded() {
+        guard connectAutomatically, case .disconnected = state else { return }
+        connect()
     }
 
     func connect(resettingState: Bool) {
@@ -139,6 +138,7 @@ internal class HAConnectionImpl: HAConnection {
     ) -> HACancellable {
         let invocation = HARequestInvocationSingle(request: request, completion: completion)
         requestController.add(invocation, completion: {})
+        defer { connectAutomaticallyIfNeeded() }
         return HACancellableImpl { [requestController] in
             requestController.cancel(invocation, completion: {})
         }
@@ -170,6 +170,7 @@ internal class HAConnectionImpl: HAConnection {
     ) -> HACancellable {
         let sub = HARequestInvocationSubscription(request: request, initiated: initiated, handler: handler)
         requestController.add(sub, completion: {})
+        defer { connectAutomaticallyIfNeeded() }
         return HACancellableImpl { [requestController] in
             requestController.cancel(sub, completion: {})
         }

@@ -66,11 +66,6 @@ public protocol HAConnection: AnyObject {
     /// The delegate of the connection
     var delegate: HAConnectionDelegate? { get set }
 
-    /// Create a new connection
-    ///
-    /// - SeeAlso: `HAConnection` for the public interface to create connections
-    /// - Parameter configuration: The configuration to create
-    init(configuration: HAConnectionConfiguration)
     /// The current configuration for the connection
     var configuration: HAConnectionConfiguration { get set }
 
