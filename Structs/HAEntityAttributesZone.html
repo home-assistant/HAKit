@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>HAServicesDomain Structure Reference</title>
+    <title>HAEntityAttributesZone Structure Reference</title>
     <link rel="stylesheet" type="text/css" href="../css/jazzy.css" />
     <link rel="stylesheet" type="text/css" href="../css/highlight.css" />
     <meta charset='utf-8'>
@@ -13,8 +13,8 @@
     <script src="../js/jazzy.search.js" defer></script>
   </head>
   <body>
-    <a name="//apple_ref/swift/Struct/HAServicesDomain" class="dashAnchor"></a>
-    <a title="HAServicesDomain Structure Reference"></a>
+    <a name="//apple_ref/swift/Struct/HAEntityAttributesZone" class="dashAnchor"></a>
+    <a title="HAEntityAttributesZone Structure Reference"></a>
     <header>
       <div class="content-wrapper">
         <p><a href="../index.html">HAKit 0.1.0 Docs</a> (100% documented)</p>
@@ -30,7 +30,7 @@
       <p id="breadcrumbs">
         <a href="../index.html">HAKit Reference</a>
         <img id="carat" src="../img/carat.png" />
-        HAServicesDomain Structure Reference
+        HAEntityAttributesZone Structure Reference
       </p>
     </div>
     <div class="content-wrapper">
@@ -184,17 +184,15 @@
       <article class="main-content">
         <section>
           <section class="section">
-            <h1>HAServicesDomain</h1>
+            <h1>HAEntityAttributesZone</h1>
               <div class="declaration">
                 <div class="language">
                   
-                  <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">struct</span> <span class="kt">HAServicesDomain</span> <span class="p">:</span> <span class="kt">RawRepresentable</span><span class="p">,</span> <span class="kt">Hashable</span><span class="p">,</span> <span class="kt">ExpressibleByStringLiteral</span></code></pre>
+                  <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">struct</span> <span class="kt">HAEntityAttributesZone</span> <span class="p">:</span> <span class="kt"><a href="../Protocols/HADataDecodable.html">HADataDecodable</a></span></code></pre>
 
                 </div>
               </div>
-            <p>The domain of a service</p>
-
-<p>For example, <code>light</code> in <code>light.turn_on</code> is the domain.</p>
+            <p>Entity attributes for Zones</p>
 
           </section>
           <section class="section task-group-section">
@@ -203,9 +201,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:5HAKit16HAServicesDomainV8rawValueSSvp"></a>
-                    <a name="//apple_ref/swift/Property/rawValue" class="dashAnchor"></a>
-                    <a class="token" href="#/s:5HAKit16HAServicesDomainV8rawValueSSvp">rawValue</a>
+                    <a name="/s:5HAKit22HAEntityAttributesZoneV8latitudeSdvp"></a>
+                    <a name="//apple_ref/swift/Property/latitude" class="dashAnchor"></a>
+                    <a class="token" href="#/s:5HAKit22HAEntityAttributesZoneV8latitudeSdvp">latitude</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -213,14 +211,14 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>The domain as a string</p>
+                        <p>The latitude of the center point of the zone.</p>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">rawValue</span><span class="p">:</span> <span class="kt">String</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">latitude</span><span class="p">:</span> <span class="kt">Double</span></code></pre>
 
                         </div>
                       </div>
@@ -230,9 +228,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:5HAKit16HAServicesDomainV8rawValueACSS_tcfc"></a>
-                    <a name="//apple_ref/swift/Method/init(rawValue:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:5HAKit16HAServicesDomainV8rawValueACSS_tcfc">init(rawValue:<wbr>)</a>
+                    <a name="/s:5HAKit22HAEntityAttributesZoneV9longitudeSdvp"></a>
+                    <a name="//apple_ref/swift/Property/longitude" class="dashAnchor"></a>
+                    <a class="token" href="#/s:5HAKit22HAEntityAttributesZoneV9longitudeSdvp">longitude</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -240,14 +238,100 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Construct a service domain from a raw value</p>
+                        <p>The longitude of the center point of the zone.</p>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="nf">init</span><span class="p">(</span><span class="nv">rawValue</span><span class="p">:</span> <span class="kt">String</span><span class="p">)</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">longitude</span><span class="p">:</span> <span class="kt">Double</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:5HAKit22HAEntityAttributesZoneV6radius10Foundation11MeasurementVySo12NSUnitLengthCGvp"></a>
+                    <a name="//apple_ref/swift/Property/radius" class="dashAnchor"></a>
+                    <a class="token" href="#/s:5HAKit22HAEntityAttributesZoneV6radius10Foundation11MeasurementVySo12NSUnitLengthCGvp">radius</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>The radius of the zone. The underlying measurement comes from meters.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">radius</span><span class="p">:</span> <span class="kt">Measurement</span><span class="o">&lt;</span><span class="kt">UnitLength</span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:5HAKit22HAEntityAttributesZoneV9isPassiveSbvp"></a>
+                    <a name="//apple_ref/swift/Property/isPassive" class="dashAnchor"></a>
+                    <a class="token" href="#/s:5HAKit22HAEntityAttributesZoneV9isPassiveSbvp">isPassive</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>To only use the zone for automation and hide it from the frontend and not use the zone for device tracker name.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">isPassive</span><span class="p">:</span> <span class="kt">Bool</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:5HAKit22HAEntityAttributesZoneV4dataAcA6HADataO_tKcfc"></a>
+                    <a name="//apple_ref/swift/Method/init(data:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:5HAKit22HAEntityAttributesZoneV4dataAcA6HADataO_tKcfc">init(data:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Create attributes from data</p>
+<div class="aside aside-throws">
+    <p class="aside-title">Throws</p>
+    When the data is missing any required fields
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="nf">init</span><span class="p">(</span><span class="nv">data</span><span class="p">:</span> <span class="kt"><a href="../Enums/HAData.html">HAData</a></span><span class="p">)</span> <span class="k">throws</span></code></pre>
 
                         </div>
                       </div>
@@ -258,12 +342,12 @@
                             <tr>
                               <td>
                                 <code>
-                                <em>rawValue</em>
+                                <em>data</em>
                                 </code>
                               </td>
                               <td>
                                 <div>
-                                  <p>The raw value</p>
+                                  <p>The data to create from</p>
                                 </div>
                               </td>
                             </tr>
@@ -276,9 +360,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:5HAKit16HAServicesDomainV13stringLiteralACSS_tcfc"></a>
-                    <a name="//apple_ref/swift/Method/init(stringLiteral:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:5HAKit16HAServicesDomainV13stringLiteralACSS_tcfc">init(stringLiteral:<wbr>)</a>
+                    <a name="/s:5HAKit22HAEntityAttributesZoneV8latitude9longitude6radius9isPassiveACSd_Sd10Foundation11MeasurementVySo12NSUnitLengthCGSbtcfc"></a>
+                    <a name="//apple_ref/swift/Method/init(latitude:longitude:radius:isPassive:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:5HAKit22HAEntityAttributesZoneV8latitude9longitude6radius9isPassiveACSd_Sd10Foundation11MeasurementVySo12NSUnitLengthCGSbtcfc">init(latitude:<wbr>longitude:<wbr>radius:<wbr>isPassive:<wbr>)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -286,17 +370,19 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Construct a service domain from a literal</p>
-
-<p>This is mainly useful when stringly-calling a parameter that takes this type.
-You should use the <code><a href="../Structs/HAServicesDomain.html#/s:5HAKit16HAServicesDomainV8rawValueACSS_tcfc">HAServicesDomain.init(rawValue:)</a></code> initializer instead.</p>
+                        <p>Create attributes from values</p>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="nf">init</span><span class="p">(</span><span class="n">stringLiteral</span> <span class="nv">value</span><span class="p">:</span> <span class="kt">StringLiteralType</span><span class="p">)</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="nf">init</span><span class="p">(</span>
+    <span class="nv">latitude</span><span class="p">:</span> <span class="kt">Double</span><span class="p">,</span>
+    <span class="nv">longitude</span><span class="p">:</span> <span class="kt">Double</span><span class="p">,</span>
+    <span class="nv">radius</span><span class="p">:</span> <span class="kt">Measurement</span><span class="o">&lt;</span><span class="kt">UnitLength</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="nv">isPassive</span><span class="p">:</span> <span class="kt">Bool</span>
+<span class="p">)</span></code></pre>
 
                         </div>
                       </div>
@@ -307,12 +393,48 @@ You should use the <code><a href="../Structs/HAServicesDomain.html#/s:5HAKit16HA
                             <tr>
                               <td>
                                 <code>
-                                <em>value</em>
+                                <em>latitude</em>
                                 </code>
                               </td>
                               <td>
                                 <div>
-                                  <p>The literal value</p>
+                                  <p>The center point latitude</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>longitude</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The center point longitude</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>radius</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The radius of the zone</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>isPassive</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Whether the zone is passive</p>
                                 </div>
                               </td>
                             </tr>
