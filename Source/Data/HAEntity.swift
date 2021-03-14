@@ -36,7 +36,7 @@ public struct HAEntity: HADataDecodable {
             lastChanged: try data.decode("last_changed"),
             lastUpdated: try data.decode("last_updated"),
             attributes: try data.decode("attributes"),
-            context: try data.decode("context", transform: HAResponseEvent.Context.init(data:))
+            context: try data.decode("context")
         )
     }
 

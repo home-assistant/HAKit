@@ -42,8 +42,8 @@ public struct HAResponseEventStateChanged: HADataDecodable {
         self.init(
             event: event,
             entityId: try eventData.decode("entity_id"),
-            oldState: try? eventData.decode("old_state", transform: HAEntity.init(data:)),
-            newState: try? eventData.decode("new_state", transform: HAEntity.init(data:))
+            oldState: try? eventData.decode("old_state"),
+            newState: try? eventData.decode("new_state")
         )
     }
 

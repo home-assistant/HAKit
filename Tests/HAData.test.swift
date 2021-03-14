@@ -252,6 +252,24 @@ internal class HADataTests: XCTestCase {
         }
     }
 
+    func testDecodeToRawRepresentableImplementation() throws {
+        enum TestEnumString: String, HADecodeTransformable {
+            case valid
+        }
+
+        enum TestEnumInt: Int, HADecodeTransformable {
+            case valid
+        }
+
+        let validData = HAData(value: ["string": "valid", "int": 0])
+        XCTAssertEqual(try validData.decode("string") as TestEnumString, .valid)
+        XCTAssertEqual(try validData.decode("int") as TestEnumInt, .valid)
+
+        let invalidData = HAData(value: ["string": 0, "int": "invalid"])
+        XCTAssertThrowsError(try invalidData.decode("string") as TestEnumString)
+        XCTAssertThrowsError(try invalidData.decode("int") as TestEnumInt)
+    }
+
     func testDecodeWithTransform() throws {
         let value = HAData(value: ["name": "zacwest"])
         let result: Int = try value.decode("name", transform: { (underlying: String) in
