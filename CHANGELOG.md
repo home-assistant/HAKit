@@ -5,7 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-- Added: Optional PromiseKit support for sending.
+- Added: Optional `PromiseKit` target/subspec.
+- Added: Optional `HAMockConnection` target/subspec for use in test cases.
 - Added: `connectAutomatically` parameter to connection creation. This will call `connect()` when requests are sent if not connected.
 - Added: `.getServices()` typed request.
 - Added: `.getStates()` typed request.

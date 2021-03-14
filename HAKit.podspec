@@ -23,6 +23,10 @@ Pod::Spec.new do |s|
     subspec.source_files = 'Extensions/PromiseKit/**/*.swift'
   end
 
+  s.subspec 'Mocks' do |subspec|
+    subspec.source_files = 'Extensions/Mocks/**/*.swift'
+  end
+
   s.test_spec 'Tests' do |test_spec|
     test_spec.platform = { ios: '12.0', tvos: '12.0', macos: '10.14' }
     test_spec.macos.deployment_target = '10.14'

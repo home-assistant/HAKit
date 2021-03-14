@@ -42,9 +42,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "HAKit+Promises"
-               BuildableName = "HAKit+Promises"
-               BlueprintName = "HAKit+Promises"
+               BlueprintIdentifier = "HAKit+PromiseKit"
+               BuildableName = "HAKit+PromiseKit"
+               BlueprintName = "HAKit+PromiseKit"
                ReferencedContainer = "container:">
             </BuildableReference>
          </BuildActionEntry>
@@ -56,9 +56,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "HAKit+PromiseKit"
-               BuildableName = "HAKit+PromiseKit"
-               BlueprintName = "HAKit+PromiseKit"
+               BlueprintIdentifier = "HAKit+Mocks"
+               BuildableName = "HAKit+Mocks"
+               BlueprintName = "HAKit+Mocks"
                ReferencedContainer = "container:">
             </BuildableReference>
          </BuildActionEntry>
