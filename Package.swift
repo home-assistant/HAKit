@@ -43,6 +43,13 @@ public let package = Package(
             ],
             path: "Extensions/PromiseKit"
         ),
+        .target(
+            name: "HAKit+Mocks",
+            dependencies: [
+                .byName(name: "HAKit"),
+            ],
+            path: "Extensions/Mocks"
+        ),
         .testTarget(
             name: "Tests",
             dependencies: [
