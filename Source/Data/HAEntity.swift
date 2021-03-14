@@ -13,13 +13,9 @@ public struct HAEntity: HADataDecodable {
     /// When the entity was last updated
     public var lastUpdated: Date
     /// Attributes of the entity
-    ///
-    /// - TODO: as strongly typed
-    public var attributes: [String: Any]
+    public var attributes: HAEntityAttributes
     /// Context of the entity's last update
-    ///
-    /// - TODO: as strongly typed
-    public var context: [String: Any]
+    public var context: HAResponseEvent.Context
 
     /// Create an entity from a data response
     /// - Parameter data: The data to create from
@@ -27,7 +23,7 @@ public struct HAEntity: HADataDecodable {
     public init(data: HAData) throws {
         let entityId: String = try data.decode("entity_id")
 
-        self.init(
+        try self.init(
             entityId: entityId,
             domain: try {
                 guard let dot = entityId.firstIndex(of: ".") else {
@@ -40,7 +36,7 @@ public struct HAEntity: HADataDecodable {
             lastChanged: try data.decode("last_changed"),
             lastUpdated: try data.decode("last_updated"),
             attributes: try data.decode("attributes"),
-            context: try data.decode("context")
+            context: try data.decode("context", transform: HAResponseEvent.Context.init(data:))
         )
     }
 
@@ -53,6 +49,7 @@ public struct HAEntity: HADataDecodable {
     ///   - lastUpdated: The date last updated
     ///   - attributes: The attributes of the entity
     ///   - context: The context of the entity
+    /// - Throws: When the attributes are missing any required fields
     public init(
         entityId: String,
         domain: String,
@@ -60,15 +57,93 @@ public struct HAEntity: HADataDecodable {
         lastChanged: Date,
         lastUpdated: Date,
         attributes: [String: Any],
-        context: [String: Any]
-    ) {
+        context: HAResponseEvent.Context
+    ) throws {
         precondition(entityId.starts(with: domain))
         self.entityId = entityId
         self.domain = domain
         self.state = state
         self.lastChanged = lastChanged
         self.lastUpdated = lastUpdated
-        self.attributes = attributes
+        self.attributes = try .init(domain: domain, dictionary: attributes)
         self.context = context
+    }
+}
+
+/// The attributes of the entity's state
+public struct HAEntityAttributes {
+    /// Convenience access to values inside of the dictionary
+    public subscript(key: String) -> Any? { dictionary[key] }
+    /// A dictionary representation of the attributes
+    /// This contains all keys and values received, including those not parsed or handled otherwise
+    public var dictionary: [String: Any]
+
+    /// The display name for the entity, from the `friendly_name` attribute
+    public var friendlyName: String? { self["friendly_name"] as? String }
+    /// The icon of the entity, from the `icon` attribute
+    /// This will be in the format `type:name`, e.g. `mdi:map` or `hass:line`
+    public var icon: String? { self["icon"] as? String }
+
+    /// For a zone-type entity, this contains parsed attributes specific to the zone
+    public var zone: HAEntityAttributesZone?
+
+    /// Create attributes from individual values
+    ///
+    /// `domain` is required here as it may inform the per-domain parsing.
+    ///
+    /// - Parameters:
+    ///   - domain: The domain of the entity whose attributes these are for
+    ///   - dictionary: The dictionary representation of the
+    /// - Throws: When the attributes are missing any required fields, domain-specific
+    public init(domain: String, dictionary: [String: Any]) throws {
+        self.dictionary = dictionary
+
+        if domain == "zone" {
+            self.zone = try .init(data: .dictionary(dictionary))
+        } else {
+            self.zone = nil
+        }
+    }
+}
+
+/// Entity attributes for Zones
+public struct HAEntityAttributesZone: HADataDecodable {
+    /// The latitude of the center point of the zone.
+    public var latitude: Double
+    /// The longitude of the center point of the zone.
+    public var longitude: Double
+    /// The radius of the zone. The underlying measurement comes from meters.
+    public var radius: Measurement<UnitLength>
+    /// To only use the zone for automation and hide it from the frontend and not use the zone for device tracker name.
+    public var isPassive: Bool
+
+    /// Create attributes from data
+    /// - Parameter data: The data to create from
+    /// - Throws: When the data is missing any required fields
+    public init(data: HAData) throws {
+        self.init(
+            latitude: try data.decode("latitude"),
+            longitude: try data.decode("longitude"),
+            radius: try data.decode("radius", transform: { Measurement<UnitLength>(value: $0, unit: .meters) }),
+            isPassive: try data.decode("passive")
+        )
+    }
+
+    /// Create attributes from values
+    /// - Parameters:
+    ///   - latitude: The center point latitude
+    ///   - longitude: The center point longitude
+    ///   - radius: The radius of the zone
+    ///   - isPassive: Whether the zone is passive
+    public init(
+        latitude: Double,
+        longitude: Double,
+        radius: Measurement<UnitLength>,
+        isPassive: Bool
+    ) {
+        self.latitude = latitude
+        self.longitude = longitude
+        self.radius = radius
+        self.isPassive = isPassive
     }
 }

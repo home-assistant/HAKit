@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added: `connectAutomatically` parameter to connection creation. This will call `connect()` when requests are sent if not connected.
 - Added: `.getServices()` typed request.
 - Added: `.getStates()` typed request.
+- Changed: `attributes` and `context` on `HAEntity` are now represented by parsed types.
 - Fixed: Calling `connect()` when already connected no longer disconnects and reconnects.
 
 ## [0.1.0] - 2021-03-05
