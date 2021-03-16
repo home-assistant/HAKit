@@ -203,9 +203,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:5HAKit21HADecodeTransformableP6decode7unknownxSgyp_tFZ"></a>
+                    <a name="/s:5HAKit21HADecodeTransformableP6decode7unknownxSgyp_tKFZ"></a>
                     <a name="//apple_ref/swift/Method/decode(unknown:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:5HAKit21HADecodeTransformableP6decode7unknownxSgyp_tFZ">decode(unknown:<wbr>)</a>
+                    <a class="token" href="#/s:5HAKit21HADecodeTransformableP6decode7unknownxSgyp_tKFZ">decode(unknown:<wbr>)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -214,13 +214,18 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Convert some value to the expected value</p>
+<div class="aside aside-throws">
+    <p class="aside-title">Throws</p>
+    If the value contained errors preventing transform
+
+</div>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">static</span> <span class="kd">func</span> <span class="nf">decode</span><span class="p">(</span><span class="n">unknown</span> <span class="nv">value</span><span class="p">:</span> <span class="kt">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="k">Self</span><span class="p">?</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">static</span> <span class="kd">func</span> <span class="nf">decode</span><span class="p">(</span><span class="n">unknown</span> <span class="nv">value</span><span class="p">:</span> <span class="kt">Any</span><span class="p">)</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="k">Self</span><span class="p">?</span></code></pre>
 
                         </div>
                       </div>
@@ -245,7 +250,77 @@
                       </div>
                       <div>
                         <h4>Return Value</h4>
-                        <p>An instance from value, or nil if unable to be converted</p>
+                        <p>An instance from value &ndash; nil allowed</p>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <div class="task-name-container">
+                <a name="/Available%20where%20%60Self%60%3A%20%60RawRepresentable%60"></a>
+                <a name="//apple_ref/swift/Section/Available where `Self`: `RawRepresentable`" class="dashAnchor"></a>
+                <div class="section-name-container">
+                  <a class="section-name-link" href="#/Available%20where%20%60Self%60%3A%20%60RawRepresentable%60"></a>
+                  <h3 class="section-name"><p>Available where <code>Self</code>: <code>RawRepresentable</code></p>
+</h3>
+                </div>
+              </div>
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:5HAKit21HADecodeTransformablePAASYRzrlE6decode7unknownxSgyp_tFZ"></a>
+                    <a name="//apple_ref/swift/Method/decode(unknown:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:5HAKit21HADecodeTransformablePAASYRzrlE6decode7unknownxSgyp_tFZ">decode(unknown:<wbr>)</a>
+                    </code>
+                      <span class="declaration-note">
+                        Default implementation
+                      </span>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <h4>Default Implementation</h4>
+                      <div class="default_impl abstract">
+                        <p>Converts from an unknown value to this raw representable type</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">static</span> <span class="kd">func</span> <span class="nf">decode</span><span class="p">(</span><span class="n">unknown</span> <span class="nv">value</span><span class="p">:</span> <span class="kt">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="k">Self</span><span class="p">?</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>value</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The value to attempt to convert</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <div>
+                        <h4>Return Value</h4>
+                        <p>The value transformed, if it is of the right type and init succeeds</p>
                       </div>
                     </section>
                   </div>
@@ -255,7 +330,7 @@
           </section>
         </section>
         <section id="footer">
-          <p>&copy; 2021 <a class="link" href="https://github.com/home-assistant/HAKit" target="_blank" rel="external">Home Assistant</a>. All rights reserved. (Last updated: 2021-03-14)</p>
+          <p>&copy; 2021 <a class="link" href="https://github.com/home-assistant/HAKit" target="_blank" rel="external">Home Assistant</a>. All rights reserved. (Last updated: 2021-03-16)</p>
           <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.13.6</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external">Realm</a> project.</p>
         </section>
       </article>
