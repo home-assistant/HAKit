@@ -108,9 +108,12 @@ internal class HAConnectionImpl: HAConnection {
             reconnectManager.didStartInitialConnect()
         }
 
+        let oldState = state
         HAGlobal.log("connecting using \(connectionInfo)")
         self.connection = connection
-        notifyState()
+        if state != oldState {
+            notifyState()
+        }
     }
 
     func disconnect(permanently: Bool, error: Error?) {

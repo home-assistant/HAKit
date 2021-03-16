@@ -83,6 +83,9 @@ public protocol HAConnection: AnyObject {
     /// Disconnect from the server or end reconnection attempts
     func disconnect()
 
+//    var states: HACache<[HAEntity]> { get }
+//    var services: HACache<HAResponseServices> { get }
+
     /// Send a request
     ///
     /// If the connection is currently disconnected, or this request fails to be responded to, this will be reissued in
