@@ -40,7 +40,7 @@ public struct HAResponseRenderTemplate: HADataDecodable {
     /// For example, listening to 'all' entities (via accessing all states) or to certain entities.
     /// This is potentially useful to display when configuring a template as it will provide context clues about
     /// the performance of a particular template.
-    public struct Listeners {
+    public struct Listeners: HADataDecodable {
         /// All states are listened to
         public var all: Bool
         /// The current time is listened to
@@ -87,7 +87,7 @@ public struct HAResponseRenderTemplate: HADataDecodable {
     public init(data: HAData) throws {
         self.init(
             result: try data.decode("result"),
-            listeners: try data.decode("listeners", transform: Listeners.init(data:))
+            listeners: try data.decode("listeners")
         )
     }
 

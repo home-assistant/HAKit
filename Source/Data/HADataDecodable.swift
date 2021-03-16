@@ -4,13 +4,23 @@ import Foundation
 ///
 /// - Note: This differs from `Decodable` intentionally; `Decodable` does not support `Any` types or JSON well when the
 ///         results are extremely dynamic. This limitation requires that we do it ourselves.
-public protocol HADataDecodable {
+public protocol HADataDecodable: HADecodeTransformable {
     /// Create an instance from data
     /// One day, if Decodable can handle 'Any' types well, this can be init(decoder:).
     ///
     /// - Parameter data: The data to decode
     /// - Throws: When unable to decode
     init(data: HAData) throws
+}
+
+public extension HADataDecodable {
+    /// Create a `HADataDecodable` instance via `.decode(…)` indirection
+    /// - Parameter value: The value to convert to HAData for the init
+    /// - Throws: When unable to decode
+    /// - Returns: The decodable initialized with the given value
+    static func decode(unknown value: Any) throws -> Self? {
+        try .init(data: HAData(value: value))
+    }
 }
 
 extension Array: HADataDecodable where Element: HADataDecodable {
@@ -48,7 +58,7 @@ public extension HAData {
         }
 
         // Not the prettiest, but we need to super duper promise to the compiler that we're returning a good value
-        if let type = T.self as? HADecodeTransformable.Type, let inside = type.decode(unknown: value) as? T {
+        if let type = T.self as? HADecodeTransformable.Type, let inside = try type.decode(unknown: value) as? T {
             return inside
         }
 

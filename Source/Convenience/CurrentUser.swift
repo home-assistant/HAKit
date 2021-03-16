@@ -26,7 +26,7 @@ public struct HAResponseCurrentUser: HADataDecodable {
     public var mfaModules: [MFAModule]
 
     /// A credential authentication provider
-    public struct Credential {
+    public struct Credential: HADataDecodable {
         /// The type of the credential, for example homeassistant
         public var type: String
         /// The id of the credential, specific to that credential
@@ -53,7 +53,7 @@ public struct HAResponseCurrentUser: HADataDecodable {
     }
 
     /// An MFA module
-    public struct MFAModule {
+    public struct MFAModule: HADataDecodable {
         /// The id of the module, for example `totp`
         public var id: String
         /// The name of the module, for example `Authenticator app`
@@ -93,8 +93,8 @@ public struct HAResponseCurrentUser: HADataDecodable {
             name: data.decode("name", fallback: nil),
             isOwner: data.decode("is_owner", fallback: false),
             isAdmin: data.decode("is_admin", fallback: false),
-            credentials: try data.decode("credentials", fallback: []).compactMap(Credential.init(data:)),
-            mfaModules: try data.decode("mfa_modules", fallback: []).compactMap(MFAModule.init(data:))
+            credentials: data.decode("credentials", fallback: []),
+            mfaModules: data.decode("mfa_modules", fallback: [])
         )
     }
 

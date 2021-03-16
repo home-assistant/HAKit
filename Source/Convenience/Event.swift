@@ -105,7 +105,7 @@ public struct HAResponseEvent: HADataDecodable {
     public var context: Context
 
     /// The origin of the event
-    public enum Origin: String {
+    public enum Origin: String, HADecodeTransformable {
         /// Local, aka added to the event bus via a component
         case local = "LOCAL"
         /// Remote, aka added to the event bus via an API call
@@ -113,7 +113,7 @@ public struct HAResponseEvent: HADataDecodable {
     }
 
     /// The context of the event
-    public struct Context {
+    public struct Context: HADataDecodable {
         /// The identifier for this event
         public var id: String
         /// The user id which triggered the event, if there was one
@@ -156,8 +156,8 @@ public struct HAResponseEvent: HADataDecodable {
             type: .init(rawValue: try data.decode("event_type")),
             timeFired: try data.decode("time_fired"),
             data: data.decode("data", fallback: [:]),
-            origin: try data.decode("origin", transform: Origin.init(rawValue:)),
-            context: try data.decode("context", transform: Context.init(data:))
+            origin: try data.decode("origin"),
+            context: try data.decode("context")
         )
     }
 
