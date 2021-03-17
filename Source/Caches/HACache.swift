@@ -27,6 +27,9 @@ public class HACache<ValueType> {
         set { state.mutate { $0.shouldResetWithoutSubscribers = newValue } }
     }
 
+    /// The callback queue to perform subscription handlers on. Defaults to the connection's callback queue.
+    public var callbackQueue: DispatchQueue
+
     /// Subscribe to changes of this cache
     /// - Parameter handler: The handler to invoke when changes occur
     /// - Returns: A token to cancel the subscription; either this token _or_ the HACache instance must be retained.
@@ -34,18 +37,16 @@ public class HACache<ValueType> {
         let info = SubscriptionInfo(handler: handler)
         let cancellable = self.cancellable(for: info)
 
-        state.mutate(
-            using: { state -> ValueType? in
-                state.subscribers.insert(info)
+        state.mutate { state in
+            state.subscribers.insert(info)
 
-                // we know that if any state changes happen _after_ this, it'll be notified in another block
-                return state.current
-            }, then: { value in
-                if let value = value {
-                    info.handler(cancellable, value)
+            // we know that if any state changes happen _after_ this, it'll be notified in another block
+            if let current = state.current {
+                callbackQueue.async {
+                    info.handler(cancellable, current)
                 }
-            }, on: connection.callbackQueue
-        )
+            }
+        }
 
         // if we are waiting on subscribers to start, we can do so now
         checkStateAndStart()
@@ -167,6 +168,7 @@ public class HACache<ValueType> {
         subscribeTransform: @escaping (TransformInfo<SubscribeType, ValueType>) -> ValueType
     ) {
         self.connection = connection
+        self.callbackQueue = connection.callbackQueue
 
         let nonRetryPopulate: HATypedRequest<PopulateType> = {
             var updated = populate
@@ -187,27 +189,29 @@ public class HACache<ValueType> {
             return connection.send(nonRetryPopulate, completion: { result in
                 guard let initialPopulateType = try? result.get() else { return }
 
-                cache.state.mutate(using: { state in
+                let initial: ValueType = cache.state.mutate(using: { state in
                     let initial = populateTransform(.init(incoming: initialPopulateType, current: state.current))
                     state.current = initial
 
-                    cache.notifyObservers(for: initial)
-
                     state.requestToken = connection.subscribe(
                         to: nonRetrySubscribe,
-                        handler: { [weak cache] _, result in
-                            cache?.state.mutate { state in
+                        handler: { [unowned cache] _, result in
+                            let value: ValueType = cache.state.mutate { state in
                                 let next = subscribeTransform(.init(
                                     incoming: result,
                                     current: state.current!
                                 ))
                                 state.current = next
-
-                                cache?.notifyObservers(for: next)
+                                return next
                             }
+                            cache.notifyObservers(for: value)
                         }
                     )
+
+                    return initial
                 })
+
+                cache.notifyObservers(for: initial)
             })
         }
 
@@ -221,23 +225,41 @@ public class HACache<ValueType> {
 
     /// Create a cache by mapping an existing cache's value
     /// - Parameters:
-    ///   - incomingCache: The cache to map values from
+    ///   - incomingCache: The cache to map values from; this is kept as a strong reference
     ///   - transform: The transform to apply to the values from the cache
     public init<IncomingType>(
         from incomingCache: HACache<IncomingType>,
         transform: @escaping (IncomingType) -> ValueType
     ) {
         self.connection = incomingCache.connection
+        self.callbackQueue = incomingCache.callbackQueue
         self.start = { _, cache in
             // unfortunately, using this value directly crashes the swift compiler, so we call into it with this
             let cacheValue: HACache<ValueType> = cache
-            return incomingCache.subscribe { [weak cacheValue] _, value in
-                cacheValue?.state.mutate { state in
+            return incomingCache.subscribe { [unowned cacheValue] _, value in
+                let value: ValueType = cacheValue.state.mutate { state in
                     let next = transform(value)
                     state.current = next
-                    cache.notifyObservers(for: next)
+                    return next
                 }
+                cache.notifyObservers(for: value)
             }
+        }
+    }
+
+    /// Create a cache with a constant value
+    ///
+    /// This is largely intended for tests or other situations where you want a cache you can control more strongly.
+    ///
+    /// - Parameter constantValue: The value to keep for state
+    public init(constantValue: ValueType) {
+        self.connection = nil
+        self.callbackQueue = .main
+        self.start = { _, cache in
+            cache.state.mutate { state in
+                state.current = constantValue
+            }
+            return nil
         }
     }
 
@@ -314,7 +336,7 @@ public class HACache<ValueType> {
     }
 
     /// The connection to use and watch
-    private let connection: HAConnection
+    private weak var connection: HAConnection?
     /// Block to begin the prepare -> subscribe lifecycle
     /// This is a block to erase all the intermediate types for prepare/subscribe
     private let start: (HAConnection, HACache<ValueType>) -> HACancellable?
@@ -335,6 +357,11 @@ public class HACache<ValueType> {
 
     /// Start the prepare -> subscribe lifecycle, if there are subscribers
     @objc private func checkStateAndStart() {
+        guard let connection = connection else {
+            HAGlobal.log("not subscribing to connection as the connection no longer exists")
+            return
+        }
+
         state.mutate { [self] state in
             guard !state.subscribers.isEmpty else {
                 // No subscribers, do not connect.
@@ -349,7 +376,7 @@ public class HACache<ValueType> {
     /// - Parameter value: The value to notify about
     /// - Note: This will fire on the connection's callback queue.
     private func notifyObservers(for value: ValueType) {
-        connection.callbackQueue.async { [self] in
+        callbackQueue.async { [self] in
             for subscriber in state.read(\.subscribers) {
                 subscriber.handler(cancellable(for: subscriber), value)
             }

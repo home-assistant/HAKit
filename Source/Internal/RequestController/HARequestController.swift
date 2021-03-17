@@ -14,15 +14,15 @@ internal protocol HARequestControllerDelegate: AnyObject {
 internal protocol HARequestController: AnyObject {
     var delegate: HARequestControllerDelegate? { get set }
 
-    func add(_ invocation: HARequestInvocation, completion: @escaping () -> Void)
-    func cancel(_ request: HARequestInvocation, completion: @escaping () -> Void)
+    func add(_ invocation: HARequestInvocation)
+    func cancel(_ request: HARequestInvocation)
 
-    func prepare(completion handler: @escaping () -> Void)
-    func resetActive(completion: @escaping () -> Void)
+    func prepare()
+    func resetActive()
 
     func single(for identifier: HARequestIdentifier) -> HARequestInvocationSingle?
     func subscription(for identifier: HARequestIdentifier) -> HARequestInvocationSubscription?
-    func clear(invocation: HARequestInvocationSingle, completion: @escaping () -> Void)
+    func clear(invocation: HARequestInvocationSingle)
 }
 
 internal class HARequestControllerImpl: HARequestController {
@@ -50,21 +50,21 @@ internal class HARequestControllerImpl: HARequestController {
 
     private var state = HAProtected<State>(value: .init())
 
-    func add(_ invocation: HARequestInvocation, completion: @escaping () -> Void) {
-        state.mutate(using: { state in
+    func add(_ invocation: HARequestInvocation) {
+        state.mutate { state in
             state.pending.insert(invocation)
-        }, then: { [self] in
-            prepare(completion: completion)
-        })
+        }
+
+        prepare()
     }
 
-    func cancel(_ request: HARequestInvocation, completion: @escaping () -> Void) {
+    func cancel(_ request: HARequestInvocation) {
         // intentionally grabbed before entering the mutex
         let identifier = request.identifier
         let cancelRequest = request.cancelRequest()
         request.cancel()
 
-        state.mutate(using: { state in
+        state.mutate { state in
             state.pending.remove(request)
 
             if let identifier = identifier {
@@ -77,13 +77,13 @@ internal class HARequestControllerImpl: HARequestController {
                     completion: { _ in }
                 ))
             }
-        }, then: { [self] in
-            prepare(completion: completion)
-        })
+        }
+
+        prepare()
     }
 
-    func resetActive(completion: @escaping () -> Void) {
-        state.mutate(using: { state in
+    func resetActive() {
+        state.mutate { state in
             for invocation in state.pending {
                 if invocation.request.shouldRetry {
                     invocation.identifier = nil
@@ -94,7 +94,7 @@ internal class HARequestControllerImpl: HARequestController {
 
             state.active.removeAll()
             state.identifierGenerator.reset()
-        }, then: completion)
+        }
     }
 
     private func invocation(for identifier: HARequestIdentifier) -> HARequestInvocation? {
@@ -112,38 +112,38 @@ internal class HARequestControllerImpl: HARequestController {
     }
 
     // only single invocations can be cleared, as subscriptions need to be cancelled
-    func clear(invocation: HARequestInvocationSingle, completion: @escaping () -> Void) {
-        state.mutate(using: { state in
+    func clear(invocation: HARequestInvocationSingle) {
+        state.mutate { state in
             if let identifier = invocation.identifier {
                 state.active[identifier] = nil
             }
 
             state.pending.remove(invocation)
-        }, then: completion)
+        }
     }
 
-    func prepare(completion handler: @escaping () -> Void) {
+    func prepare() {
         guard delegate?.requestControllerShouldSendRequests(self) == true else {
-            handler()
             return
         }
 
-        let queue = DispatchQueue(label: "request-controller-callback", target: .main)
-        queue.suspend()
+        // accumulate delegate callbacks so they are all done _after_ we change state
+        var pendingCalls = [(HARequestControllerDelegate, HARequestControllerImpl) -> Void]()
 
-        state.mutate(using: { state in
+        state.mutate { state in
             for item in state.pending.filter(\.needsAssignment) {
                 let identifier = state.identifierGenerator.next()
                 state.active[identifier] = item
                 item.identifier = identifier
 
-                queue.async { [self] in
-                    delegate?.requestController(self, didPrepareRequest: item.request, with: identifier)
+                pendingCalls.append { delegate, controller in
+                    delegate.requestController(controller, didPrepareRequest: item.request, with: identifier)
                 }
             }
-        }, then: {
-            queue.resume()
-            queue.async(flags: .barrier, execute: handler)
-        })
+        }
+
+        if let delegate = delegate {
+            pendingCalls.forEach { $0(delegate, self) }
+        }
     }
 }

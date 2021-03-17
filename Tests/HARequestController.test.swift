@@ -15,36 +15,21 @@ internal class HARequestControllerTests: XCTestCase {
     }
 
     func testAddingWhenNotAllowed() {
-        let expectation1 = expectation(description: "add")
-        controller.add(.init(request: .init(type: "test1", data: [:]))) {
-            expectation1.fulfill()
-        }
-        waitForExpectations(timeout: 10.0)
+        controller.add(.init(request: .init(type: "test1", data: [:])))
         XCTAssertTrue(delegate.didPrepare.isEmpty)
 
         // transition to allowed
         delegate.shouldSendRequests = true
 
-        let expectation2 = expectation(description: "prepare finish")
-        controller.prepare {
-            expectation2.fulfill()
-        }
-        waitForExpectations(timeout: 10.0)
+        controller.prepare()
         XCTAssertFalse(delegate.didPrepare.isEmpty)
     }
 
     func testAddingWhenAllowed() throws {
         delegate.shouldSendRequests = true
 
-        let expectation1 = expectation(description: "add")
-        controller.add(.init(request: .init(type: "test1", data: [:]))) {
-            expectation1.fulfill()
-        }
-        let expectation2 = expectation(description: "add")
-        controller.add(.init(request: .init(type: "test2", data: [:]))) {
-            expectation2.fulfill()
-        }
-        waitForExpectations(timeout: 10.0)
+        controller.add(.init(request: .init(type: "test1", data: [:])))
+        controller.add(.init(request: .init(type: "test2", data: [:])))
         XCTAssertEqual(delegate.didPrepare.count, 2)
 
         let allEvents = [
@@ -92,14 +77,10 @@ internal class HARequestControllerTests: XCTestCase {
             handler: { _, _ in }
         )
 
-        let expectationAdds = expectation(description: "adds")
-        expectationAdds.expectedFulfillmentCount = 4
-
-        controller.add(invoc1, completion: expectationAdds.fulfill)
-        controller.add(invoc2, completion: expectationAdds.fulfill)
-        controller.add(invoc3, completion: expectationAdds.fulfill)
-        controller.add(invoc4, completion: expectationAdds.fulfill)
-        waitForExpectations(timeout: 10.0)
+        controller.add(invoc1)
+        controller.add(invoc2)
+        controller.add(invoc3)
+        controller.add(invoc4)
 
         XCTAssertEqual(delegate.didPrepare.count, 4)
         delegate.didPrepare.removeAll()
@@ -108,18 +89,14 @@ internal class HARequestControllerTests: XCTestCase {
         XCTAssertEqual(invocation, invoc1)
         invocation?.resolve(.success(.empty))
 
-        let expectationReset = expectation(description: "reset")
-        controller.resetActive(completion: expectationReset.fulfill)
-        waitForExpectations(timeout: 10.0)
+        controller.resetActive()
 
         XCTAssertFalse(invoc1.needsAssignment)
         XCTAssertFalse(invoc2.needsAssignment)
         XCTAssertTrue(invoc3.needsAssignment)
         XCTAssertTrue(invoc4.needsAssignment)
 
-        let expectationPrepare = expectation(description: "prepare")
-        controller.prepare(completion: expectationPrepare.fulfill)
-        waitForExpectations(timeout: 10.0)
+        controller.prepare()
         XCTAssertEqual(delegate.didPrepare.count, 2)
 
         let types = Set(delegate.didPrepare.map(\.request.type.rawValue))
@@ -131,20 +108,14 @@ internal class HARequestControllerTests: XCTestCase {
             request: .init(type: "test1", data: [:]),
             completion: { _ in }
         )
-        let expectationAdd = expectation(description: "add")
-        controller.add(invocation, completion: expectationAdd.fulfill)
-        waitForExpectations(timeout: 10.0)
 
-        let expectationCancel = expectation(description: "cancel")
-        controller.cancel(invocation, completion: expectationCancel.fulfill)
-        waitForExpectations(timeout: 10.0)
+        controller.add(invocation)
+        controller.cancel(invocation)
 
         XCTAssertFalse(invocation.needsAssignment)
 
         delegate.shouldSendRequests = true
-        let expectationPrepare = expectation(description: "prepare")
-        controller.prepare(completion: expectationPrepare.fulfill)
-        waitForExpectations(timeout: 10.0)
+        controller.prepare()
 
         XCTAssertTrue(delegate.didPrepare.isEmpty)
     }
@@ -158,15 +129,12 @@ internal class HARequestControllerTests: XCTestCase {
             request: .init(type: "test1", data: [:]),
             completion: { _ in didCallCompletion = true }
         )
-        let expectationAdd = expectation(description: "add")
-        controller.add(invocation, completion: expectationAdd.fulfill)
-        waitForExpectations(timeout: 10.0)
+
+        controller.add(invocation)
 
         XCTAssertNotNil(invocation.identifier)
 
-        let expectationCancel = expectation(description: "cancel")
-        controller.cancel(invocation, completion: expectationCancel.fulfill)
-        waitForExpectations(timeout: 10.0)
+        controller.cancel(invocation)
 
         XCTAssertEqual(delegate.didPrepare.count, 1)
         XCTAssertFalse(invocation.needsAssignment)
@@ -181,20 +149,14 @@ internal class HARequestControllerTests: XCTestCase {
             initiated: { _ in },
             handler: { _, _ in }
         )
-        let expectationAdd = expectation(description: "add")
-        controller.add(invocation, completion: expectationAdd.fulfill)
-        waitForExpectations(timeout: 10.0)
+        controller.add(invocation)
 
-        let expectationCancel = expectation(description: "cancel")
-        controller.cancel(invocation, completion: expectationCancel.fulfill)
-        waitForExpectations(timeout: 10.0)
+        controller.cancel(invocation)
 
         XCTAssertFalse(invocation.needsAssignment)
 
         delegate.shouldSendRequests = true
-        let expectationPrepare = expectation(description: "prepare")
-        controller.prepare(completion: expectationPrepare.fulfill)
-        waitForExpectations(timeout: 10.0)
+        controller.prepare()
 
         XCTAssertTrue(delegate.didPrepare.isEmpty)
     }
@@ -207,16 +169,12 @@ internal class HARequestControllerTests: XCTestCase {
             initiated: { _ in },
             handler: { _, _ in }
         )
-        let expectationAdd = expectation(description: "add")
-        controller.add(invocation, completion: expectationAdd.fulfill)
-        waitForExpectations(timeout: 10.0)
+        controller.add(invocation)
 
         let identifier = try XCTUnwrap(invocation.identifier)
         XCTAssertEqual(controller.subscription(for: identifier), invocation)
 
-        let expectationCancel = expectation(description: "cancel")
-        controller.cancel(invocation, completion: expectationCancel.fulfill)
-        waitForExpectations(timeout: 10.0)
+        controller.cancel(invocation)
 
         XCTAssertEqual(delegate.didPrepare.count, 2)
         XCTAssertFalse(invocation.needsAssignment)
@@ -236,15 +194,11 @@ internal class HARequestControllerTests: XCTestCase {
             request: .init(type: "test1", data: [:]),
             completion: { _ in }
         )
-        let expectationAdd = expectation(description: "add")
-        controller.add(invocation, completion: expectationAdd.fulfill)
-        waitForExpectations(timeout: 10.0)
+        controller.add(invocation)
 
         XCTAssertNotNil(invocation.identifier)
 
-        let expectationClear = expectation(description: "clear")
-        controller.clear(invocation: invocation, completion: expectationClear.fulfill)
-        waitForExpectations(timeout: 10.0)
+        controller.clear(invocation: invocation)
 
         XCTAssertNil(controller.single(for: try XCTUnwrap(invocation.identifier)))
     }
