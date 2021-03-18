@@ -92,127 +92,149 @@ public class HACache<ValueType> {
         public var current: OutgoingType
     }
 
-    /// Create a cache that requires no transformations on the underlying data type
+    /// Information about the populate call in the cache
+    ///
+    /// This is issued in a few situations:
+    ///   1. To initially populate the cache value for the first to-the-cache subscription
+    ///   2. To update the value when reconnecting after having been disconnected
+    ///   3. When a subscribe handler says that it needs to re-execute the populate to get a newer value
+    public struct PopulateInfo<OutgoingType> {
+        /// Type-erasing block to perform the populate and its transform
+        internal let start: (HAConnection, @escaping (_ perform: (OutgoingType?) -> OutgoingType) -> Void) -> HACancellable
+
+        /// Create the information for populate
+        /// - Parameters:
+        ///   - request: The request to perform
+        ///   - transform: The handler to convert the request's result into the cache's value type
+        public init<IncomingType: HADataDecodable>(
+            request: HATypedRequest<IncomingType>,
+            transform: @escaping (TransformInfo<IncomingType, OutgoingType?>) -> OutgoingType
+        ) {
+            let nonRetryRequest: HATypedRequest<IncomingType> = {
+                var updated = request
+                updated.request.shouldRetry = false
+                return updated
+            }()
+            self.start = { connection, perform in
+                connection.send(nonRetryRequest, completion: { result in
+                    guard let incoming = try? result.get() else { return }
+                    perform { current in
+                        return transform(.init(incoming: incoming, current: current))
+                    }
+                })
+            }
+        }
+    }
+
+    /// Information about the subscriptions used to keep the cache up-to-date
+    public struct SubscribeInfo<OutgoingType> {
+        /// The response to a subscription event
+        public enum Response {
+            /// Issue the populate call again to get a newer value
+            case reissuePopulate
+            /// Replace the current cache value with this new one
+            case replace(OutgoingType)
+        }
+
+        /// Type-erasing block to perform the subscription and its transform
+        internal let start: (HAConnection, @escaping (_ perform: (OutgoingType) -> Response) -> Void) -> HACancellable
+
+        /// Create the information for subscription
+        /// - Parameters:
+        ///   - subscription: The subscription to perform after populate completes
+        ///   - transform: The handler to convert the subscription's handler type into the cache's value
+        public init<IncomingType: HADataDecodable>(
+            subscription: HATypedSubscription<IncomingType>,
+            transform: @escaping (TransformInfo<IncomingType, OutgoingType>) -> Response
+        ) {
+            let nonRetrySubscription: HATypedSubscription<IncomingType> = {
+                var updated = subscription
+                updated.request.shouldRetry = false
+                return updated
+            }()
+
+            self.start = { connection, perform in
+                connection.subscribe(to: nonRetrySubscription, handler: { _, incoming in
+                    perform { current in
+                        return transform(.init(incoming: incoming, current: current))
+                    }
+                })
+            }
+        }
+    }
+
+    /// Create a cache
+    ///
+    /// This method is provided as a convenience to avoid having to wrap single-subscribe versions in an array.
+    ///
     /// - Parameters:
     ///   - connection: The connection to use and watch
-    ///   - populate: The request to fetch the data
-    ///   - subscribe: The request to subscribe to data changes
+    ///   - populate: The info on how to fetch the initial/update data
+    ///   - subscribe: The info (one or more) for what subscriptions to start for updates or triggers for populating
     public convenience init(
         connection: HAConnection,
-        populate: HATypedRequest<ValueType>,
-        subscribe: HATypedSubscription<ValueType>
-    ) where ValueType: HADataDecodable {
-        self.init(
-            connection: connection,
-            populate: populate,
-            populateTransform: \.incoming,
-            subscribe: subscribe,
-            subscribeTransform: \.incoming
-        )
+        populate: PopulateInfo<ValueType>,
+        subscribe: SubscribeInfo<ValueType>...
+    ) {
+        self.init(connection: connection, populate: populate, subscribe: subscribe)
     }
 
-    /// Create a cache that requires no transformations of the request but requires of the subscription.
+    /// Create a cache
+    ///
     /// - Parameters:
     ///   - connection: The connection to use and watch
-    ///   - populate: The request to fetch the data
-    ///   - subscribe: The request to subscribe to data changes
-    ///   - subscribeTransform: The transform to apply to the subscription data
-    public convenience init<SubscribeType>(
+    ///   - populate: The info on how to fetch the initial/update data
+    ///   - subscribe: The info (one or more) for what subscriptions to start for updates or triggers for populating
+    public init(
         connection: HAConnection,
-        populate: HATypedRequest<ValueType>,
-        subscribe: HATypedSubscription<SubscribeType>,
-        subscribeTransform: @escaping (TransformInfo<SubscribeType, ValueType>) -> ValueType
-    ) where ValueType: HADataDecodable {
-        self.init(
-            connection: connection,
-            populate: populate,
-            populateTransform: \.incoming,
-            subscribe: subscribe,
-            subscribeTransform: subscribeTransform
-        )
-    }
-
-    /// Create a cache that requires transformations of the request but not of the subscription.
-    /// - Parameters:
-    ///   - connection: The connection to use and watch
-    ///   - populate: The request to fetch the data
-    ///   - populateTransform: The transform to apply to the population request
-    ///   - subscribe: The request to subscribe to data changes
-    public convenience init<PopulateType>(
-        connection: HAConnection,
-        populate: HATypedRequest<PopulateType>,
-        populateTransform: @escaping (TransformInfo<PopulateType, ValueType?>) -> ValueType,
-        subscribe: HATypedSubscription<ValueType>
-    ) where ValueType: HADataDecodable {
-        self.init(
-            connection: connection,
-            populate: populate,
-            populateTransform: populateTransform,
-            subscribe: subscribe,
-            subscribeTransform: \.incoming
-        )
-    }
-
-    /// Create a cache that requires transformations for both the request and subscription
-    /// - Parameters:
-    ///   - connection: The connection to use and watch
-    ///   - populate: The request to fetch the data
-    ///   - populateTransform: The transform to apply to the population request
-    ///   - subscribe: The request to subscribe to data changes
-    ///   - subscribeTransform: The transform to apply to the subscription data
-    public init<PopulateType, SubscribeType>(
-        connection: HAConnection,
-        populate: HATypedRequest<PopulateType>,
-        populateTransform: @escaping (TransformInfo<PopulateType, ValueType?>) -> ValueType,
-        subscribe: HATypedSubscription<SubscribeType>,
-        subscribeTransform: @escaping (TransformInfo<SubscribeType, ValueType>) -> ValueType
+        populate: PopulateInfo<ValueType>,
+        subscribe: [SubscribeInfo<ValueType>]
     ) {
         self.connection = connection
         self.callbackQueue = connection.callbackQueue
 
-        let nonRetryPopulate: HATypedRequest<PopulateType> = {
-            var updated = populate
-            updated.request.shouldRetry = false
-            return updated
-        }()
-        let nonRetrySubscribe: HATypedSubscription<SubscribeType> = {
-            var updated = subscribe
-            updated.request.shouldRetry = false
-            return updated
-        }()
-
-        self.start = { connection, cache in
+        self.start = { (connection: HAConnection, cache: HACache<ValueType>) -> HACancellable? in
             guard case .ready = connection.state else {
                 return nil
             }
 
-            return connection.send(nonRetryPopulate, completion: { result in
-                guard let initialPopulateType = try? result.get() else { return }
-
-                let initial: ValueType = cache.state.mutate(using: { state in
-                    let initial = populateTransform(.init(incoming: initialPopulateType, current: state.current))
-                    state.current = initial
-
-                    state.requestToken = connection.subscribe(
-                        to: nonRetrySubscribe,
-                        handler: { [unowned cache] _, result in
-                            let value: ValueType = cache.state.mutate { state in
-                                let next = subscribeTransform(.init(
-                                    incoming: result,
-                                    current: state.current!
-                                ))
-                                state.current = next
-                                return next
-                            }
-                            cache.notifyObservers(for: value)
-                        }
-                    )
-
-                    return initial
+            func sendPopulate(completion: (() -> Void)? = nil) -> HACancellable {
+                return populate.start(connection, { handler in
+                    let value: ValueType = cache.state.mutate { state in
+                        let value = handler(state.current)
+                        state.current = value
+                        return value
+                    }
+                    cache.notifyObservers(for: value)
+                    completion?()
                 })
+            }
 
-                cache.notifyObservers(for: initial)
-            })
+            func sendSubscribe(info: SubscribeInfo<ValueType>) -> HACancellable {
+                return info.start(connection, { handler in
+                    let value: ValueType? = cache.state.mutate { state in
+                        switch handler(state.current!) {
+                        case .reissuePopulate:
+                            state.requestTokens.append(sendPopulate())
+                            return nil
+                        case let .replace(value):
+                            state.current = value
+                            return value
+                        }
+                    }
+                    if let value = value {
+                        cache.notifyObservers(for: value)
+                    }
+                })
+            }
+
+            return sendPopulate {
+                cache.state.mutate { state in
+                    state.requestTokens = subscribe.map { info in
+                        sendSubscribe(info: info)
+                    }
+                }
+            }
         }
 
         NotificationCenter.default.addObserver(
@@ -269,7 +291,7 @@ public class HACache<ValueType> {
                 HAGlobal.log("HACache deallocating with \(state.subscribers.count) subscribers")
             }
 
-            state.requestToken?.cancel()
+            state.requestTokens.forEach { $0.cancel() }
         }
     }
 
@@ -289,12 +311,8 @@ public class HACache<ValueType> {
         /// When true, the state of the cache will be reset if subscribers becomes empty
         var shouldResetWithoutSubscribers: Bool = false
 
-        /// The current request token, either of the initial populate request or the subscription afterwards
-        var requestToken: HACancellable? {
-            didSet {
-                oldValue?.cancel()
-            }
-        }
+        /// Contains populate, subscribe, and reissued-populate tokens
+        var requestTokens: [HACancellable] = []
 
         /// Resets the state if there are no subscribers and it is set to do so
         /// - SeeAlso: `shouldResetWithoutSubscribers`
@@ -303,7 +321,8 @@ public class HACache<ValueType> {
                 return
             }
 
-            requestToken = nil
+            requestTokens.forEach { $0.cancel() }
+            requestTokens.removeAll()
             current = nil
         }
     }
@@ -365,10 +384,12 @@ public class HACache<ValueType> {
         state.mutate { [self] state in
             guard !state.subscribers.isEmpty else {
                 // No subscribers, do not connect.
-                state.requestToken = nil
                 return
             }
-            state.requestToken = start(connection, self)
+            let token = start(connection, self)
+            if let token = token {
+                state.requestTokens.append(token)
+            }
         }
     }
 
