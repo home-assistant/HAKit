@@ -130,6 +130,8 @@ public class HACache<ValueType> {
     public struct SubscribeInfo<OutgoingType> {
         /// The response to a subscription event
         public enum Response {
+            /// The subscription event does not require doing any changes
+            case ignore
             /// Issue the populate call again to get a newer value
             case reissuePopulate
             /// Replace the current cache value with this new one
@@ -256,6 +258,8 @@ public class HACache<ValueType> {
             guard let cache = cache, let connection = connection else { return }
             let value: ValueType? = cache.state.mutate { state in
                 switch handler(state.current!) {
+                case .ignore:
+                    return nil
                 case .reissuePopulate:
                     state.requestTokens.append(send(populate: populate, on: connection, cache: cache))
                     return nil
@@ -304,6 +308,7 @@ public class HACache<ValueType> {
             cache.state.mutate { state in
                 state.current = constantValue
             }
+            cache.notifyObservers(for: constantValue)
             return nil
         }
     }
