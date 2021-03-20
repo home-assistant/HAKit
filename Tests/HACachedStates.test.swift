@@ -4,7 +4,7 @@ import XCTest
 import HAKit_Mocks
 #endif
 
-class HACachedStatesTests: XCTestCase {
+internal class HACachedStatesTests: XCTestCase {
     private var connection: HAMockConnection!
     private var container: HACachesContainer!
 
@@ -125,6 +125,5 @@ class HACachedStatesTests: XCTestCase {
         XCTAssertEqual(updated3[addedEntity.entityId], addedEntity)
         XCTAssertEqual(updated3[entities[0].entityId], entities[0])
         XCTAssertEqual(updated3[entities[2].entityId], updatedEntity)
-
     }
 }

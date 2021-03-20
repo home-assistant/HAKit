@@ -248,7 +248,7 @@ public class HACache<ValueType> {
     }
 
     /// The connection to use and watch
-    private(set) internal weak var connection: HAConnection?
+    internal private(set) weak var connection: HAConnection?
     /// Block to begin the prepare -> subscribe lifecycle
     /// This is a block to erase all the intermediate types for prepare/subscribe
     private let start: ((HAConnection, HACache<ValueType>) -> HACancellable?)?
@@ -256,6 +256,7 @@ public class HACache<ValueType> {
     private var callbackQueue: DispatchQueue {
         connection?.callbackQueue ?? .main
     }
+
     /// If this cache was created with populate info, this contains that info
     /// This is largely intended for tests and is not used internally.
     public let populateInfo: HACachePopulateInfo<ValueType>?

@@ -3,7 +3,15 @@ import XCTest
 
 internal extension HAEntity {
     static func fake(id: String) throws -> HAEntity {
-        try .init(entityId: "fake.\(id)", domain: "fake", state: "fake", lastChanged: Date(), lastUpdated: Date(), attributes: [:], context: .init(id: "", userId: nil, parentId: nil))
+        try .init(
+            entityId: "fake.\(id)",
+            domain: "fake",
+            state: "fake",
+            lastChanged: Date(),
+            lastUpdated: Date(),
+            attributes: [:],
+            context: .init(id: "", userId: nil, parentId: nil)
+        )
     }
 }
 

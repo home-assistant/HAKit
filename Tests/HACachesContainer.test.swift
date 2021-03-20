@@ -1,5 +1,5 @@
-import XCTest
 @testable import HAKit
+import XCTest
 #if SWIFT_PACKAGE
 import HAKit_Mocks
 #endif
@@ -40,7 +40,7 @@ internal class HACachesContainerTests: XCTestCase {
     }
 }
 
-struct Key1: HACacheKey {
+private struct Key1: HACacheKey {
     static func create(connection: HAConnection) -> HACache<Value1> {
         .init(
             connection: connection,
@@ -56,11 +56,11 @@ struct Key1: HACacheKey {
     }
 }
 
-struct Value1: HADataDecodable {
+private struct Value1: HADataDecodable {
     init(data: HAData) throws {}
 }
 
-struct Key2: HACacheKey {
+private struct Key2: HACacheKey {
     static func create(connection: HAConnection) -> HACache<Value1> {
         .init(
             connection: connection,
