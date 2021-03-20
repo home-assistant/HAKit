@@ -52,6 +52,7 @@ internal class HAConnectionImpl: HAConnection {
     let responseController: HAResponseController
     let reconnectManager: HAReconnectManager
     var connectAutomatically: Bool
+    private(set) lazy var caches: HACachesContainer = .init(connection: self)
 
     init(
         configuration: HAConnectionConfiguration,

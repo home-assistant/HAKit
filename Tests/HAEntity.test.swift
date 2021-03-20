@@ -1,6 +1,12 @@
 @testable import HAKit
 import XCTest
 
+internal extension HAEntity {
+    static func fake(id: String) throws -> HAEntity {
+        try .init(entityId: "fake.\(id)", domain: "fake", state: "fake", lastChanged: Date(), lastUpdated: Date(), attributes: [:], context: .init(id: "", userId: nil, parentId: nil))
+    }
+}
+
 internal class HAEntityTests: XCTestCase {
     func testWithInvalidData() throws {
         let data = HAData(value: [:])
@@ -50,6 +56,21 @@ internal class HAEntityTests: XCTestCase {
         }
         """)
         let entity = try HAEntity(data: data)
+        XCTAssertEqual(entity, entity)
+        XCTAssertEqual(entity.hashValue, entity.hashValue)
+        var copy = entity
+        copy.lastUpdated = Date()
+        XCTAssertNotEqual(entity, copy)
+        copy = entity
+        copy.entityId = "different_id"
+        XCTAssertNotEqual(entity, copy)
+        copy = entity
+        copy.state = "some_other_state"
+        XCTAssertNotEqual(entity, copy)
+        copy = entity
+        copy.context = .init(id: "some_other_id", userId: nil, parentId: nil)
+        XCTAssertEqual(entity, copy, "some other value changing is fine")
+
         XCTAssertEqual(entity.entityId, "input_select.muffin")
         XCTAssertEqual(entity.domain, "input_select")
         XCTAssertEqual(entity.state, "two")

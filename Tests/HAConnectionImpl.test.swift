@@ -1094,6 +1094,11 @@ internal class HAConnectionImplTests: XCTestCase {
             added.invoke(token: .init(handler: {}), event: .dictionary(["failure": true]))
         }
     }
+
+    func testCachesContainerExists() throws {
+        let container = connection.caches
+        XCTAssertEqual(ObjectIdentifier(container.connection), ObjectIdentifier(connection))
+    }
 }
 
 extension WebSocketEvent: Equatable {

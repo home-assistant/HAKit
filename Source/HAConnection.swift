@@ -72,6 +72,9 @@ public protocol HAConnection: AnyObject {
     /// The current state of the connection
     var state: HAConnectionState { get }
 
+    /// Container for caches, either from this library or created externally
+    var caches: HACachesContainer { get }
+
     /// The queue to invoke all handlers on
     /// This defaults to `DispatchQueue.main`
     var callbackQueue: DispatchQueue { get set }

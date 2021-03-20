@@ -42,6 +42,8 @@ public class HACache<ValueType> {
         subscribe: [HACacheSubscribeInfo<ValueType>]
     ) {
         self.connection = connection
+        self.populateInfo = populate
+        self.subscribeInfo = subscribe
 
         self.start = { connection, cache in
             guard case .ready = connection.state else {
@@ -74,6 +76,8 @@ public class HACache<ValueType> {
         transform: @escaping (IncomingType) -> ValueType
     ) {
         self.connection = incomingCache.connection
+        self.populateInfo = nil
+        self.subscribeInfo = nil
         self.start = { _, someCache in
             // unfortunately, using this value directly crashes the swift compiler, so we call into it with this
             let cache: HACache<ValueType> = someCache
@@ -98,6 +102,8 @@ public class HACache<ValueType> {
     public init(constantValue: ValueType) {
         self.connection = nil
         self.start = nil
+        self.populateInfo = nil
+        self.subscribeInfo = nil
         state.mutate { state in
             state.current = constantValue
         }
@@ -242,7 +248,7 @@ public class HACache<ValueType> {
     }
 
     /// The connection to use and watch
-    private weak var connection: HAConnection?
+    private(set) internal weak var connection: HAConnection?
     /// Block to begin the prepare -> subscribe lifecycle
     /// This is a block to erase all the intermediate types for prepare/subscribe
     private let start: ((HAConnection, HACache<ValueType>) -> HACancellable?)?
@@ -250,6 +256,12 @@ public class HACache<ValueType> {
     private var callbackQueue: DispatchQueue {
         connection?.callbackQueue ?? .main
     }
+    /// If this cache was created with populate info, this contains that info
+    /// This is largely intended for tests and is not used internally.
+    public let populateInfo: HACachePopulateInfo<ValueType>?
+    /// If this cache was created with subscribe info, this contains that info
+    /// This is largely intended for tests and is not used internally.
+    public let subscribeInfo: [HACacheSubscribeInfo<ValueType>]?
 
     /// Do the underlying populate send
     /// - Parameters:
