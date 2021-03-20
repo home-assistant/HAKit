@@ -55,6 +55,7 @@ public let package = Package(
             dependencies: [
                 .byName(name: "HAKit"),
                 .byName(name: "HAKit+PromiseKit"),
+                .byName(name: "HAKit+Mocks"),
             ],
             path: "Tests"
         ),
