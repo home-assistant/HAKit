@@ -1,11 +1,15 @@
 @testable import HAKit
 #if SWIFT_PACKAGE
 import HAKit_Mocks
+import HAKit_PromiseKit
 #endif
 import XCTest
+import PromiseKit
 
 internal class HACacheTests: XCTestCase {
     private var cache: HACache<CacheItem>!
+
+    private var queueSpecific = DispatchSpecificKey<Bool>()
     private var connection: HAMockConnection!
 
     private var populateInfo: HACachePopulateInfo<CacheItem>!
@@ -32,6 +36,10 @@ internal class HACacheTests: XCTestCase {
     private func subscribe2(_ block: (CacheItem) -> HACacheSubscribeInfo<CacheItem>.Response) throws {
         let value = try XCTUnwrap(subscribePerform2)
         value(block)
+    }
+
+    private var isOnCallbackQueue: Bool {
+        DispatchQueue.getSpecific(key: queueSpecific) == true
     }
 
     override func setUp() {
@@ -75,6 +83,10 @@ internal class HACacheTests: XCTestCase {
         )
 
         connection = HAMockConnection()
+        queueSpecific = .init()
+        connection.callbackQueue = DispatchQueue(label: "test-callback-queue")
+        connection.callbackQueue.setSpecific(key: queueSpecific, value: true)
+
         cache = HACache<CacheItem>(connection: connection, populate: populateInfo, subscribe: subscribeInfo)
     }
 
@@ -85,6 +97,7 @@ internal class HACacheTests: XCTestCase {
 
         let expectation1 = expectation(description: "subscribe")
         let token = cache.subscribe { _, item in
+            XCTAssertFalse(self.isOnCallbackQueue) // the cache doesn't know about the queue
             XCTAssertEqual(item, expected)
             expectation1.fulfill()
         }
@@ -169,6 +182,7 @@ internal class HACacheTests: XCTestCase {
 
         let expectation1 = expectation(description: "notified1")
         let handlerToken1 = cache.subscribe { _, value in
+            XCTAssertTrue(self.isOnCallbackQueue)
             XCTAssertEqual(value, expectedItem1)
             expectation1.fulfill()
         }
@@ -192,6 +206,7 @@ internal class HACacheTests: XCTestCase {
 
         var handler2Values = [CacheItem]()
         _ = cache.subscribe { _, value in
+            XCTAssertTrue(self.isOnCallbackQueue)
             handler2Values.append(value)
             expectation2.fulfill()
         }
@@ -217,6 +232,7 @@ internal class HACacheTests: XCTestCase {
         let handlerExpectation = expectation(description: "handler")
         handlerExpectation.expectedFulfillmentCount = 6
         let handlerToken1 = cache.subscribe { _, value in
+            XCTAssertTrue(self.isOnCallbackQueue)
             handlerValues1.append(value)
             handlerExpectation.fulfill()
         }
@@ -228,6 +244,7 @@ internal class HACacheTests: XCTestCase {
         populatePerform = nil
 
         let handlerToken2 = cache.subscribe { _, value in
+            XCTAssertTrue(self.isOnCallbackQueue)
             handlerValues2.append(value)
             handlerExpectation.fulfill()
         }
@@ -284,6 +301,7 @@ internal class HACacheTests: XCTestCase {
         handlerExpectation.expectedFulfillmentCount = 3
         var handlerValues = [CacheItem]()
         _ = cache.subscribe { _, value in
+            XCTAssertTrue(self.isOnCallbackQueue)
             handlerValues.append(value)
             handlerExpectation.fulfill()
         }
@@ -327,6 +345,7 @@ internal class HACacheTests: XCTestCase {
         try autoreleasepool {
             let expectation = self.expectation(description: "handler")
             _ = cache.subscribe { _, _ in
+                XCTAssertTrue(self.isOnCallbackQueue)
                 expectation.fulfill()
             }
             try populate { _ in .init() }
@@ -351,6 +370,7 @@ internal class HACacheTests: XCTestCase {
         let handlerExpectation = expectation(description: "handler")
         handlerExpectation.expectedFulfillmentCount = 3
         _ = cache.subscribe { _, value in
+            XCTAssertTrue(self.isOnCallbackQueue)
             handlerValues.append(value)
             handlerExpectation.fulfill()
         }
@@ -383,6 +403,7 @@ internal class HACacheTests: XCTestCase {
         var handlerValues: [UUID] = []
         handlerExpectation.expectedFulfillmentCount = 2
         let handlerToken = mappedCache.subscribe { _, value in
+            XCTAssertTrue(self.isOnCallbackQueue)
             handlerValues.append(value)
             handlerExpectation.fulfill()
         }
@@ -429,11 +450,96 @@ internal class HACacheTests: XCTestCase {
         let handlerExpectation = expectation(description: "handler")
         handlerExpectation.expectedFulfillmentCount = 2
         _ = mappedCache.subscribe { _, value in
+            XCTAssertTrue(self.isOnCallbackQueue)
             XCTAssertEqual(value, expectedValue.uuid)
             handlerExpectation.fulfill()
         }
 
         waitForExpectations(timeout: 10.0)
+    }
+
+    func testOnceBeforeInitial() throws {
+        connection.state = .ready(version: "1.2.3")
+        let expectedValue = CacheItem()
+
+        let regExpectation = expectation(description: "once-regular")
+        let pkExpectation = expectation(description: "once-promise")
+
+        cache.once { value in
+            XCTAssertEqual(value, expectedValue)
+            regExpectation.fulfill()
+        }
+
+        cache.once().promise.done { value in
+            XCTAssertEqual(value, expectedValue)
+            pkExpectation.fulfill()
+        }
+
+        try populate { current in
+            XCTAssertNil(current)
+            return expectedValue
+        }
+
+        waitForExpectations(timeout: 10.0)
+
+        try subscribe { current in
+            XCTAssertEqual(current, expectedValue)
+            return .replace(CacheItem())
+        }
+    }
+
+    func testOnceAfterInitial() throws {
+        connection.state = .ready(version: "1.2.3")
+        let expectedValue = CacheItem()
+
+        _ = cache.subscribe { _, _ in }
+
+        try populate { current in
+            XCTAssertNil(current)
+            return expectedValue
+        }
+
+        let regExpectation = expectation(description: "once-regular")
+        let pkExpectation = expectation(description: "once-promise")
+
+        cache.once { value in
+            XCTAssertEqual(value, expectedValue)
+            regExpectation.fulfill()
+        }
+
+        cache.once().promise.done { value in
+            XCTAssertEqual(value, expectedValue)
+            pkExpectation.fulfill()
+        }
+
+        waitForExpectations(timeout: 10.0)
+
+        try subscribe { current in
+            XCTAssertEqual(current, expectedValue)
+            return .replace(CacheItem())
+        }
+    }
+
+    func testOnceCancel() throws {
+        connection.state = .ready(version: "1.2.3")
+        let expectedValue = CacheItem()
+
+        let regToken = cache.once { value in
+            XCTFail("should not have invoked once")
+        }
+
+        let (pkPromise, pkCancel) = cache.once()
+        pkPromise.done { value in
+            XCTFail("should not have invoked once")
+        }
+
+        regToken.cancel()
+        pkCancel()
+
+        try populate { current in
+            XCTAssertNil(current)
+            return expectedValue
+        }
     }
 }
 
