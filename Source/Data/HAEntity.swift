@@ -1,7 +1,7 @@
 import Foundation
 
 /// An entity in Home Assistant
-public struct HAEntity: HADataDecodable {
+public struct HAEntity: HADataDecodable, Hashable {
     /// The entity id, e.g. `sun.sun` or `light.office`
     public var entityId: String
     /// The domain of the entity id, e.g. `light` in `light.office`
@@ -67,6 +67,14 @@ public struct HAEntity: HADataDecodable {
         self.lastUpdated = lastUpdated
         self.attributes = try .init(domain: domain, dictionary: attributes)
         self.context = context
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(entityId)
+    }
+
+    public static func == (lhs: HAEntity, rhs: HAEntity) -> Bool {
+        lhs.lastUpdated == rhs.lastUpdated && lhs.entityId == rhs.entityId && lhs.state == rhs.state
     }
 }
 

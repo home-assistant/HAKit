@@ -109,6 +109,8 @@ See [`HADataDecodable`](Source/Data/HADataDecodable.swift) for the available met
 ## Cached Results
 [`HACache`](https://home-assistant.github.io/HAKit/Classes/HACache.html) allows you to cache the result of requests and subscribe to events to update them.
 
+The library includes a few built-in caches which you can access via [`HACachesContainer`](https://home-assistant.github.io/HAKit/Classes/HACachesContainer.html) via `connection.caches`. See the documentation for which are available. 
+
 ### Populate
 Populating the cache is done using [`HACachePopulateInfo`](https://home-assistant.github.io/HAKit/Structs/HACachePopulateInfo.html) which contains:
 

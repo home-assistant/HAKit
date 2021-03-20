@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 - Added: `HACache<T>` which can send requests and subscribe to events to keep its value up-to-date.
+- Added `HACachesContainer` accessible as `connection.caches` which contains built-in caches.
+- Added: `connection.caches.states` which contains and keeps up-to-date all entity states.
 - Added: Optional `PromiseKit` target/subspec.
 - Added: Optional `HAMockConnection` target/subspec for use in test cases.
 - Added: `connectAutomatically` parameter to connection creation. This will call `connect()` when requests are sent if not connected.

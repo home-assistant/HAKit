@@ -78,6 +78,7 @@ public class HAMockConnection: HAConnection {
     // MARK: - Mock Implementation
 
     public weak var delegate: HAConnectionDelegate?
+    public lazy var caches: HACachesContainer = { .init(connection: self) }()
 
     public var configuration: HAConnectionConfiguration
     public init(configuration: HAConnectionConfiguration = .fake) {
