@@ -1,5 +1,7 @@
 @testable import HAKit
+#if SWIFT_PACKAGE
 import HAKit_Mocks
+#endif
 import XCTest
 
 internal class HACacheSubscribeInfoTests: XCTestCase {

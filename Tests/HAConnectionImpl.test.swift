@@ -1,5 +1,7 @@
 @testable import HAKit
+#if SWIFT_PACKAGE
 @testable import HAKit_PromiseKit
+#endif
 import PromiseKit
 import Starscream
 import XCTest

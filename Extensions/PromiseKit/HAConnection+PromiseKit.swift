@@ -1,4 +1,6 @@
+#if SWIFT_PACKAGE
 import HAKit
+#endif
 import PromiseKit
 
 public extension HAConnection {

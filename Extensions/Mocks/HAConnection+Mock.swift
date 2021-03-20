@@ -1,5 +1,7 @@
 import Foundation
+#if SWIFT_PACKAGE
 import HAKit
+#endif
 
 public extension HAConnectionConfiguration {
     /// A basic, fake configuration that is always successful.
