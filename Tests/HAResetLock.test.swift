@@ -13,7 +13,7 @@ internal class HAResetLockTests: XCTestCase {
             }
 
             // this is mostly just testing that it doesn't crash, and doesn't give very large numbers
-            XCTAssertLessThan(callCount, 5)
+            XCTAssertLessThan(callCount, 10)
             XCTAssertNil(lock.read())
             XCTAssertNil(lock.pop())
         }
