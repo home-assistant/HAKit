@@ -42,7 +42,7 @@ public struct HACachePopulateInfo<OutgoingType> {
 
     /// The untyped request that underlies the request that created this info
     /// - Important: This is intended to be used exclusively for writing tests; this method is not called by the cache.
-    public var request: HARequest
+    public let request: HARequest
 
     /// Error during transform attempt
     public enum TransformError: Error {
