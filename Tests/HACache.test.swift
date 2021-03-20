@@ -3,8 +3,8 @@
 import HAKit_Mocks
 import HAKit_PromiseKit
 #endif
-import XCTest
 import PromiseKit
+import XCTest
 
 internal class HACacheTests: XCTestCase {
     private var cache: HACache<CacheItem>!
@@ -524,12 +524,12 @@ internal class HACacheTests: XCTestCase {
         connection.state = .ready(version: "1.2.3")
         let expectedValue = CacheItem()
 
-        let regToken = cache.once { value in
+        let regToken = cache.once { _ in
             XCTFail("should not have invoked once")
         }
 
         let (pkPromise, pkCancel) = cache.once()
-        pkPromise.done { value in
+        pkPromise.done { _ in
             XCTFail("should not have invoked once")
         }
 
