@@ -106,6 +106,66 @@ Many methods will deliver results as `HAData` when not using convenience wrapper
 
 See [`HADataDecodable`](Source/Data/HADataDecodable.swift) for the available methods.
 
+## Cached Results
+[`HACache`](https://home-assistant.github.io/HAKit/Classes/HACache.html) allows you to cache the result of requests and subscribe to events to update them.
+
+### Populate
+Populating the cache is done using [`HACachePopulateInfo`](https://home-assistant.github.io/HAKit/Structs/HACachePopulateInfo.html) which contains:
+
+1. The request to send
+2. The transform converting the request's result to the cached value
+
+For example, if you wanted to issue the request `.getStates()` and keep track of all `entityId`:
+
+```swift
+let populate = HACachePopulateInfo<Set<String>>(
+  request: .getStates(),
+  transform: { info in
+    return Set(info.incoming.map(\.entityId))
+  }
+)
+```
+
+### Subscribe
+Updating the value of the cache is done using one or more [`HACacheSubscribeInfo`](https://home-assistant.github.io/HAKit/Structs/HACacheSubscribeInfo.html), each of which contains:
+
+1. The event to subscribe to
+2. How to convert the event to what the cache should do: reissue the populate request, update the value to a new version, and ignore the event entirely.
+
+For example, if you wanted to watch for state changes to update entityIds:
+
+```swift
+let subscribe = HACacheSubscribeInfo<Set<String>>(
+  subscription: .stateChanged(),
+  transform: { info in
+    var entityIds = info.current
+    if info.incoming.newState == nil {
+      entityIds.remove(info.incoming.entityId)
+    } else {
+      entityIds.insert(info.incoming.entityId)
+    }
+    return .replace(entityIds)
+  }
+)
+```
+
+### Putting it together
+Putting these two together, we can create a cache that maintains the current known entityIds:
+
+```swift
+let entityIds = HACache(connection: connection, populate: populate, subscribe: subscribe)
+```
+
+You can now subscribe to changes in the cache:
+
+```swift
+entityIds.subscribe { token, value in
+  print("current entity ids are: \(value)")
+}
+```
+
+Caches will defer doing their populate until the connection is connected and it has at least one subscriber. You can control whether it disconnects from subscriptions when it has no subscribers via the `shouldResetWithoutSubscribers` property.
+
 ## PromiseKit
 
 This library contains optional additions for use with PromiseKit. See the [source](https://github.com/home-assistant/HAKit/blob/main/Extensions/PromiseKit) for more information.
