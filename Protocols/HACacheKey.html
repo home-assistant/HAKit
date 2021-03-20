@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>HACacheTransformInfo Structure Reference</title>
+    <title>HACacheKey Protocol Reference</title>
     <link rel="stylesheet" type="text/css" href="../css/jazzy.css" />
     <link rel="stylesheet" type="text/css" href="../css/highlight.css" />
     <meta charset='utf-8'>
@@ -13,8 +13,8 @@
     <script src="../js/jazzy.search.js" defer></script>
   </head>
   <body>
-    <a name="//apple_ref/swift/Struct/HACacheTransformInfo" class="dashAnchor"></a>
-    <a title="HACacheTransformInfo Structure Reference"></a>
+    <a name="//apple_ref/swift/Protocol/HACacheKey" class="dashAnchor"></a>
+    <a title="HACacheKey Protocol Reference"></a>
     <header>
       <div class="content-wrapper">
         <p><a href="../index.html">HAKit 0.1.0 Docs</a> (100% documented)</p>
@@ -30,7 +30,7 @@
       <p id="breadcrumbs">
         <a href="../index.html">HAKit Reference</a>
         <img id="carat" src="../img/carat.png" />
-        HACacheTransformInfo Structure Reference
+        HACacheKey Protocol Reference
       </p>
     </div>
     <div class="content-wrapper">
@@ -219,15 +219,15 @@
       <article class="main-content">
         <section>
           <section class="section">
-            <h1>HACacheTransformInfo</h1>
+            <h1>HACacheKey</h1>
               <div class="declaration">
                 <div class="language">
                   
-                  <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">struct</span> <span class="kt">HACacheTransformInfo</span><span class="o">&lt;</span><span class="kt">IncomingType</span><span class="p">,</span> <span class="kt">OutgoingType</span><span class="o">&gt;</span></code></pre>
+                  <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">protocol</span> <span class="kt">HACacheKey</span></code></pre>
 
                 </div>
               </div>
-            <p>Information about a state change which needs transform</p>
+            <p>A cache key for <code><a href="../Classes/HACachesContainer.html">HACachesContainer</a></code></p>
 
           </section>
           <section class="section task-group-section">
@@ -236,9 +236,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:5HAKit20HACacheTransformInfoV8incomingxvp"></a>
-                    <a name="//apple_ref/swift/Property/incoming" class="dashAnchor"></a>
-                    <a class="token" href="#/s:5HAKit20HACacheTransformInfoV8incomingxvp">incoming</a>
+                    <a name="/s:5HAKit10HACacheKeyP5ValueQa"></a>
+                    <a name="//apple_ref/swift/Alias/Value" class="dashAnchor"></a>
+                    <a class="token" href="#/s:5HAKit10HACacheKeyP5ValueQa">Value</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -246,16 +246,14 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>The value coming into this state change
-For populate transforms, this is the request&rsquo;s response
-For subscribe transforms, this is the subscription&rsquo;s event value</p>
+                        <p>The value type in the cache, e.g. <code>T</code> in <code><a href="../Classes/HACache.html">HACache&lt;T&gt;</a></code></p>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">incoming</span><span class="p">:</span> <span class="kt">IncomingType</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">associatedtype</span> <span class="kt">Value</span></code></pre>
 
                         </div>
                       </div>
@@ -265,9 +263,9 @@ For subscribe transforms, this is the subscription&rsquo;s event value</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:5HAKit20HACacheTransformInfoV7currentq_vp"></a>
-                    <a name="//apple_ref/swift/Property/current" class="dashAnchor"></a>
-                    <a class="token" href="#/s:5HAKit20HACacheTransformInfoV7currentq_vp">current</a>
+                    <a name="/s:5HAKit10HACacheKeyP6create10connectionAA0B0Cy5ValueQzGAA12HAConnection_p_tFZ"></a>
+                    <a name="//apple_ref/swift/Method/create(connection:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:5HAKit10HACacheKeyP6create10connectionAA0B0Cy5ValueQzGAA12HAConnection_p_tFZ">create(connection:<wbr>)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -275,18 +273,41 @@ For subscribe transforms, this is the subscription&rsquo;s event value</p>
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>The current value of the cache
-For populate transforms, this is nil if an initial request hasn&rsquo;t been sent yet and the cache not reset.
-For subscribe transforms, this is non-optional.</p>
+                        <p>Create a cache on a particular connection</p>
+
+<p>This is called exactly once per connection per cache key.</p>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">current</span><span class="p">:</span> <span class="kt">OutgoingType</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">static</span> <span class="kd">func</span> <span class="nf">create</span><span class="p">(</span><span class="nv">connection</span><span class="p">:</span> <span class="kt"><a href="../Protocols/HAConnection.html">HAConnection</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt"><a href="../Classes/HACache.html">HACache</a></span><span class="o">&lt;</span><span class="kt"><a href="../Protocols/HACacheKey.html#/s:5HAKit10HACacheKeyP5ValueQa">Value</a></span><span class="o">&gt;</span></code></pre>
 
                         </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>connection</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The connection to create on</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <div>
+                        <h4>Return Value</h4>
+                        <p>The cache you want to associate with the key</p>
                       </div>
                     </section>
                   </div>
