@@ -24,27 +24,72 @@ public struct HACacheSubscribeInfo<OutgoingType> {
             return updated
         }()
 
-        self.init { connection, perform in
-            connection.subscribe(to: nonRetrySubscription, handler: { _, incoming in
-                perform { current in
-                    transform(.init(incoming: incoming, current: current))
+        self.init(
+            request: subscription.request,
+            anyTransform: { possibleValue in
+                guard let value = possibleValue as? HACacheTransformInfo<IncomingType, OutgoingType> else {
+                    throw TransformError.incorrectType(
+                        have: String(describing: possibleValue),
+                        expected: String(describing: IncomingType.self)
+                    )
                 }
-            })
-        }
+
+                return transform(value)
+            }, start: { connection, perform in
+                connection.subscribe(to: nonRetrySubscription, handler: { _, incoming in
+                    perform { current in
+                        transform(.init(incoming: incoming, current: current))
+                    }
+                })
+            }
+        )
     }
 
+    /// The untyped request that underlies the subscription that created this info
+    /// - Important: This is intended to be used exclusively for writing tests; this method is not called by the cache.
+    public var request: HARequest
+
+    /// Error during transform attempt
+    public enum TransformError: Error {
+        /// The provided type information didn't match what this info was created with
+        case incorrectType(have: String, expected: String)
+    }
+
+    /// Attempt to replicate the transform provided during initialization
+    ///
+    /// Since we erase away the incoming type, you need to provide this hinted with a type when executing this block.
+    ///
+    /// - Important: This is intended to be used exclusively for writing tests; this method is not called by the cache.
+    /// - Parameters:
+    ///   - incoming: The incoming value, of some given type -- intended to be the IncomingType that created this
+    ///   - current: The current value part of the transform info
+    /// - Throws: If the type of incoming does not match the original IncomingType
+    /// - Returns: The response from the transform block
+    public func transform<IncomingType>(incoming: IncomingType, current: OutgoingType) throws -> Response {
+        try anyTransform(HACacheTransformInfo<IncomingType, OutgoingType>(incoming: incoming, current: current))
+    }
+
+    /// The start handler
     typealias StartHandler = (HAConnection, @escaping ((OutgoingType) -> Response) -> Void) -> HACancellable
 
     /// Type-erasing block to perform the subscription and its transform
     internal let start: StartHandler
 
+    /// Helper to allow writing tests around the struct value
+    internal var anyTransform: (Any) throws -> Response
+
     /// Create with a start block
     ///
     /// Only really useful in unit tests to avoid setup.
     ///
-    /// - Parameter start: The start block
-    internal init(start: @escaping StartHandler) {
+    /// - Parameters:
+    ///   - request: The request that is tied to the subscription
+    ///   - anyTransform: The transform to provide for testing this value
+    ///   - start: The start block
+    internal init(request: HARequest, anyTransform: @escaping (Any) throws -> Response, start: @escaping StartHandler) {
+        self.request = request
         self.start = start
+        self.anyTransform = anyTransform
     }
 }
 

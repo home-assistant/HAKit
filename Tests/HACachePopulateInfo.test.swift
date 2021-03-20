@@ -12,6 +12,19 @@ internal class HACachePopulateInfoTests: XCTestCase {
         connection = HAMockConnection()
     }
 
+    func testTryTransform() throws {
+        let info = HACachePopulateInfo(request: request, transform: \.incoming)
+        XCTAssertEqual(info.request.type, "test")
+        XCTAssertEqual(info.request.data["in_data"] as? Bool, true)
+
+        XCTAssertThrowsError(try info.transform(incoming: "hello", current: nil))
+        XCTAssertThrowsError(try info.transform(incoming: PopulateItem?.none, current: nil))
+
+        let item = PopulateItem()
+        XCTAssertEqual(try info.transform(incoming: item, current: item), item)
+        XCTAssertEqual(try info.transform(incoming: item, current: nil), item)
+    }
+
     func testNotRetryRequest() throws {
         let info = HACachePopulateInfo(request: request, transform: \.incoming)
 

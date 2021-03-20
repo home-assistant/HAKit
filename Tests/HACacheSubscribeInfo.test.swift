@@ -12,6 +12,29 @@ internal class HACacheSubscribeInfoTests: XCTestCase {
         connection = HAMockConnection()
     }
 
+    func testTryTransform() throws {
+        var result: HACacheSubscribeInfo<SubscribeItem>.Response = .ignore
+        let item = SubscribeItem()
+
+        let info = HACacheSubscribeInfo<SubscribeItem>(
+            subscription: subscription, transform: { value in
+                XCTAssertEqual(value.current, item)
+                return result
+            }
+        )
+        XCTAssertEqual(info.request.type, "test")
+        XCTAssertEqual(info.request.data["in_data"] as? Bool, true)
+
+        XCTAssertThrowsError(try info.transform(incoming: "hello", current: item))
+        XCTAssertThrowsError(try info.transform(incoming: SubscribeItem?.none, current: item))
+
+        result = .reissuePopulate
+        XCTAssertEqual(try info.transform(incoming: item, current: item), result)
+
+        result = .replace(SubscribeItem())
+        XCTAssertEqual(try info.transform(incoming: item, current: item), result)
+    }
+
     func testNotRetryRequest() throws {
         let info = HACacheSubscribeInfo<SubscribeWrapper>(subscription: subscription, transform: { _ in .ignore })
 

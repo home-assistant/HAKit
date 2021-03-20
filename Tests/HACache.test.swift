@@ -17,30 +17,60 @@ internal class HACacheTests: XCTestCase {
     private var subscribeCancellableInvoked2: Bool = false
     private var subscribePerform2: (((CacheItem) -> HACacheSubscribeInfo<CacheItem>.Response) -> Void)?
 
+    private func populate(_ block: (CacheItem?) -> CacheItem) throws {
+        let value = try XCTUnwrap(populatePerform)
+        value(block)
+    }
+
+    private func subscribe(_ block: (CacheItem) -> HACacheSubscribeInfo<CacheItem>.Response) throws {
+        let value = try XCTUnwrap(subscribePerform)
+        value(block)
+    }
+
+    private func subscribe2(_ block: (CacheItem) -> HACacheSubscribeInfo<CacheItem>.Response) throws {
+        let value = try XCTUnwrap(subscribePerform2)
+        value(block)
+    }
+
     override func setUp() {
         super.setUp()
 
         populateCancellableInvoked = false
-        populateInfo = .init { [weak self] connection, perform in
-            self?.populatePerform = perform
-            return HAMockCancellable { [weak self] in
-                self?.populateCancellableInvoked = true
+        populateInfo = .init(
+            request: .init(type: "none", data: [:]),
+            anyTransform: { _ in
+                fatalError()
+            }, start: { [weak self] _, perform in
+                self?.populatePerform = perform
+                return HAMockCancellable { [weak self] in
+                    self?.populateCancellableInvoked = true
+                }
             }
-        }
+        )
         subscribeCancellableInvoked = false
         subscribeCancellableInvoked2 = false
-        subscribeInfo = .init { [weak self] connection, subscribe in
-            self?.subscribePerform = subscribe
-            return HAMockCancellable { [weak self] in
-                self?.subscribeCancellableInvoked = true
+        subscribeInfo = .init(
+            request: .init(type: "none", data: [:]),
+            anyTransform: { _ in
+                fatalError()
+            }, start: { [weak self] _, subscribe in
+                self?.subscribePerform = subscribe
+                return HAMockCancellable { [weak self] in
+                    self?.subscribeCancellableInvoked = true
+                }
             }
-        }
-        subscribeInfo2 = .init { [weak self] connection, subscribe in
-            self?.subscribePerform2 = subscribe
-            return HAMockCancellable { [weak self] in
-                self?.subscribeCancellableInvoked2 = true
+        )
+        subscribeInfo2 = .init(
+            request: .init(type: "none", data: [:]),
+            anyTransform: { _ in
+                fatalError()
+            }, start: { [weak self] _, subscribe in
+                self?.subscribePerform2 = subscribe
+                return HAMockCancellable { [weak self] in
+                    self?.subscribeCancellableInvoked2 = true
+                }
             }
-        }
+        )
 
         connection = HAMockConnection()
         cache = HACache<CacheItem>(connection: connection, populate: populateInfo, subscribe: subscribeInfo)
@@ -71,7 +101,7 @@ internal class HACacheTests: XCTestCase {
 
     func testSubscribingSkipsConnectionInitially() throws {
         connection.state = .disconnected(reason: .disconnected)
-        _ = cache.subscribe { cancellable, value in
+        _ = cache.subscribe { _, _ in
             XCTFail("should not have invoked subscribe at all")
         }
 
@@ -88,7 +118,7 @@ internal class HACacheTests: XCTestCase {
 
     func testSubscribingConnectsImmediately() throws {
         connection.state = .ready(version: "1.2.3")
-        _ = cache.subscribe { cancellable, value in
+        _ = cache.subscribe { _, _ in
             XCTFail("should not have invoked subscribe at all")
         }
 
@@ -100,7 +130,7 @@ internal class HACacheTests: XCTestCase {
         cache.shouldResetWithoutSubscribers = true
 
         connection.state = .ready(version: "1.2.3")
-        let handlerToken = cache.subscribe { cancellable, value in
+        let handlerToken = cache.subscribe { _, _ in
             XCTFail("should not have invoked subscribe at all")
         }
 
@@ -114,7 +144,7 @@ internal class HACacheTests: XCTestCase {
 
     func testResetWithoutSubscribersChangedLaterDisconnects() throws {
         connection.state = .ready(version: "1.2.3")
-        let handlerToken = cache.subscribe { cancellable, value in
+        let handlerToken = cache.subscribe { _, _ in
             XCTFail("should not have invoked subscribe at all")
         }
 
@@ -141,7 +171,7 @@ internal class HACacheTests: XCTestCase {
             expectation1.fulfill()
         }
 
-        (try XCTUnwrap(populatePerform)) { current in
+        try populate { current in
             XCTAssertNil(current)
             return expectedItem1
         }
@@ -164,7 +194,7 @@ internal class HACacheTests: XCTestCase {
             expectation2.fulfill()
         }
 
-        (try XCTUnwrap(populatePerform)) { current in
+        try populate { current in
             XCTAssertEqual(current, expectedItem1)
             return expectedItem2
         }
@@ -188,7 +218,7 @@ internal class HACacheTests: XCTestCase {
             handlerValues1.append(value)
             handlerExpectation.fulfill()
         }
-        (try XCTUnwrap(populatePerform)) { current in
+        try populate { current in
             XCTAssertNil(current)
             return values[0]
         }
@@ -200,22 +230,22 @@ internal class HACacheTests: XCTestCase {
             handlerExpectation.fulfill()
         }
 
-        (try XCTUnwrap(subscribePerform)) { current in
+        try subscribe { current in
             XCTAssertEqual(current, values[0])
             return .ignore
         }
 
-        (try XCTUnwrap(subscribePerform)) { current in
+        try subscribe { current in
             XCTAssertEqual(current, values[0])
             return .replace(values[1])
         }
 
-        (try XCTUnwrap(subscribePerform)) { current in
+        try subscribe { current in
             XCTAssertEqual(current, values[1])
             return .reissuePopulate
         }
 
-        (try XCTUnwrap(populatePerform)) { current in
+        try populate { current in
             XCTAssertEqual(current, values[1])
             return values[2]
         }
@@ -235,7 +265,7 @@ internal class HACacheTests: XCTestCase {
     func testReissuesPopulateOnReconnect() throws {
         connection.state = .ready(version: "1.2.3")
 
-        _ = cache.subscribe { _, _  in }
+        _ = cache.subscribe { _, _ in }
 
         XCTAssertNotNil(populatePerform)
         connection.state = .disconnected(reason: .disconnected)
@@ -255,21 +285,21 @@ internal class HACacheTests: XCTestCase {
             handlerValues.append(value)
             handlerExpectation.fulfill()
         }
-        (try XCTUnwrap(populatePerform)) { current in
+        try populate { current in
             XCTAssertNil(current)
             return values[0]
         }
-        (try XCTUnwrap(subscribePerform)) { current in
+        try subscribe { current in
             XCTAssertEqual(current, values[0])
             return .replace(values[1])
         }
         connection.state = .disconnected(reason: .disconnected)
         connection.state = .ready(version: "2.3.4")
-        (try XCTUnwrap(populatePerform)) { current in
+        try populate { current in
             XCTAssertEqual(current, values[1])
             return values[2]
         }
-        (try XCTUnwrap(subscribePerform)) { current in
+        try subscribe { current in
             XCTAssertEqual(current, values[2])
             return .ignore
         }
@@ -287,7 +317,7 @@ internal class HACacheTests: XCTestCase {
 
         XCTAssertTrue(populateCancellableInvoked)
 
-        (try XCTUnwrap(populatePerform)) { _ in .init() }
+        try populate { _ in .init() }
     }
 
     func testCacheDeallocInvalidatesSubscriptions() throws {
@@ -297,17 +327,22 @@ internal class HACacheTests: XCTestCase {
             _ = cache.subscribe { _, _ in
                 expectation.fulfill()
             }
-            (try XCTUnwrap(populatePerform)) { _ in .init() }
+            try populate { _ in .init() }
             cache = nil
             waitForExpectations(timeout: 10.0)
         }
         XCTAssertTrue(subscribeCancellableInvoked)
 
-        (try XCTUnwrap(subscribePerform)) { _ in .ignore }
+        try subscribe { _ in .ignore }
     }
 
     func testMultipleSubscriptions() throws {
-        cache = HACache<CacheItem>(connection: connection, populate: populateInfo, subscribe: subscribeInfo, subscribeInfo2)
+        cache = HACache<CacheItem>(
+            connection: connection,
+            populate: populateInfo,
+            subscribe: subscribeInfo,
+            subscribeInfo2
+        )
         connection.state = .ready(version: "1.2.3")
 
         var handlerValues: [CacheItem] = []
@@ -319,17 +354,17 @@ internal class HACacheTests: XCTestCase {
         }
 
         let expectedValues: [CacheItem] = [.init(), .init(), .init()]
-        (try XCTUnwrap(populatePerform)) { current in
+        try populate { current in
             XCTAssertNil(current)
             return expectedValues[0]
         }
 
-        (try XCTUnwrap(subscribePerform)) { current in
+        try subscribe { current in
             XCTAssertEqual(current, expectedValues[0])
             return .replace(expectedValues[1])
         }
 
-        (try XCTUnwrap(subscribePerform2)) { current in
+        try subscribe2 { current in
             XCTAssertEqual(current, expectedValues[1])
             return .replace(expectedValues[2])
         }
@@ -354,12 +389,12 @@ internal class HACacheTests: XCTestCase {
 
         let expectedValues: [CacheItem] = [.init(), .init()]
 
-        (try XCTUnwrap(populatePerform)) { current in
+        try populate { current in
             XCTAssertNil(current)
             return expectedValues[0]
         }
 
-        (try XCTUnwrap(subscribePerform)) { current in
+        try subscribe { current in
             XCTAssertEqual(current, expectedValues[0])
             return .replace(expectedValues[1])
         }
@@ -381,7 +416,7 @@ internal class HACacheTests: XCTestCase {
 
         let expectedValue = CacheItem()
 
-        (try XCTUnwrap(populatePerform)) { current in
+        try populate { current in
             XCTAssertNil(current)
             return expectedValue
         }
