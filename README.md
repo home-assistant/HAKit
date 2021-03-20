@@ -166,6 +166,10 @@ entityIds.subscribe { token, value in
 
 Caches will defer doing their populate until the connection is connected and it has at least one subscriber. You can control whether it disconnects from subscriptions when it has no subscribers via the `shouldResetWithoutSubscribers` property.
 
+## Mocks
+
+This library contains optional additions for writing tests. See the [source](https://github.com/home-assistant/HAKit/blob/main/Extensions/Mocks) for more information.
+
 ## PromiseKit
 
 This library contains optional additions for use with PromiseKit. See the [source](https://github.com/home-assistant/HAKit/blob/main/Extensions/PromiseKit) for more information.
@@ -184,6 +188,7 @@ To add it to an Xcode project, you can do this by adding the URL to File > Swift
 
 - `HAKit`, the library itself
 - `HAKit+PromiseKit`, which includes the PromiseKit additions
+- `HAKit+Mocks`, which includes mocks to make writing tests easier
 
 ### CocoaPods
 Add the following line to your Podfile:
@@ -191,6 +196,7 @@ Add the following line to your Podfile:
 ```ruby
 pod "HAKit", "~> 0.1"
 # pod "HAKit/PromiseKit" # optional, for PromiseKit support
+# pod "HAKit/Mocks" # optional, for tests
 ```
 
 ## Contributing
