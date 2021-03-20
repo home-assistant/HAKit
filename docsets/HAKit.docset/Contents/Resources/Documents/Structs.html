@@ -37,6 +37,14 @@
       <nav class="sidebar">
         <ul class="nav-groups">
           <li class="nav-group-name">
+            <a href="Classes.html">Classes</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="Classes/HACache.html">HACache</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
             <a href="Enums.html">Enumerations</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
@@ -105,6 +113,24 @@
           <li class="nav-group-name">
             <a href="Structs.html">Structures</a>
             <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="Structs/HACachePopulateInfo.html">HACachePopulateInfo</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/HACachePopulateInfo/TransformError.html">– TransformError</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/HACacheSubscribeInfo.html">HACacheSubscribeInfo</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/HACacheSubscribeInfo/Response.html">– Response</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/HACacheSubscribeInfo/TransformError.html">– TransformError</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/HACacheTransformInfo.html">HACacheTransformInfo</a>
+              </li>
               <li class="nav-group-task">
                 <a href="Structs/HAConnectionConfiguration.html">HAConnectionConfiguration</a>
               </li>
@@ -191,6 +217,98 @@
           <section class="section task-group-section">
             <div class="task-group">
               <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:5HAKit19HACachePopulateInfoV"></a>
+                    <a name="//apple_ref/swift/Struct/HACachePopulateInfo" class="dashAnchor"></a>
+                    <a class="token" href="#/s:5HAKit19HACachePopulateInfoV">HACachePopulateInfo</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Information about the populate call in the cache</p>
+
+<p>This is issued in a few situations:</p>
+
+<ol>
+<li>To initially populate the cache value for the first to-the-cache subscription</li>
+<li>To update the value when reconnecting after having been disconnected</li>
+<li>When a subscribe handler says that it needs to re-execute the populate to get a newer value</li>
+</ol>
+
+                        <a href="Structs/HACachePopulateInfo.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">struct</span> <span class="kt">HACachePopulateInfo</span><span class="o">&lt;</span><span class="kt">OutgoingType</span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:5HAKit20HACacheSubscribeInfoV"></a>
+                    <a name="//apple_ref/swift/Struct/HACacheSubscribeInfo" class="dashAnchor"></a>
+                    <a class="token" href="#/s:5HAKit20HACacheSubscribeInfoV">HACacheSubscribeInfo</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Information about the subscriptions used to keep the cache up-to-date</p>
+
+                        <a href="Structs/HACacheSubscribeInfo.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">struct</span> <span class="kt">HACacheSubscribeInfo</span><span class="o">&lt;</span><span class="kt">OutgoingType</span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:5HAKit20HACacheTransformInfoV"></a>
+                    <a name="//apple_ref/swift/Struct/HACacheTransformInfo" class="dashAnchor"></a>
+                    <a class="token" href="#/s:5HAKit20HACacheTransformInfoV">HACacheTransformInfo</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Information about a state change which needs transform</p>
+
+                        <a href="Structs/HACacheTransformInfo.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">struct</span> <span class="kt">HACacheTransformInfo</span><span class="o">&lt;</span><span class="kt">IncomingType</span><span class="p">,</span> <span class="kt">OutgoingType</span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
                 <li class="item">
                   <div>
                     <code>
@@ -741,7 +859,7 @@
           </section>
         </section>
         <section id="footer">
-          <p>&copy; 2021 <a class="link" href="https://github.com/home-assistant/HAKit" target="_blank" rel="external">Home Assistant</a>. All rights reserved. (Last updated: 2021-03-16)</p>
+          <p>&copy; 2021 <a class="link" href="https://github.com/home-assistant/HAKit" target="_blank" rel="external">Home Assistant</a>. All rights reserved. (Last updated: 2021-03-20)</p>
           <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.13.6</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external">Realm</a> project.</p>
         </section>
       </article>

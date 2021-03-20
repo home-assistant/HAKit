@@ -36,6 +36,14 @@
       <nav class="sidebar">
         <ul class="nav-groups">
           <li class="nav-group-name">
+            <a href="Classes.html">Classes</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="Classes/HACache.html">HACache</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
             <a href="Enums.html">Enumerations</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
@@ -104,6 +112,24 @@
           <li class="nav-group-name">
             <a href="Structs.html">Structures</a>
             <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="Structs/HACachePopulateInfo.html">HACachePopulateInfo</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/HACachePopulateInfo/TransformError.html">– TransformError</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/HACacheSubscribeInfo.html">HACacheSubscribeInfo</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/HACacheSubscribeInfo/Response.html">– Response</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/HACacheSubscribeInfo/TransformError.html">– TransformError</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/HACacheTransformInfo.html">HACacheTransformInfo</a>
+              </li>
               <li class="nav-group-task">
                 <a href="Structs/HAConnectionConfiguration.html">HAConnectionConfiguration</a>
               </li>
@@ -281,6 +307,65 @@
 <p>Many methods will deliver results as <code><a href="Enums/HAData.html">HAData</a></code> when not using convenience wrappers. This is delivered in place of an underlying dictionary or array response and it features convenience methods to decode keys from the dictionaries as particular types. This works similarly to <code>Decodable</code> but not identically &ndash; many Home Assistant calls will return results that <em>must</em> be preserved as <code>Any</code> and Swift&rsquo;s JSON coding does not handle this well.</p>
 
 <p>See <a href="Source/Data/HADataDecodable.swift"><code><a href="Protocols/HADataDecodable.html">HADataDecodable</a></code></a> for the available methods.</p>
+<h2 id='cached-results' class='heading'>Cached Results</h2>
+
+<p><a href="https://home-assistant.github.io/HAKit/Classes/HACache.html"><code><a href="Classes/HACache.html">HACache</a></code></a> allows you to cache the result of requests and subscribe to events to update them.</p>
+<h3 id='populate' class='heading'>Populate</h3>
+
+<p>Populating the cache is done using <a href="https://home-assistant.github.io/HAKit/Structs/HACachePopulateInfo.html"><code><a href="Structs/HACachePopulateInfo.html">HACachePopulateInfo</a></code></a> which contains:</p>
+
+<ol>
+<li>The request to send</li>
+<li>The transform converting the request&rsquo;s result to the cached value</li>
+</ol>
+
+<p>For example, if you wanted to issue the request <code>.getStates()</code> and keep track of all <code>entityId</code>:</p>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">populate</span> <span class="o">=</span> <span class="kt">HACachePopulateInfo</span><span class="o">&lt;</span><span class="kt">Set</span><span class="o">&lt;</span><span class="kt">String</span><span class="o">&gt;&gt;</span><span class="p">(</span>
+  <span class="nv">request</span><span class="p">:</span> <span class="o">.</span><span class="nf">getStates</span><span class="p">(),</span>
+  <span class="nv">transform</span><span class="p">:</span> <span class="p">{</span> <span class="n">info</span> <span class="k">in</span>
+    <span class="k">return</span> <span class="kt">Set</span><span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">incoming</span><span class="o">.</span><span class="nf">map</span><span class="p">(</span><span class="err">\</span><span class="o">.</span><span class="n">entityId</span><span class="p">))</span>
+  <span class="p">}</span>
+<span class="p">)</span>
+</code></pre>
+<h3 id='subscribe' class='heading'>Subscribe</h3>
+
+<p>Updating the value of the cache is done using one or more <a href="https://home-assistant.github.io/HAKit/Structs/HACacheSubscribeInfo.html"><code><a href="Structs/HACacheSubscribeInfo.html">HACacheSubscribeInfo</a></code></a>, each of which contains:</p>
+
+<ol>
+<li>The event to subscribe to</li>
+<li>How to convert the event to what the cache should do: reissue the populate request, update the value to a new version, and ignore the event entirely.</li>
+</ol>
+
+<p>For example, if you wanted to watch for state changes to update entityIds:</p>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">subscribe</span> <span class="o">=</span> <span class="kt">HACacheSubscribeInfo</span><span class="o">&lt;</span><span class="kt">Set</span><span class="o">&lt;</span><span class="kt">String</span><span class="o">&gt;&gt;</span><span class="p">(</span>
+  <span class="nv">subscription</span><span class="p">:</span> <span class="o">.</span><span class="nf">stateChanged</span><span class="p">(),</span>
+  <span class="nv">transform</span><span class="p">:</span> <span class="p">{</span> <span class="n">info</span> <span class="k">in</span>
+    <span class="k">var</span> <span class="nv">entityIds</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">current</span>
+    <span class="k">if</span> <span class="n">info</span><span class="o">.</span><span class="n">incoming</span><span class="o">.</span><span class="n">newState</span> <span class="o">==</span> <span class="kc">nil</span> <span class="p">{</span>
+      <span class="n">entityIds</span><span class="o">.</span><span class="nf">remove</span><span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">incoming</span><span class="o">.</span><span class="n">entityId</span><span class="p">)</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+      <span class="n">entityIds</span><span class="o">.</span><span class="nf">insert</span><span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">incoming</span><span class="o">.</span><span class="n">entityId</span><span class="p">)</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="o">.</span><span class="nf">replace</span><span class="p">(</span><span class="n">entityIds</span><span class="p">)</span>
+  <span class="p">}</span>
+<span class="p">)</span>
+</code></pre>
+<h3 id='putting-it-together' class='heading'>Putting it together</h3>
+
+<p>Putting these two together, we can create a cache that maintains the current known entityIds:</p>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">entityIds</span> <span class="o">=</span> <span class="kt">HACache</span><span class="p">(</span><span class="nv">connection</span><span class="p">:</span> <span class="n">connection</span><span class="p">,</span> <span class="nv">populate</span><span class="p">:</span> <span class="n">populate</span><span class="p">,</span> <span class="nv">subscribe</span><span class="p">:</span> <span class="n">subscribe</span><span class="p">)</span>
+</code></pre>
+
+<p>You can now subscribe to changes in the cache:</p>
+<pre class="highlight swift"><code><span class="n">entityIds</span><span class="o">.</span><span class="n">subscribe</span> <span class="p">{</span> <span class="n">token</span><span class="p">,</span> <span class="n">value</span> <span class="k">in</span>
+  <span class="nf">print</span><span class="p">(</span><span class="s">"current entity ids are: </span><span class="se">\(</span><span class="n">value</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre>
+
+<p>Caches will defer doing their populate until the connection is connected and it has at least one subscriber. You can control whether it disconnects from subscriptions when it has no subscribers via the <code>shouldResetWithoutSubscribers</code> property.</p>
+<h2 id='mocks' class='heading'>Mocks</h2>
+
+<p>This library contains optional additions for writing tests. See the <a href="https://github.com/home-assistant/HAKit/blob/main/Extensions/Mocks">source</a> for more information.</p>
 <h2 id='promisekit' class='heading'>PromiseKit</h2>
 
 <p>This library contains optional additions for use with PromiseKit. See the <a href="https://github.com/home-assistant/HAKit/blob/main/Extensions/PromiseKit">source</a> for more information.</p>
@@ -296,12 +381,14 @@
 <ul>
 <li><code><a href="Enums/HAKit.html">HAKit</a></code>, the library itself</li>
 <li><code>HAKit+PromiseKit</code>, which includes the PromiseKit additions</li>
+<li><code>HAKit+Mocks</code>, which includes mocks to make writing tests easier</li>
 </ul>
 <h3 id='cocoapods' class='heading'>CocoaPods</h3>
 
 <p>Add the following line to your Podfile:</p>
 <pre class="highlight ruby"><code><span class="n">pod</span> <span class="s2">"HAKit"</span><span class="p">,</span> <span class="s2">"~&gt; 0.1"</span>
 <span class="c1"># pod "HAKit/PromiseKit" # optional, for PromiseKit support</span>
+<span class="c1"># pod "HAKit/Mocks" # optional, for tests</span>
 </code></pre>
 <h2 id='contributing' class='heading'>Contributing</h2>
 
@@ -313,7 +400,7 @@
           </section>
         </section>
         <section id="footer">
-          <p>&copy; 2021 <a class="link" href="https://github.com/home-assistant/HAKit" target="_blank" rel="external">Home Assistant</a>. All rights reserved. (Last updated: 2021-03-16)</p>
+          <p>&copy; 2021 <a class="link" href="https://github.com/home-assistant/HAKit" target="_blank" rel="external">Home Assistant</a>. All rights reserved. (Last updated: 2021-03-20)</p>
           <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.13.6</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external">Realm</a> project.</p>
         </section>
       </article>
