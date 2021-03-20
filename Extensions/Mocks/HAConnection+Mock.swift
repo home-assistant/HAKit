@@ -85,6 +85,7 @@ public class HAMockConnection: HAConnection {
     public var state: HAConnectionState = .disconnected(reason: .disconnected) {
         didSet {
             delegate?.connection(self, didTransitionTo: state)
+            NotificationCenter.default.post(name: HAConnectionState.didTransitionToStateNotification, object: self)
         }
     }
 

@@ -48,10 +48,10 @@ public class HACache<ValueType> {
                 return nil
             }
 
-            return Self.send(populate: populate, on: connection, cache: cache) {
+            return Self.startPopulate(for: populate, on: connection, cache: cache) { cache in
                 cache.state.mutate { state in
                     state.requestTokens = subscribe.map { info in
-                        Self.subscribe(to: info, on: connection, populate: populate, cache: cache)
+                        Self.startSubscribe(to: info, on: connection, populate: populate, cache: cache)
                     }
                 }
             }
@@ -97,7 +97,7 @@ public class HACache<ValueType> {
     /// - Parameter constantValue: The value to keep for state
     public init(constantValue: ValueType) {
         self.connection = nil
-        self.start = { _, _ in nil }
+        self.start = nil
         state.mutate { state in
             state.current = constantValue
         }
@@ -245,7 +245,7 @@ public class HACache<ValueType> {
     private weak var connection: HAConnection?
     /// Block to begin the prepare -> subscribe lifecycle
     /// This is a block to erase all the intermediate types for prepare/subscribe
-    private let start: (HAConnection, HACache<ValueType>) -> HACancellable?
+    private let start: ((HAConnection, HACache<ValueType>) -> HACancellable?)?
     /// The callback queue to perform subscription handlers on.
     private var callbackQueue: DispatchQueue {
         connection?.callbackQueue ?? .main
@@ -258,19 +258,20 @@ public class HACache<ValueType> {
     ///   - cache: The cache whose state should be updated
     ///   - completion: The completion to invoke after updating the cache
     /// - Returns: The cancellable token for the populate request
-    private static func send<ValueType>(
-        populate: HACachePopulateInfo<ValueType>,
+    private static func startPopulate<ValueType>(
+        for populate: HACachePopulateInfo<ValueType>,
         on connection: HAConnection,
         cache: HACache<ValueType>,
-        completion: @escaping () -> Void = {}
+        completion: @escaping (HACache<ValueType>) -> Void = { _ in }
     ) -> HACancellable {
-        populate.start(connection, { handler in
+        populate.start(connection, { [weak cache] handler in
+            guard let cache = cache else { return }
             cache.state.mutate { state in
                 let value = handler(state.current)
                 state.current = value
                 cache.notify(subscribers: state.subscribers, for: value)
             }
-            completion()
+            completion(cache)
         })
     }
 
@@ -281,7 +282,7 @@ public class HACache<ValueType> {
     ///   - populate: The populate request, for re-issuing when needed
     ///   - cache: The cache whose state should be updated
     /// - Returns: The cancellable token for the subscription
-    private static func subscribe<ValueType>(
+    private static func startSubscribe<ValueType>(
         to subscription: HACacheSubscribeInfo<ValueType>,
         on connection: HAConnection,
         populate: HACachePopulateInfo<ValueType>,
@@ -293,7 +294,7 @@ public class HACache<ValueType> {
                 switch handler(state.current!) {
                 case .ignore: break
                 case .reissuePopulate:
-                    state.requestTokens.append(send(populate: populate, on: connection, cache: cache))
+                    state.requestTokens.append(startPopulate(for: populate, on: connection, cache: cache))
                 case let .replace(value):
                     state.current = value
                     cache.notify(subscribers: state.subscribers, for: value)
@@ -323,12 +324,12 @@ public class HACache<ValueType> {
             return
         }
 
-        state.mutate { [self] state in
+        state.mutate { state in
             guard !state.subscribers.isEmpty else {
                 // No subscribers, do not connect.
                 return
             }
-            let token = start(connection, self)
+            let token = start?(connection, self)
             if let token = token {
                 state.requestTokens.append(token)
             }
