@@ -108,9 +108,12 @@ internal class HAConnectionImpl: HAConnection {
             reconnectManager.didStartInitialConnect()
         }
 
+        let oldState = state
         HAGlobal.log("connecting using \(connectionInfo)")
         self.connection = connection
-        notifyState()
+        if state != oldState {
+            notifyState()
+        }
     }
 
     func disconnect(permanently: Bool, error: Error?) {
@@ -137,10 +140,10 @@ internal class HAConnectionImpl: HAConnection {
         completion: @escaping RequestCompletion
     ) -> HACancellable {
         let invocation = HARequestInvocationSingle(request: request, completion: completion)
-        requestController.add(invocation, completion: {})
+        requestController.add(invocation)
         defer { connectAutomaticallyIfNeeded() }
         return HACancellableImpl { [requestController] in
-            requestController.cancel(invocation, completion: {})
+            requestController.cancel(invocation)
         }
     }
 
@@ -169,10 +172,10 @@ internal class HAConnectionImpl: HAConnection {
         handler: @escaping SubscriptionHandler
     ) -> HACancellable {
         let sub = HARequestInvocationSubscription(request: request, initiated: initiated, handler: handler)
-        requestController.add(sub, completion: {})
+        requestController.add(sub)
         defer { connectAutomaticallyIfNeeded() }
         return HACancellableImpl { [requestController] in
-            requestController.cancel(sub, completion: {})
+            requestController.cancel(sub)
         }
     }
 

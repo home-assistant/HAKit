@@ -5,6 +5,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+- Added: `HACache<T>` which can send requests and subscribe to events to keep its value up-to-date.
 - Added: Optional `PromiseKit` target/subspec.
 - Added: Optional `HAMockConnection` target/subspec for use in test cases.
 - Added: `connectAutomatically` parameter to connection creation. This will call `connect()` when requests are sent if not connected.

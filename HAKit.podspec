@@ -28,7 +28,7 @@ Pod::Spec.new do |s|
   end
 
   s.test_spec 'Tests' do |test_spec|
-    test_spec.platform = { ios: '12.0', tvos: '12.0', macos: '10.14' }
+    test_spec.platform = :ios, '12.0'
     test_spec.macos.deployment_target = '10.14'
     test_spec.source_files = 'Tests/*.swift'
   end

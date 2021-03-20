@@ -1,5 +1,7 @@
 @testable import HAKit
+#if SWIFT_PACKAGE
 @testable import HAKit_PromiseKit
+#endif
 import PromiseKit
 import Starscream
 import XCTest
@@ -1172,27 +1174,23 @@ private class FakeHARequestController: HARequestController {
     weak var delegate: HARequestControllerDelegate?
 
     var added: [HARequestInvocation] = []
-    func add(_ invocation: HARequestInvocation, completion: @escaping () -> Void) {
+    func add(_ invocation: HARequestInvocation) {
         added.append(invocation)
-        completion()
     }
 
     var cancelled: [HARequestInvocation] = []
-    func cancel(_ request: HARequestInvocation, completion: @escaping () -> Void) {
+    func cancel(_ request: HARequestInvocation) {
         cancelled.append(request)
-        completion()
     }
 
     var didPrepare = false
-    func prepare(completion handler: @escaping () -> Void) {
+    func prepare() {
         didPrepare = true
-        handler()
     }
 
     var didResetActive = false
-    func resetActive(completion: @escaping () -> Void) {
+    func resetActive() {
         didResetActive = true
-        completion()
     }
 
     var singles: [HARequestIdentifier: HARequestInvocationSingle] = [
@@ -1217,9 +1215,8 @@ private class FakeHARequestController: HARequestController {
     }
 
     var cleared: [HARequestInvocationSingle] = []
-    func clear(invocation: HARequestInvocationSingle, completion: @escaping () -> Void) {
+    func clear(invocation: HARequestInvocationSingle) {
         cleared.append(invocation)
-        completion()
     }
 }
 

@@ -1,5 +1,7 @@
 import Foundation
+#if SWIFT_PACKAGE
 import HAKit
+#endif
 
 public extension HAConnectionConfiguration {
     /// A basic, fake configuration that is always successful.
@@ -85,6 +87,7 @@ public class HAMockConnection: HAConnection {
     public var state: HAConnectionState = .disconnected(reason: .disconnected) {
         didSet {
             delegate?.connection(self, didTransitionTo: state)
+            NotificationCenter.default.post(name: HAConnectionState.didTransitionToStateNotification, object: self)
         }
     }
 

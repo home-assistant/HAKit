@@ -1,29 +1,27 @@
 import Dispatch
 
 internal class HAResetLock<Value> {
-    private let lock = DispatchSemaphore(value: 1)
-    private var value: Value?
+    private var value: HAProtected<Value?>
 
     init(value: Value?) {
-        self.value = value
+        self.value = .init(value: value)
     }
 
     func reset() {
-        lock.wait()
-        defer { lock.signal() }
-        value = nil
+        value.mutate { value in
+            value = nil
+        }
     }
 
     func read() -> Value? {
-        lock.wait()
-        defer { lock.signal() }
-        return value
+        value.read { $0 }
     }
 
     func pop() -> Value? {
-        lock.wait()
-        defer { lock.signal() }
-        defer { value = nil }
-        return value
+        value.mutate { value in
+            let old = value
+            value = nil
+            return old
+        }
     }
 }

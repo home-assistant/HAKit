@@ -41,7 +41,7 @@ extension HAConnectionImpl: HAResponseControllerDelegate {
             if let subscription = requestController.subscription(for: identifier) {
                 callbackQueue.async { [self] in
                     subscription.invoke(token: HACancellableImpl { [requestController] in
-                        requestController.cancel(subscription, completion: {})
+                        requestController.cancel(subscription)
                     }, event: data)
                 }
             } else {
@@ -54,7 +54,7 @@ extension HAConnectionImpl: HAResponseControllerDelegate {
                     request.resolve(result)
                 }
 
-                requestController.clear(invocation: request, completion: {})
+                requestController.clear(invocation: request)
             } else if let subscription = requestController.subscription(for: identifier) {
                 callbackQueue.async {
                     subscription.resolve(result)
@@ -75,14 +75,14 @@ extension HAConnectionImpl: HAResponseControllerDelegate {
             notifyState()
         case .command:
             reconnectManager.didFinishConnect()
-            requestController.prepare(completion: {})
+            requestController.prepare()
             notifyState()
         case let .disconnected(error, forReset: reset):
             if !reset {
                 // state will notify from this method call
                 disconnect(permanently: false, error: error)
             }
-            requestController.resetActive(completion: {})
+            requestController.resetActive()
         }
     }
 }
