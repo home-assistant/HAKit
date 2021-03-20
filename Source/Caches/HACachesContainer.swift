@@ -18,7 +18,7 @@ public protocol HACacheKey {
 /// Create a key to represent your cache:
 ///
 /// ```swift
-/// struct YourValueTypeStatesKey: HACacheKey {
+/// struct YourValueTypeKey: HACacheKey {
 ///     func create(connection: HAConnection) -> HACache<YourValueType> {
 ///         return HACache(connection: connection, populate: …, subscribe: …)
 ///     }
@@ -29,7 +29,7 @@ public protocol HACacheKey {
 ///
 /// ```swift
 /// extension HACachesContainer {
-///     var yourValueType: HACache<YourValueType> { self[YourValueTypeStatesKey.self] }
+///     var yourValueType: HACache<YourValueType> { self[YourValueTypeKey.self] }
 /// }
 /// ```
 ///
