@@ -95,6 +95,11 @@ internal class HAResponseControllerTests: XCTestCase {
             expectingResponse: true,
             expectingPhase: commandPhase
         )
+        try fireText(
+            from: HAWebSocketResponseFixture.responseError,
+            expectingResponse: true,
+            expectingPhase: commandPhase
+        )
         fireDisconnected()
     }
 

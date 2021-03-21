@@ -63,11 +63,24 @@ internal class HAResponseControllerImpl: HAResponseController {
             HAGlobal.log("disconnected: \(reason) with code: \(code)")
             phase = .disconnected(error: nil, forReset: false)
         case let .text(string):
-            HAGlobal.log("Received text: \(string)")
             do {
                 if let data = string.data(using: .utf8),
                    let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
                     let response = try HAWebSocketResponse(dictionary: json)
+
+                    switch response {
+                    case let .auth(state):
+                        HAGlobal.log("Received: auth: \(state)")
+                    case let .event(identifier: identifier, data: _):
+                        HAGlobal.log("Received: event: for \(identifier)")
+                    case let .result(identifier: identifier, result: result):
+                        switch result {
+                        case .success(_):
+                            HAGlobal.log("Received: result success \(identifier)")
+                        case let .failure(error):
+                            HAGlobal.log("Received: result failure \(identifier): \(error) via \(string)")
+                        }
+                    }
 
                     if case let .auth(.ok(version)) = response {
                         phase = .command(version: version)
