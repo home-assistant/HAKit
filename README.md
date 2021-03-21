@@ -34,6 +34,21 @@ You may further configure other attributes of this connection, such as `callback
 
 Once you invoke `.connect()` (or it is invoked automatically) and until you invoke `.disconnect()` the connection will try to stay connected by attempting to reconnect when network status changes and after a retry period following disconnection.
 
+## Logging
+
+You can enable logging of the library by configuring `HAGlobal`:
+
+```swift
+HAGlobal.log = { text in
+  // just straight to the console
+  print($0)
+  // or something like XCGLogger
+  log.info("WebSocket: \(text)")
+}
+```
+
+This will include things like commands being sent and the lifecycle of the connections.
+
 ## Sending and subscribing
 
 There are two types of requests: those with an immediate result and those which fire events until cancelled. The actions for these are "sending" and "subscribing." For example, you might _send_ a service call but _subscribe to_ a template's rendering.

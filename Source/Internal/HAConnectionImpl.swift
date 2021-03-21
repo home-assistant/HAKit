@@ -251,9 +251,9 @@ extension HAConnectionImpl {
         let string = String(data: data, encoding: .utf8)!
 
         if request.type == .auth {
-            HAGlobal.log("Sending Text: (auth)")
+            HAGlobal.log("Sending: (auth)")
         } else {
-            HAGlobal.log("Sending Text: \(string)")
+            HAGlobal.log("Sending: \(string)")
         }
 
         connection?.write(string: string)
