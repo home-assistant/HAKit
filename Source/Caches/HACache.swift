@@ -52,9 +52,10 @@ public class HACache<ValueType> {
 
             return Self.startPopulate(for: populate, on: connection, cache: cache) { cache in
                 cache.state.mutate { state in
-                    state.requestTokens = subscribe.map { info in
+                    let tokens = subscribe.map { info in
                         Self.startSubscribe(to: info, on: connection, populate: populate, cache: cache)
                     }
+                    state.setRequestTokens(tokens, cancellingPrevious: false)
                 }
             }
         }
@@ -142,7 +143,8 @@ public class HACache<ValueType> {
         let info = SubscriptionInfo(handler: handler)
         let cancellable = self.cancellable(for: info)
 
-        state.mutate { state in
+        let wasEmpty: Bool = state.mutate { state in
+            let wasEmpty = state.subscribers.isEmpty
             state.subscribers.insert(info)
 
             // we know that if any state changes happen _after_ this, it'll be notified in another block
@@ -151,10 +153,14 @@ public class HACache<ValueType> {
                     info.handler(cancellable, current)
                 }
             }
+
+            return wasEmpty
         }
 
         // if we are waiting on subscribers to start, we can do so now
-        checkStateAndStart()
+        if wasEmpty {
+            checkStateAndStart()
+        }
 
         return cancellable
     }
@@ -205,7 +211,24 @@ public class HACache<ValueType> {
         }
 
         /// Contains populate, subscribe, and reissued-populate tokens
-        var requestTokens: [HACancellable] = []
+        private(set) var requestTokens: [HACancellable] = []
+
+        /// Add request tokens, optionally cancelling
+        /// - Parameters:
+        ///   - tokens: The tokens to set to
+        ///   - cancellingPrevious: Whether to cancel previous requests
+        mutating func setRequestTokens(_ tokens: [HACancellable], cancellingPrevious: Bool) {
+            if cancellingPrevious {
+                requestTokens.forEach { $0.cancel() }
+            }
+            requestTokens = tokens
+        }
+
+        /// Add request tokens, never cancelling previous
+        /// - Parameter token: The token to append
+        mutating func appendRequestToken(_ token: HACancellable) {
+            requestTokens.append(token)
+        }
 
         /// Resets the state if there are no subscribers and it is set to do so
         /// - SeeAlso: `shouldResetWithoutSubscribers`
@@ -214,8 +237,7 @@ public class HACache<ValueType> {
                 return
             }
 
-            requestTokens.forEach { $0.cancel() }
-            requestTokens.removeAll()
+            setRequestTokens([], cancellingPrevious: true)
             current = nil
         }
     }
@@ -307,7 +329,8 @@ public class HACache<ValueType> {
                 switch handler(state.current!) {
                 case .ignore: break
                 case .reissuePopulate:
-                    state.requestTokens.append(startPopulate(for: populate, on: connection, cache: cache))
+                    let populateToken = startPopulate(for: populate, on: connection, cache: cache)
+                    state.appendRequestToken(populateToken)
                 case let .replace(value):
                     state.current = value
                     cache.notify(subscribers: state.subscribers, for: value)
@@ -344,7 +367,7 @@ public class HACache<ValueType> {
             }
             let token = start?(connection, self)
             if let token = token {
-                state.requestTokens.append(token)
+                state.setRequestTokens([token], cancellingPrevious: true)
             }
         }
     }
