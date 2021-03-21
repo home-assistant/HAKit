@@ -250,6 +250,18 @@
 <p>You may further configure other attributes of this connection, such as <code>callbackQueue</code> (where your handlers are invoked), as well as triggering manual connection attempts. See the protocol for more information.</p>
 
 <p>Once you invoke <code>.connect()</code> (or it is invoked automatically) and until you invoke <code>.disconnect()</code> the connection will try to stay connected by attempting to reconnect when network status changes and after a retry period following disconnection.</p>
+<h2 id='logging' class='heading'>Logging</h2>
+
+<p>You can enable logging of the library by configuring <code><a href="Enums/HAGlobal.html">HAGlobal</a></code>:</p>
+<pre class="highlight swift"><code><span class="kt">HAGlobal</span><span class="o">.</span><span class="n">log</span> <span class="o">=</span> <span class="p">{</span> <span class="n">text</span> <span class="k">in</span>
+  <span class="c1">// just straight to the console</span>
+  <span class="nf">print</span><span class="p">(</span><span class="nv">$0</span><span class="p">)</span>
+  <span class="c1">// or something like XCGLogger</span>
+  <span class="n">log</span><span class="o">.</span><span class="nf">info</span><span class="p">(</span><span class="s">"WebSocket: </span><span class="se">\(</span><span class="n">text</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre>
+
+<p>This will include things like commands being sent and the lifecycle of the connections.</p>
 <h2 id='sending-and-subscribing' class='heading'>Sending and subscribing</h2>
 
 <p>There are two types of requests: those with an immediate result and those which fire events until cancelled. The actions for these are &ldquo;sending&rdquo; and &ldquo;subscribing.&rdquo; For example, you might <em>send</em> a service call but <em>subscribe to</em> a template&rsquo;s rendering.</p>
