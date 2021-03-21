@@ -13,6 +13,7 @@ internal class HACacheTests: XCTestCase {
     private var connection: HAMockConnection!
 
     private var populateInfo: HACachePopulateInfo<CacheItem>!
+    private var populateCount: Int!
     private var populateCancellableInvoked: Bool = false
     private var populatePerform: (((CacheItem?) -> CacheItem) -> Void)?
 
@@ -45,6 +46,7 @@ internal class HACacheTests: XCTestCase {
     override func setUp() {
         super.setUp()
 
+        populateCount = 0
         populateCancellableInvoked = false
         populateInfo = .init(
             request: .init(type: "none", data: [:]),
@@ -52,6 +54,7 @@ internal class HACacheTests: XCTestCase {
                 fatalError()
             }, start: { [weak self] _, perform in
                 self?.populatePerform = perform
+                self?.populateCount += 1
                 return HAMockCancellable { [weak self] in
                     self?.populateCancellableInvoked = true
                 }
@@ -137,6 +140,11 @@ internal class HACacheTests: XCTestCase {
             XCTFail("should not have invoked subscribe at all")
         }
 
+        _ = cache.subscribe { _, _ in
+            XCTFail("should not have invoked subscribe at all")
+        }
+
+        XCTAssertEqual(populateCount, 1, "should only populate once")
         XCTAssertNotNil(populatePerform)
         XCTAssertNil(subscribePerform)
     }
@@ -218,6 +226,7 @@ internal class HACacheTests: XCTestCase {
 
         waitForExpectations(timeout: 10)
 
+        XCTAssertEqual(populateCount, 2)
         XCTAssertEqual(handler2Values, [expectedItem1, expectedItem2])
     }
 
@@ -270,6 +279,7 @@ internal class HACacheTests: XCTestCase {
         }
 
         waitForExpectations(timeout: 10.0)
+        XCTAssertEqual(populateCount, 2)
         XCTAssertEqual(handlerValues1, values)
         XCTAssertEqual(handlerValues2, values)
 
@@ -291,6 +301,7 @@ internal class HACacheTests: XCTestCase {
         populatePerform = nil
 
         connection.state = .ready(version: "1.2.3")
+        XCTAssertEqual(populateCount, 2)
         XCTAssertNotNil(populatePerform)
     }
 
@@ -325,6 +336,7 @@ internal class HACacheTests: XCTestCase {
         }
 
         waitForExpectations(timeout: 10.0)
+        XCTAssertEqual(populateCount, 2)
         XCTAssertEqual(handlerValues, values)
     }
 
@@ -338,6 +350,7 @@ internal class HACacheTests: XCTestCase {
         XCTAssertTrue(populateCancellableInvoked)
 
         try populate { _ in .init() }
+        XCTAssertEqual(populateCount, 1)
     }
 
     func testCacheDeallocInvalidatesSubscriptions() throws {
@@ -354,6 +367,7 @@ internal class HACacheTests: XCTestCase {
         }
         XCTAssertTrue(subscribeCancellableInvoked)
 
+        XCTAssertEqual(populateCount, 1)
         try subscribe { _ in .ignore }
     }
 
@@ -393,6 +407,7 @@ internal class HACacheTests: XCTestCase {
 
         waitForExpectations(timeout: 10.0)
         XCTAssertEqual(handlerValues, expectedValues)
+        XCTAssertEqual(populateCount, 1)
     }
 
     func testMapWithoutExistingValue() throws {
@@ -423,6 +438,7 @@ internal class HACacheTests: XCTestCase {
         }
 
         waitForExpectations(timeout: 10.0)
+        XCTAssertEqual(populateCount, 1)
         XCTAssertEqual(handlerValues, expectedValues.map(\.uuid))
 
         cache.shouldResetWithoutSubscribers = true
@@ -456,6 +472,7 @@ internal class HACacheTests: XCTestCase {
         }
 
         waitForExpectations(timeout: 10.0)
+        XCTAssertEqual(populateCount, 1)
     }
 
     func testOnceBeforeInitial() throws {
@@ -486,6 +503,8 @@ internal class HACacheTests: XCTestCase {
             XCTAssertEqual(current, expectedValue)
             return .replace(CacheItem())
         }
+
+        XCTAssertEqual(populateCount, 1)
     }
 
     func testOnceAfterInitial() throws {
@@ -518,6 +537,8 @@ internal class HACacheTests: XCTestCase {
             XCTAssertEqual(current, expectedValue)
             return .replace(CacheItem())
         }
+
+        XCTAssertEqual(populateCount, 1)
     }
 
     func testOnceCancel() throws {
@@ -540,6 +561,37 @@ internal class HACacheTests: XCTestCase {
             XCTAssertNil(current)
             return expectedValue
         }
+
+        XCTAssertEqual(populateCount, 1)
+    }
+
+    func testStateChangeCancels() throws {
+        connection.state = .ready(version: "1.2.3")
+
+        _ = cache.subscribe { _, _ in }
+
+        XCTAssertNotNil(populatePerform)
+        connection.state = .ready(version: "1.2.4")
+        XCTAssertTrue(populateCancellableInvoked)
+        XCTAssertEqual(populateCount, 2)
+        XCTAssertNotNil(populatePerform)
+
+        let expectedValue = CacheItem()
+
+        try populate { current in
+            XCTAssertNil(current)
+            return expectedValue
+        }
+
+        populateCancellableInvoked = false
+        populatePerform = nil
+
+        connection.state = .ready(version: "1.2.4")
+
+        XCTAssertTrue(subscribeCancellableInvoked)
+        XCTAssertFalse(populateCancellableInvoked, "it was already done")
+        XCTAssertEqual(populateCount, 3)
+        XCTAssertNotNil(populatePerform)
     }
 }
 
