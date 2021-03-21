@@ -75,7 +75,7 @@ internal class HAResponseControllerImpl: HAResponseController {
                         HAGlobal.log("Received: event: for \(identifier)")
                     case let .result(identifier: identifier, result: result):
                         switch result {
-                        case .success(_):
+                        case .success:
                             HAGlobal.log("Received: result success \(identifier)")
                         case let .failure(error):
                             HAGlobal.log("Received: result failure \(identifier): \(error) via \(string)")
