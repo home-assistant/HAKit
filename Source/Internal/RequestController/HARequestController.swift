@@ -13,6 +13,7 @@ internal protocol HARequestControllerDelegate: AnyObject {
 
 internal protocol HARequestController: AnyObject {
     var delegate: HARequestControllerDelegate? { get set }
+    var workQueue: DispatchQueue { get set }
 
     func add(_ invocation: HARequestInvocation)
     func cancel(_ request: HARequestInvocation)
@@ -47,6 +48,7 @@ internal class HARequestControllerImpl: HARequestController {
     }
 
     weak var delegate: HARequestControllerDelegate?
+    var workQueue: DispatchQueue = .global()
 
     private var state = HAProtected<State>(value: .init())
 

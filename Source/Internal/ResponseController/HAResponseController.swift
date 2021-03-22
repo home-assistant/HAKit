@@ -32,6 +32,7 @@ internal enum HAResponseControllerPhase: Equatable {
 
 internal protocol HAResponseController: AnyObject {
     var delegate: HAResponseControllerDelegate? { get set }
+    var workQueue: DispatchQueue { get set }
     var phase: HAResponseControllerPhase { get }
 
     func reset()
@@ -40,6 +41,7 @@ internal protocol HAResponseController: AnyObject {
 
 internal class HAResponseControllerImpl: HAResponseController {
     weak var delegate: HAResponseControllerDelegate?
+    var workQueue: DispatchQueue = .global()
 
     private(set) var phase: HAResponseControllerPhase = .disconnected(error: nil, forReset: true) {
         didSet {
@@ -63,33 +65,44 @@ internal class HAResponseControllerImpl: HAResponseController {
             HAGlobal.log("disconnected: \(reason) with code: \(code)")
             phase = .disconnected(error: nil, forReset: false)
         case let .text(string):
-            do {
-                if let data = string.data(using: .utf8),
-                   let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
-                    let response = try HAWebSocketResponse(dictionary: json)
+            workQueue.async { [self] in
+                let response: HAWebSocketResponse
 
-                    switch response {
-                    case let .auth(state):
-                        HAGlobal.log("Received: auth: \(state)")
-                    case let .event(identifier: identifier, data: _):
-                        HAGlobal.log("Received: event: for \(identifier)")
-                    case let .result(identifier: identifier, result: result):
-                        switch result {
-                        case .success:
-                            HAGlobal.log("Received: result success \(identifier)")
-                        case let .failure(error):
-                            HAGlobal.log("Received: result failure \(identifier): \(error) via \(string)")
-                        }
+                do {
+                    // https://forums.swift.org/t/can-encoding-string-to-data-with-utf8-fail/22437/4
+                    let data = string.data(using: .utf8)!
+
+                    guard let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] else {
+                        throw HAError.internal(debugDescription: "couldn't convert to dictionary")
                     }
 
+                    response = try HAWebSocketResponse(dictionary: json)
+                } catch {
+                    HAGlobal.log("text parse error: \(error)")
+                    return
+                }
+
+                switch response {
+                case let .auth(state):
+                    HAGlobal.log("Received: auth: \(state)")
+                case let .event(identifier: identifier, data: _):
+                    HAGlobal.log("Received: event: for \(identifier)")
+                case let .result(identifier: identifier, result: result):
+                    switch result {
+                    case .success:
+                        HAGlobal.log("Received: result success \(identifier)")
+                    case let .failure(error):
+                        HAGlobal.log("Received: result failure \(identifier): \(error) via \(string)")
+                    }
+                }
+
+                DispatchQueue.main.async {
                     if case let .auth(.ok(version)) = response {
                         phase = .command(version: version)
                     }
 
                     delegate?.responseController(self, didReceive: response)
                 }
-            } catch {
-                HAGlobal.log("text parse error: \(error)")
             }
         case let .binary(data):
             HAGlobal.log("Received binary data: \(data.count)")

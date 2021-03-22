@@ -8,6 +8,7 @@ import XCTest
 
 internal class HACacheTests: XCTestCase {
     private var cache: HACache<CacheItem>!
+    private var workQueue: DispatchQueue!
 
     private var queueSpecific = DispatchSpecificKey<Bool>()
     private var connection: HAMockConnection!
@@ -24,17 +25,34 @@ internal class HACacheTests: XCTestCase {
     private var subscribeCancellableInvoked2: Bool = false
     private var subscribePerform2: (((CacheItem) -> HACacheSubscribeInfo<CacheItem>.Response) -> Void)?
 
+    private func waitForCallback() {
+        let expectation = self.expectation(description: "waiting for queue")
+        workQueue.async {
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 10.0)
+    }
+
     private func populate(_ block: (CacheItem?) -> CacheItem) throws {
+        if populatePerform == nil {
+            waitForCallback()
+        }
         let value = try XCTUnwrap(populatePerform)
         value(block)
     }
 
     private func subscribe(_ block: (CacheItem) -> HACacheSubscribeInfo<CacheItem>.Response) throws {
+        if subscribePerform == nil {
+            waitForCallback()
+        }
         let value = try XCTUnwrap(subscribePerform)
         value(block)
     }
 
     private func subscribe2(_ block: (CacheItem) -> HACacheSubscribeInfo<CacheItem>.Response) throws {
+        if subscribePerform2 == nil {
+            waitForCallback()
+        }
         let value = try XCTUnwrap(subscribePerform2)
         value(block)
     }
@@ -89,6 +107,7 @@ internal class HACacheTests: XCTestCase {
         queueSpecific = .init()
         connection.callbackQueue = DispatchQueue(label: "test-callback-queue")
         connection.callbackQueue.setSpecific(key: queueSpecific, value: true)
+        workQueue = DispatchQueue(label: "work-queue", autoreleaseFrequency: .workItem, target: .global())
 
         cache = HACache<CacheItem>(connection: connection, populate: populateInfo, subscribe: subscribeInfo)
     }
@@ -115,6 +134,15 @@ internal class HACacheTests: XCTestCase {
         waitForExpectations(timeout: 10.0)
 
         XCTAssertEqual(cache.map(\.uuid).value, expected.uuid)
+    }
+
+    func testSubscribingAfterConnectionGoesAway() throws {
+        cache.connection = nil
+        _ = cache.subscribe { _, _ in
+        }
+
+        // honestly, it just shouldn't _crash_
+        XCTAssertEqual(populateCount, 0)
     }
 
     func testSubscribingSkipsConnectionInitially() throws {
@@ -181,53 +209,6 @@ internal class HACacheTests: XCTestCase {
         cache.shouldResetWithoutSubscribers = true
         XCTAssertTrue(cache.shouldResetWithoutSubscribers)
         XCTAssertTrue(populateCancellableInvoked)
-    }
-
-    func testPopulateSendsOnRetryToo() throws {
-        connection.state = .ready(version: "1.2.3")
-
-        let expectedItem1 = CacheItem()
-
-        let expectation1 = expectation(description: "notified1")
-        let handlerToken1 = cache.subscribe { _, value in
-            XCTAssertTrue(self.isOnCallbackQueue)
-            XCTAssertEqual(value, expectedItem1)
-            expectation1.fulfill()
-        }
-
-        try populate { current in
-            XCTAssertNil(current)
-            return expectedItem1
-        }
-
-        waitForExpectations(timeout: 10)
-
-        handlerToken1.cancel()
-        populatePerform = nil
-
-        let expectedItem2 = CacheItem()
-
-        let expectation2 = expectation(description: "notified2")
-
-        // one initial (since we have a value) and then the after
-        expectation2.expectedFulfillmentCount = 2
-
-        var handler2Values = [CacheItem]()
-        _ = cache.subscribe { _, value in
-            XCTAssertTrue(self.isOnCallbackQueue)
-            handler2Values.append(value)
-            expectation2.fulfill()
-        }
-
-        try populate { current in
-            XCTAssertEqual(current, expectedItem1)
-            return expectedItem2
-        }
-
-        waitForExpectations(timeout: 10)
-
-        XCTAssertEqual(populateCount, 2)
-        XCTAssertEqual(handler2Values, [expectedItem1, expectedItem2])
     }
 
     func testPopulateThenSubscribes() throws {
@@ -464,7 +445,6 @@ internal class HACacheTests: XCTestCase {
         XCTAssertEqual(mappedCache.value, expectedValue.uuid)
 
         let handlerExpectation = expectation(description: "handler")
-        handlerExpectation.expectedFulfillmentCount = 2
         _ = mappedCache.subscribe { _, value in
             XCTAssertTrue(self.isOnCallbackQueue)
             XCTAssertEqual(value, expectedValue.uuid)
@@ -592,6 +572,23 @@ internal class HACacheTests: XCTestCase {
         XCTAssertFalse(populateCancellableInvoked, "it was already done")
         XCTAssertEqual(populateCount, 3)
         XCTAssertNotNil(populatePerform)
+    }
+
+    func testSubscribePopulateUnsubscribeSubscribeDoesntReissuePopulate() throws {
+        connection.state = .ready(version: "1.2.3")
+
+        let token1 = cache.subscribe { _, _ in }
+
+        try populate { current in
+            XCTAssertNil(current)
+            return CacheItem()
+        }
+
+        token1.cancel()
+
+        _ = cache.subscribe { _, _ in }
+
+        XCTAssertEqual(populateCount, 1)
     }
 }
 

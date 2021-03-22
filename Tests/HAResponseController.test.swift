@@ -13,6 +13,7 @@ internal class HAResponseControllerTests: XCTestCase {
         delegate = FakeHAResponseControllerDelegate()
         controller = HAResponseControllerImpl()
         controller.delegate = delegate
+        controller.workQueue = DispatchQueue(label: "unit-test-work-queue")
     }
 
     func testInitialPhase() {
@@ -65,6 +66,7 @@ internal class HAResponseControllerTests: XCTestCase {
             .viabilityChanged(true),
         ] {
             controller.didReceive(event: event)
+            waitForCallback()
             XCTAssertEqual(delegate.lastPhase, .auth)
             XCTAssertNil(delegate.lastReceived)
         }
@@ -105,21 +107,34 @@ internal class HAResponseControllerTests: XCTestCase {
 
     func testInvalidText() throws {
         fireConnected()
-        try fireText(
-            from: [:],
-            expectingResponse: false,
-            expectingPhase: .auth
-        )
+
+        controller.didReceive(event: .text("{"))
+        controller.didReceive(event: .text("[true]"))
+
+        waitForCallback()
+
         XCTAssertNil(delegate.lastReceived)
     }
 }
 
 private extension HAResponseControllerTests {
+    func waitForCallback() {
+        let expectation = self.expectation(description: "queueing")
+        controller.workQueue.sync {
+            DispatchQueue.main.async {
+                expectation.fulfill()
+            }
+        }
+
+        waitForExpectations(timeout: 10.0)
+    }
+
     func fireConnected(
         file: StaticString = #file,
         line: UInt = #line
     ) {
         controller.didReceive(event: .connected([:]))
+        waitForCallback()
         XCTAssertEqual(controller.phase, .auth, file: file, line: line)
         XCTAssertEqual(delegate.lastPhase, .auth, file: file, line: line)
     }
@@ -129,6 +144,7 @@ private extension HAResponseControllerTests {
         line: UInt = #line
     ) {
         controller.didReceive(event: .disconnected("debug", 0))
+        waitForCallback()
         XCTAssertEqual(controller.phase, .disconnected(error: nil, forReset: false), file: file, line: line)
         XCTAssertEqual(delegate.lastPhase, .disconnected(error: nil, forReset: false), file: file, line: line)
     }
@@ -138,6 +154,7 @@ private extension HAResponseControllerTests {
         line: UInt = #line
     ) {
         controller.didReceive(event: .cancelled)
+        waitForCallback()
         XCTAssertEqual(controller.phase, .disconnected(error: nil, forReset: false), file: file, line: line)
         XCTAssertEqual(delegate.lastPhase, .disconnected(error: nil, forReset: false), file: file, line: line)
     }
@@ -148,6 +165,7 @@ private extension HAResponseControllerTests {
         line: UInt = #line
     ) {
         controller.didReceive(event: .error(error))
+        waitForCallback()
         XCTAssertEqual(controller.phase, .disconnected(error: error, forReset: false), file: file, line: line)
         XCTAssertEqual(delegate.lastPhase, .disconnected(error: error, forReset: false), file: file, line: line)
     }
@@ -161,6 +179,8 @@ private extension HAResponseControllerTests {
             try XCTUnwrap(String(data: JSONSerialization.data(withJSONObject: object, options: []), encoding: .utf8))
 
         controller.didReceive(event: .text(text))
+
+        waitForCallback()
 
         if expectingResponse {
             let response = try HAWebSocketResponse(dictionary: object)

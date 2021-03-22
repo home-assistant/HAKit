@@ -12,6 +12,7 @@ internal class HARequestControllerTests: XCTestCase {
         delegate = TestHARequestControllerDelegate()
         controller = HARequestControllerImpl()
         controller.delegate = delegate
+        controller.workQueue = DispatchQueue(label: "unit-test-work-queue")
     }
 
     func testAddingWhenNotAllowed() {
