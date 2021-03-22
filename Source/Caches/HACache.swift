@@ -271,7 +271,7 @@ public class HACache<ValueType> {
     }
 
     /// The connection to use and watch
-    internal private(set) weak var connection: HAConnection?
+    internal weak var connection: HAConnection?
     /// Block to begin the prepare -> subscribe lifecycle
     /// This is a block to erase all the intermediate types for prepare/subscribe
     private let start: ((HAConnection, HACache<ValueType>) -> HACancellable?)?

@@ -69,9 +69,8 @@ internal class HAResponseControllerImpl: HAResponseController {
                 let response: HAWebSocketResponse
 
                 do {
-                    guard let data = string.data(using: .utf8) else {
-                        throw HAError.internal(debugDescription: "missing data conversion")
-                    }
+                    // https://forums.swift.org/t/can-encoding-string-to-data-with-utf8-fail/22437/4
+                    let data = string.data(using: .utf8)!
 
                     guard let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] else {
                         throw HAError.internal(debugDescription: "couldn't convert to dictionary")

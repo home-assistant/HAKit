@@ -107,11 +107,12 @@ internal class HAResponseControllerTests: XCTestCase {
 
     func testInvalidText() throws {
         fireConnected()
-        try fireText(
-            from: [:],
-            expectingResponse: false,
-            expectingPhase: .auth
-        )
+        let text = "{json lol"
+
+        controller.didReceive(event: .text(text))
+
+        waitForCallback()
+
         XCTAssertNil(delegate.lastReceived)
     }
 }

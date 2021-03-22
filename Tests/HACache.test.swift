@@ -136,6 +136,15 @@ internal class HACacheTests: XCTestCase {
         XCTAssertEqual(cache.map(\.uuid).value, expected.uuid)
     }
 
+    func testSubscribingAfterConnectionGoesAway() throws {
+        cache.connection = nil
+        _ = cache.subscribe { _, _ in
+        }
+
+        // honestly, it just shouldn't _crash_
+        XCTAssertEqual(populateCount, 0)
+    }
+
     func testSubscribingSkipsConnectionInitially() throws {
         connection.state = .disconnected(reason: .disconnected)
         _ = cache.subscribe { _, _ in
