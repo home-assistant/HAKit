@@ -107,9 +107,9 @@ internal class HAResponseControllerTests: XCTestCase {
 
     func testInvalidText() throws {
         fireConnected()
-        let text = "{json lol"
 
-        controller.didReceive(event: .text(text))
+        controller.didReceive(event: .text("{"))
+        controller.didReceive(event: .text("[true]"))
 
         waitForCallback()
 
