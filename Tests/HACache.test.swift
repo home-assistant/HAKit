@@ -564,6 +564,23 @@ internal class HACacheTests: XCTestCase {
         XCTAssertEqual(populateCount, 3)
         XCTAssertNotNil(populatePerform)
     }
+
+    func testSubscribePopulateUnsubscribeSubscribeDoesntReissuePopulate() throws {
+        connection.state = .ready(version: "1.2.3")
+
+        let token1 = cache.subscribe { _, _ in }
+
+        try populate { current in
+            XCTAssertNil(current)
+            return CacheItem()
+        }
+
+        token1.cancel()
+
+        _ = cache.subscribe { _, _ in }
+
+        XCTAssertEqual(populateCount, 1)
+    }
 }
 
 private struct CacheItem: Equatable {

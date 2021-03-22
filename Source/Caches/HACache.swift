@@ -143,8 +143,9 @@ public class HACache<ValueType> {
         let info = SubscriptionInfo(handler: handler)
         let cancellable = self.cancellable(for: info)
 
-        let wasEmpty: Bool = state.mutate { state in
+        let shouldRefresh: Bool = state.mutate { state in
             let wasEmpty = state.subscribers.isEmpty
+            let shouldRefresh = state.current == nil || state.shouldResetWithoutSubscribers
             state.subscribers.insert(info)
 
             // we know that if any state changes happen _after_ this, it'll be notified in another block
@@ -154,11 +155,11 @@ public class HACache<ValueType> {
                 }
             }
 
-            return wasEmpty
+            return wasEmpty && shouldRefresh
         }
 
         // if we are waiting on subscribers to start, we can do so now
-        if wasEmpty {
+        if shouldRefresh {
             checkStateAndStart()
         }
 
