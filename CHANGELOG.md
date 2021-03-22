@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added: `.getServices()` typed request.
 - Added: `.getStates()` typed request.
 - Changed: `attributes` and `context` on `HAEntity` are now represented by parsed types.
+- Changed: Many internal cases of JSON parsing and decoding are now done off the main thread.
 - Fixed: Calling `connect()` when already connected no longer disconnects and reconnects.
 
 ## [0.1.0] - 2021-03-05

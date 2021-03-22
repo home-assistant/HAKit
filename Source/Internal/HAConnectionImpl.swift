@@ -8,6 +8,11 @@ internal class HAConnectionImpl: HAConnection {
     public var configuration: HAConnectionConfiguration
 
     public var callbackQueue: DispatchQueue = .main
+    internal var workQueue: DispatchQueue = DispatchQueue(
+        label: "hakit-work-queue",
+        autoreleaseFrequency: .workItem,
+        target: .global()
+    )
 
     public var state: HAConnectionState {
         switch responseController.phase {
@@ -68,7 +73,9 @@ internal class HAConnectionImpl: HAConnection {
         self.connectAutomatically = connectAutomatically
 
         requestController.delegate = self
+        requestController.workQueue = workQueue
         responseController.delegate = self
+        responseController.workQueue = workQueue
         reconnectManager.delegate = self
     }
 
@@ -153,15 +160,21 @@ internal class HAConnectionImpl: HAConnection {
         _ request: HATypedRequest<T>,
         completion: @escaping (Result<T, HAError>) -> Void
     ) -> HACancellable {
-        send(request.request) { result in
-            completion(result.flatMap { data in
-                do {
-                    let updated = try T(data: data)
-                    return .success(updated)
-                } catch {
-                    return .failure(.internal(debugDescription: error.localizedDescription))
+        send(request.request) { [workQueue, callbackQueue] result in
+            workQueue.async {
+                let converted: Result<T, HAError> = result.flatMap { data in
+                    do {
+                        let updated = try T(data: data)
+                        return .success(updated)
+                    } catch {
+                        return .failure(.internal(debugDescription: error.localizedDescription))
+                    }
                 }
-            })
+
+                callbackQueue.async {
+                    completion(converted)
+                }
+            }
         }
     }
 
@@ -185,12 +198,16 @@ internal class HAConnectionImpl: HAConnection {
         initiated: SubscriptionInitiatedHandler?,
         handler: @escaping (HACancellable, T) -> Void
     ) -> HACancellable {
-        commonSubscribe(to: request.request, initiated: initiated, handler: { token, data in
-            do {
-                let value = try T(data: data)
-                handler(token, value)
-            } catch {
-                HAGlobal.log("couldn't parse data \(error)")
+        commonSubscribe(to: request.request, initiated: initiated, handler: { [workQueue, callbackQueue] token, data in
+            workQueue.async {
+                do {
+                    let value = try T(data: data)
+                    callbackQueue.async {
+                        handler(token, value)
+                    }
+                } catch {
+                    HAGlobal.log("couldn't parse data \(error)")
+                }
             }
         })
     }
@@ -237,26 +254,28 @@ extension HAConnectionImpl {
         identifier: HARequestIdentifier?,
         request: HARequest
     ) {
-        var dictionary = request.data
-        if let identifier = identifier {
-            dictionary["id"] = identifier.rawValue
+        workQueue.async { [connection] in
+            var dictionary = request.data
+            if let identifier = identifier {
+                dictionary["id"] = identifier.rawValue
+            }
+            dictionary["type"] = request.type.rawValue
+
+            // the only cases where JSONSerialization appears to fail are cases where it throws exceptions too
+            // this is bad API from Apple that I don't feel like dealing with :grimace:
+
+            // swiftlint:disable:next force_try
+            let data = try! JSONSerialization.data(withJSONObject: dictionary, options: [.sortedKeys])
+            let string = String(data: data, encoding: .utf8)!
+
+            if request.type == .auth {
+                HAGlobal.log("Sending: (auth)")
+            } else {
+                HAGlobal.log("Sending: \(string)")
+            }
+
+            connection?.write(string: string)
         }
-        dictionary["type"] = request.type.rawValue
-
-        // the only cases where JSONSerialization appears to fail are cases where it throws exceptions too
-        // this is bad API from Apple that I don't feel like dealing with :grimace:
-
-        // swiftlint:disable:next force_try
-        let data = try! JSONSerialization.data(withJSONObject: dictionary, options: [.sortedKeys])
-        let string = String(data: data, encoding: .utf8)!
-
-        if request.type == .auth {
-            HAGlobal.log("Sending: (auth)")
-        } else {
-            HAGlobal.log("Sending: \(string)")
-        }
-
-        connection?.write(string: string)
     }
 }
 

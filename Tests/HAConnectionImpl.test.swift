@@ -63,6 +63,12 @@ internal class HAConnectionImplTests: XCTestCase {
         file: StaticString = #file,
         line: UInt = #line
     ) throws {
+        let expectation = self.expectation(description: "queue-jumping")
+        connection.workQueue.async {
+            expectation.fulfill()
+        }
+        waitForExpectations(timeout: 10.0)
+
         let lastEvent = try XCTUnwrap(engine.events.last)
 
         switch lastEvent {
@@ -1177,6 +1183,7 @@ private class FakeHAConnectionDelegate: HAConnectionDelegate {
 
 private class FakeHARequestController: HARequestController {
     weak var delegate: HARequestControllerDelegate?
+    var workQueue: DispatchQueue = .main
 
     var added: [HARequestInvocation] = []
     func add(_ invocation: HARequestInvocation) {
@@ -1227,6 +1234,7 @@ private class FakeHARequestController: HARequestController {
 
 private class FakeHAResponseController: HAResponseController {
     weak var delegate: HAResponseControllerDelegate?
+    var workQueue: DispatchQueue = .main
 
     var phase: HAResponseControllerPhase = .disconnected(error: nil, forReset: true)
 
