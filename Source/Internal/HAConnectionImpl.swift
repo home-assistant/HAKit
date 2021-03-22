@@ -8,7 +8,7 @@ internal class HAConnectionImpl: HAConnection {
     public var configuration: HAConnectionConfiguration
 
     public var callbackQueue: DispatchQueue = .main
-    internal var workQueue: DispatchQueue = DispatchQueue(
+    internal var workQueue = DispatchQueue(
         label: "hakit-work-queue",
         autoreleaseFrequency: .workItem,
         target: .global()
