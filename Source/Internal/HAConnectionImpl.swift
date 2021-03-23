@@ -30,11 +30,13 @@ internal class HAConnectionImpl: HAConnection {
     }
 
     internal func notifyState() {
-        delegate?.connection(self, didTransitionTo: state)
-        NotificationCenter.default.post(
-            name: HAConnectionState.didTransitionToStateNotification,
-            object: self
-        )
+        callbackQueue.async { [self, state] in
+            delegate?.connection(self, didTransitionTo: state)
+            NotificationCenter.default.post(
+                name: HAConnectionState.didTransitionToStateNotification,
+                object: self
+            )
+        }
     }
 
     internal private(set) var connection: WebSocket? {

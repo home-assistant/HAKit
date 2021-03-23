@@ -46,10 +46,6 @@ public class HACache<ValueType> {
         self.subscribeInfo = subscribe
 
         self.start = { connection, cache in
-            guard case .ready = connection.state else {
-                return nil
-            }
-
             return Self.startPopulate(for: populate, on: connection, cache: cache) { cache in
                 cache.state.mutate { state in
                     let tokens = subscribe.map { info in
@@ -102,7 +98,9 @@ public class HACache<ValueType> {
     /// - Parameter constantValue: The value to keep for state
     public init(constantValue: ValueType) {
         self.connection = nil
-        self.start = nil
+        self.start = { _, _ in
+            fatalError("connection is never non-nil; this cannot be called")
+        }
         self.populateInfo = nil
         self.subscribeInfo = nil
         state.mutate { state in
@@ -196,6 +194,9 @@ public class HACache<ValueType> {
         /// The current value of the cache, if one has been retrieved
         var current: ValueType?
 
+        /// Whether we're currently sending, or waiting for a response to, our populate.
+        var isWaitingForPopulate = false
+
         /// Current subscribers of the cache
         /// - Important: This will consult `shouldResetWithoutSubscribers` to decide if it should reset.
         var subscribers: Set<SubscriptionInfo> = Set([]) {
@@ -274,7 +275,7 @@ public class HACache<ValueType> {
     internal weak var connection: HAConnection?
     /// Block to begin the prepare -> subscribe lifecycle
     /// This is a block to erase all the intermediate types for prepare/subscribe
-    private let start: ((HAConnection, HACache<ValueType>) -> HACancellable?)?
+    private let start: (HAConnection, HACache<ValueType>) -> HACancellable
     /// The callback queue to perform subscription handlers on.
     private var callbackQueue: DispatchQueue {
         connection?.callbackQueue ?? .main
@@ -303,9 +304,15 @@ public class HACache<ValueType> {
         populate.start(connection, { [weak cache] handler in
             guard let cache = cache else { return }
             cache.state.mutate { state in
-                let value = handler(state.current)
-                state.current = value
-                cache.notify(subscribers: state.subscribers, for: value)
+                do {
+                    let value = try handler(state.current)
+                    state.current = value
+                    cache.notify(subscribers: state.subscribers, for: value)
+                } catch {
+                    HAGlobal.log("populate failed: \(error)")
+                }
+
+                state.isWaitingForPopulate = false
             }
             completion(cache)
         })
@@ -366,10 +373,13 @@ public class HACache<ValueType> {
                 // No subscribers, do not connect.
                 return
             }
-            let token = start?(connection, self)
-            if let token = token {
-                state.setRequestTokens([token], cancellingPrevious: true)
+            guard !state.isWaitingForPopulate else {
+                // Currently waiting on a populate, which will be retried by the connection for us.
+                return
             }
+            state.isWaitingForPopulate = true
+            let token = start(connection, self)
+            state.setRequestTokens([token], cancellingPrevious: true)
         }
     }
 

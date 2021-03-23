@@ -27,14 +27,14 @@ internal class HACachePopulateInfoTests: XCTestCase {
         XCTAssertEqual(try info.transform(incoming: item, current: nil), item)
     }
 
-    func testNotRetryRequest() throws {
+    func testShouldRetryRequest() throws {
+        request.request.shouldRetry = false
         let info = HACachePopulateInfo(request: request, transform: \.incoming)
 
         _ = info.start(connection) { _ in }
 
         let sent = try XCTUnwrap(connection.pendingRequests.first)
-        XCTAssertTrue(request.request.shouldRetry)
-        XCTAssertFalse(sent.request.shouldRetry)
+        XCTAssertTrue(sent.request.shouldRetry)
         XCTAssertEqual(sent.request.type, "test")
         XCTAssertEqual(sent.request.data["in_data"] as? Bool, true)
     }
@@ -55,7 +55,7 @@ internal class HACachePopulateInfoTests: XCTestCase {
         let invoked = expectation(description: "invoked")
 
         _ = populateInfo.start(connection) { handler in
-            XCTAssertEqual(handler(.init(populateItem: existing)).populateItem, updated)
+            XCTAssertEqual(try? handler(.init(populateItem: existing)).populateItem, updated)
             invoked.fulfill()
         }
 
@@ -73,8 +73,13 @@ internal class HACachePopulateInfoTests: XCTestCase {
             return PopulateWrapper(populateItem: info.incoming)
         })
 
-        _ = populateInfo.start(connection) { _ in
-            XCTFail("should not have invoked")
+        _ = populateInfo.start(connection) { perform in
+            do {
+                XCTAssertThrowsError(try perform(nil))
+                _ = try perform(nil) // added just for the compiler
+            } catch {
+                // this fixes a false-positive in compiler where it thinks this function throws
+            }
         }
 
         let request = try XCTUnwrap(connection.pendingRequests.get(throwing: 0))

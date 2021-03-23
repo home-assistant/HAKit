@@ -16,7 +16,7 @@ internal class HACacheTests: XCTestCase {
     private var populateInfo: HACachePopulateInfo<CacheItem>!
     private var populateCount: Int!
     private var populateCancellableInvoked: Bool = false
-    private var populatePerform: (((CacheItem?) -> CacheItem) -> Void)?
+    private var populatePerform: (((CacheItem?) throws -> CacheItem) -> Void)?
 
     private var subscribeInfo: HACacheSubscribeInfo<CacheItem>!
     private var subscribeCancellableInvoked: Bool = false
@@ -33,7 +33,7 @@ internal class HACacheTests: XCTestCase {
         wait(for: [expectation], timeout: 10.0)
     }
 
-    private func populate(_ block: (CacheItem?) -> CacheItem) throws {
+    private func populate(_ block: (CacheItem?) throws -> CacheItem) throws {
         if populatePerform == nil {
             waitForCallback()
         }
@@ -145,25 +145,7 @@ internal class HACacheTests: XCTestCase {
         XCTAssertEqual(populateCount, 0)
     }
 
-    func testSubscribingSkipsConnectionInitially() throws {
-        connection.state = .disconnected(reason: .disconnected)
-        _ = cache.subscribe { _, _ in
-            XCTFail("should not have invoked subscribe at all")
-        }
-
-        XCTAssertNil(populatePerform)
-        XCTAssertNil(subscribePerform)
-
-        let connection2 = HAMockConnection()
-        connection2.state = .ready(version: "2.3.4")
-        XCTAssertNil(populatePerform, "unrelated connection shouldn't connect")
-
-        connection.state = .ready(version: "1.2.3")
-        XCTAssertNotNil(populatePerform)
-    }
-
     func testSubscribingConnectsImmediately() throws {
-        connection.state = .ready(version: "1.2.3")
         _ = cache.subscribe { _, _ in
             XCTFail("should not have invoked subscribe at all")
         }
@@ -177,10 +159,43 @@ internal class HACacheTests: XCTestCase {
         XCTAssertNil(subscribePerform)
     }
 
+    func testSubscribingWhenConnectionDisconnectedCausesConnect() throws {
+        // this tests that subscribing doesn't case us to re-enter our locked state
+        connection.automaticallyTransitionToConnecting = true
+
+        connection.setState(.disconnected(reason: .disconnected))
+        cache = HACache<CacheItem>(
+            connection: connection,
+            populate: .init(
+                request: .init(type: "none", data: [:]),
+                anyTransform: { _ in
+                    fatalError()
+                }, start: { [populateInfo] connection, perform in
+                    _ = populateInfo?.start(connection, perform)
+                    return connection.send(HATypedRequest<HAResponseVoid>(request: .init(type: "none", data: [:])), completion: { _ in })
+                }
+            ),
+            subscribe: subscribeInfo
+        )
+
+        _ = cache.subscribe { _, _ in
+            XCTFail("should not have invoked subscribe at all")
+        }
+
+        XCTAssertEqual(connection.state, .connecting)
+
+        _ = cache.subscribe { _, _ in
+            XCTFail("should not have invoked subscribe at all")
+        }
+
+        XCTAssertEqual(populateCount, 1, "should only populate once")
+        XCTAssertNotNil(populatePerform)
+        XCTAssertNil(subscribePerform)
+    }
+
     func testResetWithoutSubscribersDisconnects() throws {
         cache.shouldResetWithoutSubscribers = true
 
-        connection.state = .ready(version: "1.2.3")
         let handlerToken = cache.subscribe { _, _ in
             XCTFail("should not have invoked subscribe at all")
         }
@@ -194,7 +209,6 @@ internal class HACacheTests: XCTestCase {
     }
 
     func testResetWithoutSubscribersChangedLaterDisconnects() throws {
-        connection.state = .ready(version: "1.2.3")
         let handlerToken = cache.subscribe { _, _ in
             XCTFail("should not have invoked subscribe at all")
         }
@@ -211,9 +225,33 @@ internal class HACacheTests: XCTestCase {
         XCTAssertTrue(populateCancellableInvoked)
     }
 
-    func testPopulateThenSubscribes() throws {
-        connection.state = .ready(version: "1.2.3")
+    func testPopulateFailsThenConnectionStateChanges() throws {
+        let expectedValue = CacheItem()
 
+        let expectation = self.expectation(description: "handler invoke")
+        _ = cache.subscribe { _, item in
+            XCTAssertEqual(item, expectedValue)
+            expectation.fulfill()
+        }
+
+        try populate { current in
+            throw HAError.internal(debugDescription: "unit test")
+        }
+
+        populatePerform = nil
+
+        connection.setState(.ready(version: "1.2.3"))
+        XCTAssertEqual(populateCount, 2)
+        XCTAssertNotNil(populatePerform)
+
+        try populate { _ in
+            expectedValue
+        }
+
+        waitForExpectations(timeout: 10.0)
+    }
+
+    func testPopulateThenSubscribes() throws {
         let values: [CacheItem] = [.init(), .init(), .init()]
 
         var handlerValues1 = [CacheItem]()
@@ -272,22 +310,66 @@ internal class HACacheTests: XCTestCase {
         XCTAssertTrue(subscribeCancellableInvoked)
     }
 
-    func testReissuesPopulateOnReconnect() throws {
-        connection.state = .ready(version: "1.2.3")
+    func testPopulateAfterReissueWorks() throws {
+        let values: [CacheItem] = [.init(), .init(), .init()]
 
+        var handlerValues1 = [CacheItem]()
+        var handlerValues2 = [CacheItem]()
+
+        let handlerExpectation = expectation(description: "handler")
+        handlerExpectation.expectedFulfillmentCount = 6
+        _ = cache.subscribe { _, value in
+            XCTAssertTrue(self.isOnCallbackQueue)
+            handlerValues1.append(value)
+            handlerExpectation.fulfill()
+        }
+        try populate { current in
+            XCTAssertNil(current)
+            return values[0]
+        }
+
+        populatePerform = nil
+
+        _ = cache.subscribe { _, value in
+            XCTAssertTrue(self.isOnCallbackQueue)
+            handlerValues2.append(value)
+            handlerExpectation.fulfill()
+        }
+
+        try subscribe { current in
+            XCTAssertEqual(current, values[0])
+            return .reissuePopulate
+        }
+
+        try populate { current in
+            XCTAssertEqual(current, values[0])
+            return values[1]
+        }
+
+        connection.setState(.disconnected(reason: .disconnected))
+
+        try populate { current in
+            XCTAssertEqual(current, values[1])
+            return values[2]
+        }
+
+        waitForExpectations(timeout: 10.0)
+        XCTAssertEqual(populateCount, 3)
+        XCTAssertEqual(handlerValues1, values)
+        XCTAssertEqual(handlerValues2, values)
+    }
+
+    func testDoesntReissuePopulateOnReconnect() throws {
         _ = cache.subscribe { _, _ in }
 
         XCTAssertNotNil(populatePerform)
-        connection.state = .disconnected(reason: .disconnected)
-        populatePerform = nil
-
-        connection.state = .ready(version: "1.2.3")
-        XCTAssertEqual(populateCount, 2)
+        connection.setState(.disconnected(reason: .disconnected))
+        connection.setState(.ready(version: "1.2.3"))
+        XCTAssertEqual(populateCount, 1, "since the connection retries populate, we don't send again")
         XCTAssertNotNil(populatePerform)
     }
 
     func testReissuesPopulateAndSubscribeOnReconnect() throws {
-        connection.state = .ready(version: "1.2.3")
         let values: [CacheItem] = [.init(), .init(), .init()]
         let handlerExpectation = expectation(description: "handler")
         handlerExpectation.expectedFulfillmentCount = 3
@@ -305,8 +387,8 @@ internal class HACacheTests: XCTestCase {
             XCTAssertEqual(current, values[0])
             return .replace(values[1])
         }
-        connection.state = .disconnected(reason: .disconnected)
-        connection.state = .ready(version: "2.3.4")
+        connection.setState(.disconnected(reason: .waitingToReconnect(lastError: nil, atLatest: Date(), retryCount: 0)))
+        connection.setState(.ready(version: "2.3.4"))
         try populate { current in
             XCTAssertEqual(current, values[1])
             return values[2]
@@ -322,7 +404,6 @@ internal class HACacheTests: XCTestCase {
     }
 
     func testCacheDeallocInvalidatesPopulate() throws {
-        connection.state = .ready(version: "1.2.3")
         autoreleasepool {
             _ = cache.subscribe { _, _ in }
             cache = nil
@@ -335,7 +416,6 @@ internal class HACacheTests: XCTestCase {
     }
 
     func testCacheDeallocInvalidatesSubscriptions() throws {
-        connection.state = .ready(version: "1.2.3")
         try autoreleasepool {
             let expectation = self.expectation(description: "handler")
             _ = cache.subscribe { _, _ in
@@ -359,7 +439,6 @@ internal class HACacheTests: XCTestCase {
             subscribe: subscribeInfo,
             subscribeInfo2
         )
-        connection.state = .ready(version: "1.2.3")
 
         var handlerValues: [CacheItem] = []
         let handlerExpectation = expectation(description: "handler")
@@ -404,8 +483,6 @@ internal class HACacheTests: XCTestCase {
             handlerExpectation.fulfill()
         }
 
-        connection.state = .ready(version: "1.2.3")
-
         let expectedValues: [CacheItem] = [.init(), .init()]
 
         try populate { current in
@@ -431,7 +508,6 @@ internal class HACacheTests: XCTestCase {
     }
 
     func testMapWithExistingValue() throws {
-        connection.state = .ready(version: "1.2.3")
         _ = cache.subscribe { _, _ in }
 
         let expectedValue = CacheItem()
@@ -456,7 +532,6 @@ internal class HACacheTests: XCTestCase {
     }
 
     func testOnceBeforeInitial() throws {
-        connection.state = .ready(version: "1.2.3")
         let expectedValue = CacheItem()
 
         let regExpectation = expectation(description: "once-regular")
@@ -488,7 +563,6 @@ internal class HACacheTests: XCTestCase {
     }
 
     func testOnceAfterInitial() throws {
-        connection.state = .ready(version: "1.2.3")
         let expectedValue = CacheItem()
 
         _ = cache.subscribe { _, _ in }
@@ -522,7 +596,6 @@ internal class HACacheTests: XCTestCase {
     }
 
     func testOnceCancel() throws {
-        connection.state = .ready(version: "1.2.3")
         let expectedValue = CacheItem()
 
         let regToken = cache.once { _ in
@@ -546,14 +619,11 @@ internal class HACacheTests: XCTestCase {
     }
 
     func testStateChangeCancels() throws {
-        connection.state = .ready(version: "1.2.3")
-
         _ = cache.subscribe { _, _ in }
 
         XCTAssertNotNil(populatePerform)
-        connection.state = .ready(version: "1.2.4")
-        XCTAssertTrue(populateCancellableInvoked)
-        XCTAssertEqual(populateCount, 2)
+        connection.setState(.ready(version: "1.2.4"))
+        XCTAssertEqual(populateCount, 1, "don't need to reissue since it didn't go out yet")
         XCTAssertNotNil(populatePerform)
 
         let expectedValue = CacheItem()
@@ -566,17 +636,15 @@ internal class HACacheTests: XCTestCase {
         populateCancellableInvoked = false
         populatePerform = nil
 
-        connection.state = .ready(version: "1.2.4")
+        connection.setState(.ready(version: "1.2.4"))
 
-        XCTAssertTrue(subscribeCancellableInvoked)
+        XCTAssertTrue(subscribeCancellableInvoked, "since it was active already")
         XCTAssertFalse(populateCancellableInvoked, "it was already done")
-        XCTAssertEqual(populateCount, 3)
+        XCTAssertEqual(populateCount, 2, "since it needs to send a new one")
         XCTAssertNotNil(populatePerform)
     }
 
     func testSubscribePopulateUnsubscribeSubscribeDoesntReissuePopulate() throws {
-        connection.state = .ready(version: "1.2.3")
-
         let token1 = cache.subscribe { _, _ in }
 
         try populate { current in

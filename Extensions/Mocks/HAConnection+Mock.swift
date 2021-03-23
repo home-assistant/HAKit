@@ -74,6 +74,8 @@ public class HAMockConnection: HAConnection {
     public var cancelledRequests = [HARequest]()
     /// All subscription requests whose cancellable was invoked
     public var cancelledSubscriptions = [HARequest]()
+    /// Whether to turn to 'connecting' when a 'send' or 'subscribe' occurs when 'disconnected'
+    public var automaticallyTransitionToConnecting = true
 
     // MARK: - Mock Implementation
 
@@ -85,10 +87,19 @@ public class HAMockConnection: HAConnection {
         self.configuration = configuration
     }
 
-    public var state: HAConnectionState = .disconnected(reason: .disconnected) {
+    public private(set) var state: HAConnectionState = .disconnected(reason: .disconnected) {
         didSet {
-            delegate?.connection(self, didTransitionTo: state)
-            NotificationCenter.default.post(name: HAConnectionState.didTransitionToStateNotification, object: self)
+            // matching async behavior of HAConnectionImpl
+            callbackQueue.async { [self, state] in
+                delegate?.connection(self, didTransitionTo: state)
+                NotificationCenter.default.post(name: HAConnectionState.didTransitionToStateNotification, object: self)
+            }
+        }
+    }
+    public func setState(_ state: HAConnectionState, waitForQueue: Bool = true) {
+        self.state = state
+        if waitForQueue {
+            waitForCallbackQueue()
         }
     }
 
@@ -115,6 +126,14 @@ public class HAMockConnection: HAConnection {
         }
     }
 
+    private func connectForRequest() {
+        guard automaticallyTransitionToConnecting, case .disconnected = state else {
+            return
+        }
+
+        state = .connecting
+    }
+
     public func disconnect() {
         state = .disconnected(reason: .disconnected)
     }
@@ -122,6 +141,7 @@ public class HAMockConnection: HAConnection {
     public func send(_ request: HARequest, completion: @escaping RequestCompletion) -> HACancellable {
         let cancellable = HAMockCancellable { [self] in cancelledRequests.append(request) }
         pendingRequests.append(.init(request: request, cancellable: cancellable, completion: completion))
+        connectForRequest()
         return cancellable
     }
 
@@ -159,6 +179,7 @@ public class HAMockConnection: HAConnection {
             initiated: initiated,
             handler: handler
         ))
+        connectForRequest()
         return cancellable
     }
 
@@ -179,5 +200,29 @@ public class HAMockConnection: HAConnection {
                 handler(cancellable, try T(data: data))
             } catch {}
         })
+    }
+
+    public func waitForCallbackQueue() {
+        precondition(Thread.isMainThread)
+        let runLoopMode: CFRunLoopMode = CFRunLoopMode.defaultMode
+
+        var context = CFRunLoopSourceContext()
+        let runLoop = CFRunLoopGetCurrent()
+        let runLoopSource = CFRunLoopSourceCreate(nil, 0, &context)
+        CFRunLoopAddSource(runLoop, runLoopSource, runLoopMode)
+
+        var hasCalled = false
+
+        let stop = {
+            hasCalled = true
+            CFRunLoopStop(runLoop)
+        }
+
+        callbackQueue.async(execute: stop)
+        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(5), execute: stop)
+
+        while !hasCalled {
+            CFRunLoopRunInMode(runLoopMode, 1.0, false)
+        }
     }
 }

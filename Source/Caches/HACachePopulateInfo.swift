@@ -13,9 +13,9 @@ public struct HACachePopulateInfo<OutgoingType> {
         request: HATypedRequest<IncomingType>,
         transform: @escaping (HACacheTransformInfo<IncomingType, OutgoingType?>) -> OutgoingType
     ) {
-        let nonRetryRequest: HATypedRequest<IncomingType> = {
+        let retryRequest: HATypedRequest<IncomingType> = {
             var updated = request
-            updated.request.shouldRetry = false
+            updated.request.shouldRetry = true
             return updated
         }()
         self.init(
@@ -30,10 +30,9 @@ public struct HACachePopulateInfo<OutgoingType> {
 
                 return transform(value)
             }, start: { connection, perform in
-                connection.send(nonRetryRequest, completion: { result in
-                    guard let incoming = try? result.get() else { return }
+                connection.send(retryRequest, completion: { result in
                     perform { current in
-                        transform(.init(incoming: incoming, current: current))
+                        transform(.init(incoming: try result.get(), current: current))
                     }
                 })
             }
@@ -65,7 +64,7 @@ public struct HACachePopulateInfo<OutgoingType> {
     }
 
     /// The start handler
-    typealias StartHandler = (HAConnection, @escaping ((OutgoingType?) -> OutgoingType) -> Void) -> HACancellable
+    typealias StartHandler = (HAConnection, @escaping ((OutgoingType?) throws -> OutgoingType) -> Void) -> HACancellable
 
     /// Type-erasing block to perform the populate and its transform
     internal let start: StartHandler
