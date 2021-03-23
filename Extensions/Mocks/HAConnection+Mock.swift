@@ -212,17 +212,17 @@ public class HAMockConnection: HAConnection {
         let runLoopSource = CFRunLoopSourceCreate(nil, 0, &context)
         CFRunLoopAddSource(runLoop, runLoopSource, runLoopMode)
 
-        var hasCalled = false
+        var hasCalled: Int32 = 0
 
         let stop = {
-            hasCalled = true
+            OSAtomicCompareAndSwap32(0, 1, &hasCalled)
             CFRunLoopStop(runLoop)
         }
 
         callbackQueue.async(execute: stop)
         DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(5), execute: stop)
 
-        while !hasCalled {
+        while hasCalled == 0 {
             CFRunLoopRunInMode(runLoopMode, 1.0, false)
         }
     }
