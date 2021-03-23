@@ -35,7 +35,6 @@ internal class HAConnectionImplTests: XCTestCase {
         requestController = FakeHARequestController()
         responseController = FakeHAResponseController()
         reconnectManager = FakeHAReconnectManager()
-        delegate = FakeHAConnectionDelegate()
 
         queueSpecific = .init()
         callbackQueue = DispatchQueue(label: "test-callback-queue")
@@ -60,6 +59,8 @@ internal class HAConnectionImplTests: XCTestCase {
             reconnectManager: reconnectManager
         )
         connection.callbackQueue = callbackQueue
+
+        delegate = FakeHAConnectionDelegate(connection: connection)
         connection.delegate = delegate
     }
 
@@ -1178,10 +1179,10 @@ private class MockTypedRequestResult: HADataDecodable {
 private class FakeHAConnectionDelegate: HAConnectionDelegate {
     private var token: Any?
 
-    init() {
+    init(connection: HAConnectionImpl) {
         self.token = NotificationCenter.default.addObserver(
             forName: HAConnectionState.didTransitionToStateNotification,
-            object: nil,
+            object: connection,
             queue: nil,
             using: { [weak self] _ in
                 self?.notifiedCount += 1
