@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added: `.getStates()` typed request.
 - Changed: `attributes` and `context` on `HAEntity` are now represented by parsed types.
 - Changed: Many internal cases of JSON parsing and decoding are now done off the main thread.
+- Changed: Calling `connect()` when already connected now sends a ping request.
 - Fixed: Calling `connect()` when already connected no longer disconnects and reconnects.
 - Fixed: Calling `cancel()` on a subscription more than once or on a non-retried subscription sends multiple unsubscribe requests.
 

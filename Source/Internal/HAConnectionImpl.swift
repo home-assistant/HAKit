@@ -116,11 +116,16 @@ internal class HAConnectionImpl: HAConnection {
             reconnectManager.didStartInitialConnect()
         }
 
-        let oldState = state
-        HAGlobal.log("connecting using \(connectionInfo)")
-        self.connection = connection
-        if state != oldState {
-            notifyState()
+        if connection === self.connection {
+            HAGlobal.log("asked to 'connect' with the same connection - pinging")
+            send(.init(type: .ping, data: [:]), completion: { _ in })
+        } else {
+            let oldState = state
+            HAGlobal.log("connecting using \(connectionInfo)")
+            self.connection = connection
+            if state != oldState {
+                notifyState()
+            }
         }
     }
 

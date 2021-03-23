@@ -81,7 +81,7 @@ public protocol HAConnection: AnyObject {
 
     /// Attempt to connect to the server
     /// This will attempt immediately and then make retry attempts based on timing and/or reachability and/or
-    /// application state
+    /// application state. Calling connect again without disconnecting will send a 'ping' request to verify connection.
     func connect()
     /// Disconnect from the server or end reconnection attempts
     func disconnect()

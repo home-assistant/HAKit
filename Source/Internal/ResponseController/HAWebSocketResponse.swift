@@ -5,6 +5,7 @@ internal enum HAWebSocketResponse: Equatable {
         case authRequired = "auth_required"
         case authOK = "auth_ok"
         case authInvalid = "auth_invalid"
+        case pong
     }
 
     enum AuthState: Equatable {
@@ -44,6 +45,9 @@ internal enum HAWebSocketResponse: Equatable {
             } else {
                 self = .result(identifier: identifier, result: .failure(.external(.init(dictionary["error"]))))
             }
+        case .pong:
+            let identifier = try parseIdentifier()
+            self = .result(identifier: identifier, result: .success(.empty))
         case .event:
             let identifier = try parseIdentifier()
             self = .event(identifier: identifier, data: .init(value: dictionary["event"]))
