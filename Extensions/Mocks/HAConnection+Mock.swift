@@ -96,6 +96,7 @@ public class HAMockConnection: HAConnection {
             }
         }
     }
+
     public func setState(_ state: HAConnectionState, waitForQueue: Bool = true) {
         self.state = state
         if waitForQueue {
@@ -204,7 +205,7 @@ public class HAMockConnection: HAConnection {
 
     public func waitForCallbackQueue() {
         precondition(Thread.isMainThread)
-        let runLoopMode: CFRunLoopMode = CFRunLoopMode.defaultMode
+        let runLoopMode = CFRunLoopMode.defaultMode
 
         var context = CFRunLoopSourceContext()
         let runLoop = CFRunLoopGetCurrent()

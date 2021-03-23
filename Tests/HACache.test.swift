@@ -172,7 +172,10 @@ internal class HACacheTests: XCTestCase {
                     fatalError()
                 }, start: { [populateInfo] connection, perform in
                     _ = populateInfo?.start(connection, perform)
-                    return connection.send(HATypedRequest<HAResponseVoid>(request: .init(type: "none", data: [:])), completion: { _ in })
+                    return connection.send(
+                        HATypedRequest<HAResponseVoid>(request: .init(type: "none", data: [:])),
+                        completion: { _ in }
+                    )
                 }
             ),
             subscribe: subscribeInfo
@@ -234,7 +237,7 @@ internal class HACacheTests: XCTestCase {
             expectation.fulfill()
         }
 
-        try populate { current in
+        try populate { _ in
             throw HAError.internal(debugDescription: "unit test")
         }
 

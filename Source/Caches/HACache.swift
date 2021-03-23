@@ -46,7 +46,7 @@ public class HACache<ValueType> {
         self.subscribeInfo = subscribe
 
         self.start = { connection, cache in
-            return Self.startPopulate(for: populate, on: connection, cache: cache) { cache in
+            Self.startPopulate(for: populate, on: connection, cache: cache) { cache in
                 cache.state.mutate { state in
                     let tokens = subscribe.map { info in
                         Self.startSubscribe(to: info, on: connection, populate: populate, cache: cache)

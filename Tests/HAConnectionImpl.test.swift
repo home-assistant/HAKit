@@ -1177,7 +1177,7 @@ private class MockTypedRequestResult: HADataDecodable {
 
 private class FakeHAConnectionDelegate: HAConnectionDelegate {
     private var token: Any?
- 
+
     init() {
         self.token = NotificationCenter.default.addObserver(
             forName: HAConnectionState.didTransitionToStateNotification,
