@@ -57,4 +57,8 @@ internal enum HAWebSocketResponseFixture {
     static var responseEvent = JSONIfy("""
         {"id": 5, "type": "event", "event": {"result": "ok"}}
     """)
+
+    static var responsePong = JSONIfy("""
+        {"id": 6, "type": "pong"}
+    """)
 }

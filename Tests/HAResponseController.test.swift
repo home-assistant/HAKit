@@ -115,6 +115,23 @@ internal class HAResponseControllerTests: XCTestCase {
 
         XCTAssertNil(delegate.lastReceived)
     }
+
+    func testPong() throws {
+        fireConnected()
+
+        let commandPhase = HAResponseControllerPhase.command(version: "2021.3.0.dev0")
+
+        try fireText(
+            from: HAWebSocketResponseFixture.authOK,
+            expectingResponse: true,
+            expectingPhase: commandPhase
+        )
+        try fireText(
+            from: HAWebSocketResponseFixture.responsePong,
+            expectingResponse: true,
+            expectingPhase: commandPhase
+        )
+    }
 }
 
 private extension HAResponseControllerTests {

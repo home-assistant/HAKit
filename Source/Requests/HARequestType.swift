@@ -36,6 +36,10 @@ public struct HARequestType: RawRepresentable, Hashable, ExpressibleByStringLite
 
     // MARK: - Internal
 
+    /// `ping`
+    /// This will always get a success response, when a response is received.
+    public static var ping: Self = "ping"
+
     /// `auth`
     /// This is likely not useful for external consumers as this is handled automatically on connection.
     public static var auth: Self = "auth"
