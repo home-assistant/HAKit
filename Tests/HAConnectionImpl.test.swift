@@ -23,13 +23,18 @@ internal class HAConnectionImplTests: XCTestCase {
         DispatchQueue.getSpecific(key: queueSpecific) == true
     }
 
+    private func waitForCallbackQueue() {
+        let expectation = self.expectation(description: "callback queue wait once")
+        callbackQueue.async(execute: expectation.fulfill)
+        waitForExpectations(timeout: 10.0)
+    }
+
     override func setUp() {
         super.setUp()
 
         requestController = FakeHARequestController()
         responseController = FakeHAResponseController()
         reconnectManager = FakeHAReconnectManager()
-        delegate = FakeHAConnectionDelegate()
 
         queueSpecific = .init()
         callbackQueue = DispatchQueue(label: "test-callback-queue")
@@ -54,6 +59,8 @@ internal class HAConnectionImplTests: XCTestCase {
             reconnectManager: reconnectManager
         )
         connection.callbackQueue = callbackQueue
+
+        delegate = FakeHAConnectionDelegate(connection: connection)
         connection.delegate = delegate
     }
 
@@ -151,6 +158,8 @@ internal class HAConnectionImplTests: XCTestCase {
         url = nil
         connection.connect()
 
+        waitForCallbackQueue()
+
         XCTAssertEqual(delegate.states.last, connection.state)
         XCTAssertEqual(delegate.notifiedCount, 1)
         XCTAssertTrue(reconnectManager.didTemporarily)
@@ -175,6 +184,7 @@ internal class HAConnectionImplTests: XCTestCase {
 
     func testDisconnectedManually() {
         connection.connect()
+        waitForCallbackQueue()
         XCTAssertEqual(delegate.states, [.connecting])
         XCTAssertEqual(delegate.notifiedCount, 1)
 
@@ -183,6 +193,7 @@ internal class HAConnectionImplTests: XCTestCase {
         engine.events.removeAll()
 
         connection.disconnect()
+        waitForCallbackQueue()
         XCTAssertTrue(engine.events.contains(.stop(CloseCode.goingAway.rawValue)))
         XCTAssertTrue(reconnectManager.didPermanently)
         XCTAssertFalse(reconnectManager.didTemporarily)
@@ -194,11 +205,13 @@ internal class HAConnectionImplTests: XCTestCase {
 
     func testDisconnectedTemporarilyWithoutError() throws {
         connection.connect()
+        waitForCallbackQueue()
         XCTAssertEqual(delegate.states, [.connecting])
         XCTAssertEqual(delegate.notifiedCount, 1)
 
         engine.events.removeAll()
         connection.responseController(responseController, didTransitionTo: .disconnected(error: nil, forReset: false))
+        waitForCallbackQueue()
         XCTAssertTrue(requestController.didResetActive)
         XCTAssertEqual(delegate.states.last, connection.state)
         XCTAssertEqual(delegate.notifiedCount, 2)
@@ -360,10 +373,13 @@ internal class HAConnectionImplTests: XCTestCase {
 
         responseController.phase = .auth
         connection.responseController(responseController, didTransitionTo: .auth)
-        XCTAssertEqual(delegate.states, [.connecting, .authenticating])
-        XCTAssertEqual(delegate.notifiedCount, 2)
 
         XCTAssertTrue(engine.events.isEmpty)
+
+        waitForCallbackQueue()
+
+        XCTAssertEqual(delegate.states, [.connecting, .authenticating])
+        XCTAssertEqual(delegate.notifiedCount, 2)
 
         let tokenBlock = try XCTUnwrap(pendingFetchAccessTokens.last)
 
@@ -386,6 +402,7 @@ internal class HAConnectionImplTests: XCTestCase {
 
         responseController.phase = .auth
         connection.responseController(responseController, didTransitionTo: .auth)
+        waitForCallbackQueue()
         XCTAssertEqual(delegate.states, [.connecting, .authenticating])
         XCTAssertEqual(delegate.notifiedCount, 2)
 
@@ -400,6 +417,7 @@ internal class HAConnectionImplTests: XCTestCase {
 
     func testConnectedSendsAuthTokenGetFails() throws {
         connection.connect()
+        waitForCallbackQueue()
         XCTAssertEqual(delegate.states, [.connecting])
         XCTAssertEqual(delegate.notifiedCount, 1)
 
@@ -407,6 +425,7 @@ internal class HAConnectionImplTests: XCTestCase {
 
         responseController.phase = .auth
         connection.responseController(responseController, didTransitionTo: .auth)
+        waitForCallbackQueue()
         XCTAssertEqual(delegate.states, [.connecting, .authenticating])
         XCTAssertEqual(delegate.notifiedCount, 2)
 
@@ -420,6 +439,7 @@ internal class HAConnectionImplTests: XCTestCase {
         }
 
         accessTokenBlock(.failure(TestError.any))
+        waitForCallbackQueue()
         XCTAssertTrue(engine.events.contains(.stop(CloseCode.goingAway.rawValue)))
         XCTAssertEqual(delegate.notifiedCount, 3)
 
@@ -434,6 +454,7 @@ internal class HAConnectionImplTests: XCTestCase {
 
     func testCommandPreparesRequestsAndInformsReconnectManager() {
         connection.connect()
+        waitForCallbackQueue()
         XCTAssertEqual(delegate.states, [.connecting])
         XCTAssertEqual(delegate.notifiedCount, 1)
 
@@ -441,6 +462,7 @@ internal class HAConnectionImplTests: XCTestCase {
 
         responseController.phase = .command(version: "123")
         connection.responseController(responseController, didTransitionTo: .command(version: "123"))
+        waitForCallbackQueue()
         XCTAssertEqual(delegate.states, [.connecting, .ready(version: "123")])
         XCTAssertEqual(delegate.notifiedCount, 2)
 
@@ -1157,10 +1179,10 @@ private class MockTypedRequestResult: HADataDecodable {
 private class FakeHAConnectionDelegate: HAConnectionDelegate {
     private var token: Any?
 
-    init() {
+    init(connection: HAConnectionImpl) {
         self.token = NotificationCenter.default.addObserver(
             forName: HAConnectionState.didTransitionToStateNotification,
-            object: nil,
+            object: connection,
             queue: nil,
             using: { [weak self] _ in
                 self?.notifiedCount += 1
@@ -1178,7 +1200,6 @@ private class FakeHAConnectionDelegate: HAConnectionDelegate {
     var notifiedCount = 0
     func connection(_ connection: HAConnection, didTransitionTo state: HAConnectionState) {
         states.append(state)
-        XCTAssertEqual(state, connection.state)
     }
 }
 
