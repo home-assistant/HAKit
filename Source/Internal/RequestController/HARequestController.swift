@@ -67,7 +67,12 @@ internal class HARequestControllerImpl: HARequestController {
         request.cancel()
 
         state.mutate { state in
-            state.pending.remove(request)
+            let removed = state.pending.remove(request)
+
+            guard removed != nil else {
+                // Extraneous cancel, either after already cancelling or after finished, which is fine but we also noop
+                return
+            }
 
             if let identifier = identifier {
                 state.active[identifier] = nil
