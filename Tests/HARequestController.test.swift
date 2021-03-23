@@ -153,6 +153,7 @@ internal class HARequestControllerTests: XCTestCase {
         controller.add(invocation)
 
         controller.cancel(invocation)
+        controller.cancel(invocation) // intentionally calling twice
 
         XCTAssertFalse(invocation.needsAssignment)
 
@@ -176,6 +177,7 @@ internal class HARequestControllerTests: XCTestCase {
         XCTAssertEqual(controller.subscription(for: identifier), invocation)
 
         controller.cancel(invocation)
+        controller.cancel(invocation) // intentionally calling twice
 
         XCTAssertEqual(delegate.didPrepare.count, 2)
         XCTAssertFalse(invocation.needsAssignment)
