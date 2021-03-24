@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added: `connectAutomatically` parameter to connection creation. This will call `connect()` when requests are sent if not connected.
 - Added: `.getServices()` typed request.
 - Added: `.getStates()` typed request.
+- Changed: Swapped to using the custom (not URLSession) engine in Starscream to try and figure out if URLSession is causing connectivity issues.
 - Changed: `attributes` and `context` on `HAEntity` are now represented by parsed types.
 - Changed: Many internal cases of JSON parsing and decoding are now done off the main thread.
 - Changed: Calling `connect()` when already connected now sends a ping request.
