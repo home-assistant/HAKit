@@ -122,6 +122,15 @@ internal class HAConnectionImplTests: XCTestCase {
         // connect a second time, it shouldn't disconnect
         connection.connect()
         XCTAssertEqual(engine.events.count, 1)
+
+        responseController.phase = .command(version: "123")
+        connection.responseController(responseController, didTransitionTo: .command(version: "123"))
+        waitForCallbackQueue()
+
+        // connect a second time, it shouldn't disconnect
+        connection.connect()
+        XCTAssertEqual(engine.events.count, 1)
+        XCTAssertEqual(requestController.added.count, 1)
         XCTAssertTrue(requestController.added.contains(where: { $0.request.type == .ping }))
         XCTAssertFalse(engine.events.contains(where: { event in
             if case .stop = event {
