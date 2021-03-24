@@ -607,15 +607,7 @@ internal class HAConnectionImplTests: XCTestCase {
             didReceive: .event(identifier: 4, data: .empty)
         )
 
-        let added = requestController.added.first(where: { added in
-            added.request.type == .unsubscribeEvents
-                && added.request.data["subscription"] as? Int == 4
-                && added.request.shouldRetry == false
-        }) as? HARequestInvocationSingle
-        XCTAssertNotNil(added)
-
-        // just validating the completion handler doesn't cause issues when fired
-        added?.resolve(.success(.empty))
+        XCTAssertTrue(requestController.added.isEmpty)
     }
 
     func testPlainSendCancelled() throws {
