@@ -45,8 +45,7 @@ extension HAConnectionImpl: HAResponseControllerDelegate {
                     }, event: data)
                 }
             } else {
-                HAGlobal.log("unable to find registration for event identifier \(identifier)")
-                send(.unsubscribe(identifier), completion: { _ in })
+                HAGlobal.log("unable to find subscription for identifier \(identifier)")
             }
         case let .result(identifier: identifier, result: result):
             if let request = requestController.single(for: identifier) {
