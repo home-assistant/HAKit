@@ -45,10 +45,7 @@ public struct HAConnectionInfo: Equatable {
         if let engine = engine {
             webSocket = WebSocket(request: request, engine: engine)
         } else {
-            // prefer URLSession's implementation [since we plan to move to it eventually]
-            // additionally, the custom engine seems to have difficulty with e.g. connection refused, where it will
-            // not fire a failure -- the underlying tls transport sticks at 'waiting' which feels like an apple bug
-            webSocket = WebSocket(request: request, useCustomEngine: false)
+            webSocket = WebSocket(request: request)
         }
 
         return webSocket
