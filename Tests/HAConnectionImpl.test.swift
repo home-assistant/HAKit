@@ -130,8 +130,7 @@ internal class HAConnectionImplTests: XCTestCase {
         // connect a second time, it shouldn't disconnect
         connection.connect()
         XCTAssertEqual(engine.events.count, 1)
-        XCTAssertEqual(requestController.added.count, 1)
-        XCTAssertTrue(requestController.added.contains(where: { $0.request.type == .ping }))
+        XCTAssertTrue(requestController.added.isEmpty)
         XCTAssertFalse(engine.events.contains(where: { event in
             if case .stop = event {
                 return true
@@ -204,6 +203,7 @@ internal class HAConnectionImplTests: XCTestCase {
         connection.disconnect()
         waitForCallbackQueue()
         XCTAssertTrue(engine.events.contains(.stop(CloseCode.goingAway.rawValue)))
+        XCTAssertTrue(responseController.wasReset)
         XCTAssertTrue(reconnectManager.didPermanently)
         XCTAssertFalse(reconnectManager.didTemporarily)
 
@@ -297,6 +297,88 @@ internal class HAConnectionImplTests: XCTestCase {
                 return false
             }
         }))
+    }
+
+    func testReconnectManagerSendsPingAndSucceeds() throws {
+        var result: Swift.Result<Void, Error>?
+
+        let expectation = self.expectation(description: "ping result")
+
+        _ = connection.reconnectManager(reconnectManager, pingWithCompletion: { thisResult in
+            result = thisResult
+            expectation.fulfill()
+        })
+
+        let ping = try XCTUnwrap(
+            requestController.added
+                .first(where: { $0.request.type == .ping }) as? HARequestInvocationSingle
+        )
+
+        ping.resolve(.success(.empty))
+        waitForExpectations(timeout: 10.0)
+        XCTAssertNoThrow(try XCTUnwrap(result).get())
+    }
+
+    func testReconnectManagerSendsPingAndFails() throws {
+        var result: Swift.Result<Void, Error>?
+
+        let expectation = self.expectation(description: "ping result")
+
+        _ = connection.reconnectManager(reconnectManager, pingWithCompletion: { thisResult in
+            result = thisResult
+            expectation.fulfill()
+        })
+
+        let ping = try XCTUnwrap(
+            requestController.added
+                .first(where: { $0.request.type == .ping }) as? HARequestInvocationSingle
+        )
+
+        ping.resolve(.failure(.internal(debugDescription: "unit test")))
+        waitForExpectations(timeout: 10.0)
+
+        XCTAssertThrowsError(try XCTUnwrap(result).get()) { error in
+            XCTAssertEqual(error as? HAError, .internal(debugDescription: "unit test"))
+        }
+    }
+
+    func testReconnectManagerSendsPingAndCancelled() throws {
+        let token = connection.reconnectManager(reconnectManager, pingWithCompletion: { _ in
+            XCTFail("should not have invoked")
+        })
+
+        let ping = try XCTUnwrap(
+            requestController.added
+                .first(where: { $0.request.type == .ping }) as? HARequestInvocationSingle
+        )
+
+        token.cancel()
+        XCTAssertTrue(requestController.cancelled.contains(ping))
+    }
+
+    func testReconnectManagerWantsDisconnect() {
+        enum FakeError: Error {
+            case error
+        }
+
+        connection.connect()
+        engine.events.removeAll()
+
+        connection.reconnect(reconnectManager, wantsDisconnectFor: FakeError.error)
+        waitForCallbackQueue()
+        XCTAssertTrue(responseController.wasReset)
+        XCTAssertTrue(reconnectManager.didTemporarily)
+        XCTAssertFalse(reconnectManager.didPermanently)
+
+        switch connection.state {
+        case let .disconnected(reason: reason):
+            switch reason {
+            case let .waitingToReconnect(lastError: error, atLatest: _, retryCount: _):
+                XCTAssertEqual(FakeError.error as NSError?, error as NSError?)
+            case .disconnected: XCTFail("expected waiting to reconnect")
+            }
+        case .connecting, .ready, .authenticating: XCTFail("expected disconnected")
+        }
     }
 
     func testAutomaticConnection() throws {
