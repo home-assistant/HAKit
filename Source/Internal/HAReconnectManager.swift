@@ -45,6 +45,7 @@ internal class HAReconnectManagerImpl: HAReconnectManager {
             return timeSinceExpectedFire > lateFireReset
         }
     }
+
     static let pingConfig: PingConfig = .init(
         interval: .init(value: 1, unit: .minutes),
         timeout: .init(value: 30, unit: .seconds),
@@ -141,7 +142,7 @@ internal class HAReconnectManagerImpl: HAReconnectManager {
             switch retryCount {
             case 0: return 0.0
             case 1: return 5.0
-            case 2...3: return 10.0
+            case 2, 3: return 10.0
             default: return 15.0
             }
         }()
@@ -162,15 +163,15 @@ internal class HAReconnectManagerImpl: HAReconnectManager {
             fire: HAGlobal.date().addingTimeInterval(Self.pingConfig.interval.converted(to: .seconds).value),
             interval: 0,
             repeats: false
-        ) { [unowned self] timer in
+        ) { [weak self] timer in
             guard !Self.pingConfig.shouldReset(forExpectedFire: timer.fireDate) else {
                 // Ping timer fired very far after our expected fire date, indicating we were probably suspended
                 // The WebSocket connection is going to fail after such a long interval; force a faster reconnect.
-                handle(pingResult: .failure(HAReconnectManagerError.lateFireReset))
+                self?.handle(pingResult: .failure(HAReconnectManagerError.lateFireReset))
                 return
             }
 
-            sendPing()
+            self?.sendPing()
         }
         timer.tolerance = 10.0
         pingTimer = timer
@@ -184,11 +185,11 @@ internal class HAReconnectManagerImpl: HAReconnectManager {
         pingToken = delegate?.reconnectManager(self, pingWithCompletion: { [weak self] result in
             let end = HAGlobal.date()
             let timeInterval = end.timeIntervalSince(start)
-            
+
             timeoutTimer?.invalidate()
-            
+
             self?.handle(pingResult: result.map {
-                return Measurement<UnitDuration>(value: timeInterval, unit: .seconds)
+                Measurement<UnitDuration>(value: timeInterval, unit: .seconds)
             })
         })
 

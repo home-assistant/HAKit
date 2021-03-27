@@ -143,7 +143,7 @@ internal class HAReconnectManagerTests: XCTestCase {
     }
 
     func testConnectThenPingSuccess() throws {
-        let now = Date(timeIntervalSinceNow: 1_000)
+        let now = Date(timeIntervalSinceNow: 1000)
 
         HAGlobal.date = { now }
 
@@ -173,7 +173,7 @@ internal class HAReconnectManagerTests: XCTestCase {
     }
 
     func testConnectThenPingFailure() throws {
-        let now = Date(timeIntervalSinceNow: 1_000)
+        let now = Date(timeIntervalSinceNow: 1000)
 
         HAGlobal.date = { now }
 
@@ -199,7 +199,7 @@ internal class HAReconnectManagerTests: XCTestCase {
     }
 
     func testConnectThenPingTimeout() throws {
-        let now = Date(timeIntervalSinceNow: 1_000)
+        let now = Date(timeIntervalSinceNow: 1000)
 
         HAGlobal.date = { now }
 
@@ -221,7 +221,7 @@ internal class HAReconnectManagerTests: XCTestCase {
     }
 
     func testPingTimerFiresSuperLate() throws {
-        let now = Date(timeIntervalSinceNow: 1_000)
+        let now = Date(timeIntervalSinceNow: 1000)
 
         HAGlobal.date = { now }
 
@@ -251,7 +251,10 @@ private class FakeHAReconnectManagerDelegate: HAReconnectManagerDelegate {
     var pingCancellableInvoked: Bool = false
     var pingHandler: ((Result<Void, Error>) -> Void)?
 
-    func reconnectManager(_ manager: HAReconnectManager, pingWithCompletion handler: @escaping (Result<Void, Error>) -> Void) -> HACancellable {
+    func reconnectManager(
+        _ manager: HAReconnectManager,
+        pingWithCompletion handler: @escaping (Result<Void, Error>) -> Void
+    ) -> HACancellable {
         pingHandler = handler
         return HACancellableImpl(handler: { [weak self] in
             self?.pingCancellableInvoked = true

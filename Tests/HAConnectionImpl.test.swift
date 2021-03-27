@@ -309,7 +309,10 @@ internal class HAConnectionImplTests: XCTestCase {
             expectation.fulfill()
         })
 
-        let ping = try XCTUnwrap(requestController.added.first(where: { $0.request.type == .ping }) as? HARequestInvocationSingle)
+        let ping = try XCTUnwrap(
+            requestController.added
+                .first(where: { $0.request.type == .ping }) as? HARequestInvocationSingle
+        )
 
         ping.resolve(.success(.empty))
         waitForExpectations(timeout: 10.0)
@@ -326,7 +329,10 @@ internal class HAConnectionImplTests: XCTestCase {
             expectation.fulfill()
         })
 
-        let ping = try XCTUnwrap(requestController.added.first(where: { $0.request.type == .ping }) as? HARequestInvocationSingle)
+        let ping = try XCTUnwrap(
+            requestController.added
+                .first(where: { $0.request.type == .ping }) as? HARequestInvocationSingle
+        )
 
         ping.resolve(.failure(.internal(debugDescription: "unit test")))
         waitForExpectations(timeout: 10.0)
@@ -337,11 +343,14 @@ internal class HAConnectionImplTests: XCTestCase {
     }
 
     func testReconnectManagerSendsPingAndCancelled() throws {
-        let token = connection.reconnectManager(reconnectManager, pingWithCompletion: { thisResult in
+        let token = connection.reconnectManager(reconnectManager, pingWithCompletion: { _ in
             XCTFail("should not have invoked")
         })
 
-        let ping = try XCTUnwrap(requestController.added.first(where: { $0.request.type == .ping }) as? HARequestInvocationSingle)
+        let ping = try XCTUnwrap(
+            requestController.added
+                .first(where: { $0.request.type == .ping }) as? HARequestInvocationSingle
+        )
 
         token.cancel()
         XCTAssertTrue(requestController.cancelled.contains(ping))
@@ -370,7 +379,6 @@ internal class HAConnectionImplTests: XCTestCase {
             }
         case .connecting, .ready, .authenticating: XCTFail("expected disconnected")
         }
-
     }
 
     func testAutomaticConnection() throws {
