@@ -17,10 +17,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Changed: Swapped to using the custom (not URLSession) engine in Starscream to try and figure out if URLSession is causing connectivity issues.
 - Changed: `attributes` and `context` on `HAEntity` are now represented by parsed types.
 - Changed: Many internal cases of JSON parsing and decoding are now done off the main thread.
-- Changed: Calling `connect()` when already connected now sends a ping request.
 - Changed: Events to unknown subscriptions (that is, a logic error in the library somewhere) no longer unsubscribe as this was sending erroneously during reconnects.
 - Fixed: Calling `connect()` when already connected no longer disconnects and reconnects.
 - Fixed: Calling `cancel()` on a subscription more than once or on a non-retried subscription sends multiple unsubscribe requests.
+- Fixed: Disconnections silently occurred due to e.g. suspension; pings are now sent regularly to make sure the connection really is active.
 
 ## [0.1.0] - 2021-03-05
 Initial release.

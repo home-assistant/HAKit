@@ -106,16 +106,19 @@ internal class HAResponseControllerImpl: HAResponseController {
             }
         case let .binary(data):
             HAGlobal.log("Received binary data: \(data.count)")
-        case .ping, .pong:
-            // automatically handled by Starscream
-            break
-        case .reconnectSuggested, .viabilityChanged:
-            // doesn't look like the URLSession variant calls this
-            break
+        case .ping:
+            HAGlobal.log("Ping")
+        case .pong:
+            HAGlobal.log("Pong")
+        case let .reconnectSuggested(isSuggested):
+            HAGlobal.log("Reconnect suggested: \(isSuggested)")
+        case let .viabilityChanged(isViable):
+            HAGlobal.log("Viability changed: \(isViable)")
         case .cancelled:
+            HAGlobal.log("Cancelled")
             phase = .disconnected(error: nil, forReset: false)
         case let .error(error):
-            HAGlobal.log("connection error: \(String(describing: error))")
+            HAGlobal.log("Error: \(String(describing: error))")
             phase = .disconnected(error: error, forReset: false)
         }
     }

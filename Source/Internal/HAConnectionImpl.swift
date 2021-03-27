@@ -118,12 +118,7 @@ internal class HAConnectionImpl: HAConnection {
             reconnectManager.didStartInitialConnect()
         }
 
-        if connection === self.connection {
-            if case .ready = state {
-                HAGlobal.log("asked to 'connect' with the same connection - pinging")
-                send(.init(type: .ping, data: [:]), completion: { _ in })
-            }
-        } else {
+        if connection !== self.connection {
             let oldState = state
             HAGlobal.log("connecting using \(connectionInfo)")
             self.connection = connection
@@ -136,15 +131,15 @@ internal class HAConnectionImpl: HAConnection {
     func disconnect(permanently: Bool, error: Error?) {
         HAGlobal.log("disconnecting; permanently: \(permanently), error: \(String(describing: error))")
 
+        connection?.delegate = nil
+        connection?.disconnect(closeCode: CloseCode.goingAway.rawValue)
+        connection = nil
+
         if permanently {
             reconnectManager.didDisconnectPermanently()
         } else {
             reconnectManager.didDisconnectTemporarily(error: error)
         }
-
-        connection?.delegate = nil
-        connection?.disconnect(closeCode: CloseCode.goingAway.rawValue)
-        connection = nil
 
         notifyState()
     }
@@ -291,5 +286,20 @@ extension HAConnectionImpl {
 extension HAConnectionImpl: HAReconnectManagerDelegate {
     func reconnectManagerWantsReconnection(_ manager: HAReconnectManager) {
         connect(resettingState: false)
+    }
+
+    func reconnect(_ manager: HAReconnectManager, wantsDisconnectFor error: Error) {
+        disconnect(permanently: false, error: error)
+    }
+
+    func reconnectManager(
+        _ manager: HAReconnectManager,
+        pingWithCompletion handler: @escaping (Result<Void, Error>) -> Void
+    ) -> HACancellable {
+        send(.init(type: .ping, data: [:])) { result in
+            DispatchQueue.main.async {
+                handler(result.map { _ in () }.mapError { $0 })
+            }
+        }
     }
 }
