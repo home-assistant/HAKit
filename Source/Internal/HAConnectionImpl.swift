@@ -114,17 +114,19 @@ internal class HAConnectionImpl: HAConnection {
             return connectionInfo.webSocket()
         }()
 
+        guard connection !== self.connection else {
+            return
+        }
+
         if resettingState {
             reconnectManager.didStartInitialConnect()
         }
 
-        if connection !== self.connection {
-            let oldState = state
-            HAGlobal.log("connecting using \(connectionInfo)")
-            self.connection = connection
-            if state != oldState {
-                notifyState()
-            }
+        let oldState = state
+        HAGlobal.log("connecting using \(connectionInfo)")
+        self.connection = connection
+        if state != oldState {
+            notifyState()
         }
     }
 
