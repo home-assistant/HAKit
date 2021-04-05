@@ -211,7 +211,7 @@ To add it to an Xcode project, you can do this by adding the URL to File > Swift
 Add the following line to your Podfile:
 
 ```ruby
-pod "HAKit", "~> 0.1"
+pod "HAKit", "~> 0.2"
 # pod "HAKit/PromiseKit" # optional, for PromiseKit support
 # pod "HAKit/Mocks" # optional, for tests
 ```
