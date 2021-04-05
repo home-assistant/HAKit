@@ -15,15 +15,21 @@ Pod::Spec.new do |s|
 
   s.swift_versions = ['5.3']
 
-  s.source_files = 'Source/**/*.swift'
-  s.dependency 'Starscream', '~> 4.0.4'
+  s.default_subspec = 'Core'
+
+  s.subspec 'Core' do |subspec|
+    subspec.source_files = 'Source/**/*.swift'
+    subspec.dependency 'Starscream', '~> 4.0.4'
+  end
 
   s.subspec 'PromiseKit' do |subspec|
     subspec.dependency 'PromiseKit', '~> 6.13'
+    subspec.dependency 'HAKit/Core'
     subspec.source_files = 'Extensions/PromiseKit/**/*.swift'
   end
 
   s.subspec 'Mocks' do |subspec|
+    subspec.dependency 'HAKit/Core'
     subspec.source_files = 'Extensions/Mocks/**/*.swift'
   end
 
