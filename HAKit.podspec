@@ -35,6 +35,9 @@ Pod::Spec.new do |s|
 
   s.test_spec 'Tests' do |test_spec|
     test_spec.platform = :ios, '12.0'
+    test_spec.dependency 'HAKit/Core'
+    test_spec.dependency 'HAKit/PromiseKit'
+    test_spec.dependency 'HAKit/Mocks'
     test_spec.macos.deployment_target = '10.14'
     test_spec.source_files = 'Tests/*.swift'
   end
