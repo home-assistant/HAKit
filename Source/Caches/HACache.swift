@@ -46,12 +46,18 @@ public class HACache<ValueType> {
         self.subscribeInfo = subscribe
 
         self.start = { connection, cache in
-            Self.startPopulate(for: populate, on: connection, cache: cache) { cache in
-                cache.state.mutate { state in
-                    let tokens = subscribe.map { info in
-                        Self.startSubscribe(to: info, on: connection, populate: populate, cache: cache)
+            Self.startPopulate(for: populate, on: connection, cache: cache) { cacheResult in
+                switch cacheResult {
+                case let .success(cache):
+                    cache.state.mutate { state in
+                        let tokens = subscribe.map { info in
+                            Self.startSubscribe(to: info, on: connection, populate: populate, cache: cache)
+                        }
+                        state.setRequestTokens(tokens, cancellingPrevious: false)
                     }
-                    state.setRequestTokens(tokens, cancellingPrevious: false)
+                case .failure:
+                    // we're stuck, but we'll retry when this connection drops and reconnects.
+                    break
                 }
             }
         }
@@ -299,22 +305,24 @@ public class HACache<ValueType> {
         for populate: HACachePopulateInfo<ValueType>,
         on connection: HAConnection,
         cache: HACache<ValueType>,
-        completion: @escaping (HACache<ValueType>) -> Void = { _ in }
+        completion: @escaping (Result<HACache<ValueType>, Error>) -> Void = { _ in }
     ) -> HACancellable {
         populate.start(connection, { [weak cache] handler in
             guard let cache = cache else { return }
-            cache.state.mutate { state in
+            let result: Result<HACache<ValueType>, Error> = cache.state.mutate { state in
+                state.isWaitingForPopulate = false
+
                 do {
                     let value = try handler(state.current)
                     state.current = value
                     cache.notify(subscribers: state.subscribers, for: value)
+                    return .success(cache)
                 } catch {
                     HAGlobal.log("populate failed: \(error)")
+                    return .failure(error)
                 }
-
-                state.isWaitingForPopulate = false
             }
-            completion(cache)
+            completion(result)
         })
     }
 

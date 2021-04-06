@@ -173,7 +173,7 @@ internal class HAConnectionImpl: HAConnection {
                         let updated = try T(data: data)
                         return .success(updated)
                     } catch {
-                        return .failure(.internal(debugDescription: error.localizedDescription))
+                        return .failure(.internal(debugDescription: String(describing: error)))
                     }
                 }
 

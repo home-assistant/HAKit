@@ -228,6 +228,18 @@ internal class HACacheTests: XCTestCase {
         XCTAssertTrue(populateCancellableInvoked)
     }
 
+    func testPopulateFailsDoesntSubscribe() throws {
+        _ = cache.subscribe { _, _ in
+            XCTFail("should not have subscribed")
+        }
+
+        try populate { _ in
+            throw HAError.internal(debugDescription: "unit test")
+        }
+
+        XCTAssertNil(subscribePerform, "we don't want subscribe to have happened")
+    }
+
     func testPopulateFailsThenConnectionStateChanges() throws {
         let expectedValue = CacheItem()
 

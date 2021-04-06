@@ -867,7 +867,7 @@ internal class HAConnectionImplTests: XCTestCase {
                 case let .failure(error):
                     XCTAssertEqual(
                         error,
-                        .internal(debugDescription: MockTypedRequestResult.DecodeError.intentional.localizedDescription)
+                        .internal(debugDescription: String(describing: MockTypedRequestResult.DecodeError.intentional))
                     )
                 }
                 expectation.fulfill()
