@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+- Fixed: Failed populate requests no longer crash when a later subscription is updated.
+- Fixed: The error log from a failed `HACache<T>` populate now contains more information.
 
 ## [0.2.0] - 2021-04-04
 - Added: `HACache<T>` which can send requests and subscribe to events to keep its value up-to-date.
