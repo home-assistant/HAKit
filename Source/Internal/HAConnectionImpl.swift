@@ -123,7 +123,7 @@ internal class HAConnectionImpl: HAConnection {
         }
 
         let oldState = state
-        HAGlobal.log("connecting using \(connectionInfo)")
+        HAGlobal.log(.info, "connecting using \(connectionInfo)")
         self.connection = connection
         if state != oldState {
             notifyState()
@@ -131,7 +131,7 @@ internal class HAConnectionImpl: HAConnection {
     }
 
     func disconnect(permanently: Bool, error: Error?) {
-        HAGlobal.log("disconnecting; permanently: \(permanently), error: \(String(describing: error))")
+        HAGlobal.log(.info, "disconnecting; permanently: \(permanently), error: \(String(describing: error))")
 
         connection?.delegate = nil
         connection?.disconnect(closeCode: CloseCode.goingAway.rawValue)
@@ -212,7 +212,7 @@ internal class HAConnectionImpl: HAConnection {
                         handler(token, value)
                     }
                 } catch {
-                    HAGlobal.log("couldn't parse data \(error)")
+                    HAGlobal.log(.info, "couldn't parse data \(error)")
                 }
             }
         })
@@ -275,9 +275,9 @@ extension HAConnectionImpl {
             let string = String(data: data, encoding: .utf8)!
 
             if request.type == .auth {
-                HAGlobal.log("Sending: (auth)")
+                HAGlobal.log(.info, "Sending: (auth)")
             } else {
-                HAGlobal.log("Sending: \(string)")
+                HAGlobal.log(.info, "Sending: \(string)")
             }
 
             connection?.write(string: string)

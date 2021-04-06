@@ -5,6 +5,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+- Changed: `HAGlobal`'s `log` block now contains a log level, either `info` or `error`.
 - Fixed: Failed populate requests no longer crash when a later subscription is updated.
 - Fixed: The error log from a failed `HACache<T>` populate now contains more information.
 
