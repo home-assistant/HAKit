@@ -46,7 +46,7 @@ internal class HAResponseControllerImpl: HAResponseController {
     private(set) var phase: HAResponseControllerPhase = .disconnected(error: nil, forReset: true) {
         didSet {
             if oldValue != phase {
-                HAGlobal.log("phase transition to \(phase)")
+                HAGlobal.log(.info, "phase transition to \(phase)")
             }
             delegate?.responseController(self, didTransitionTo: phase)
         }
@@ -59,10 +59,10 @@ internal class HAResponseControllerImpl: HAResponseController {
     func didReceive(event: Starscream.WebSocketEvent) {
         switch event {
         case let .connected(headers):
-            HAGlobal.log("connected with headers: \(headers)")
+            HAGlobal.log(.info, "connected with headers: \(headers)")
             phase = .auth
         case let .disconnected(reason, code):
-            HAGlobal.log("disconnected: \(reason) with code: \(code)")
+            HAGlobal.log(.info, "disconnected: \(reason) with code: \(code)")
             phase = .disconnected(error: nil, forReset: false)
         case let .text(string):
             workQueue.async { [self] in
@@ -78,21 +78,21 @@ internal class HAResponseControllerImpl: HAResponseController {
 
                     response = try HAWebSocketResponse(dictionary: json)
                 } catch {
-                    HAGlobal.log("text parse error: \(error)")
+                    HAGlobal.log(.error, "text parse error: \(error)")
                     return
                 }
 
                 switch response {
                 case let .auth(state):
-                    HAGlobal.log("Received: auth: \(state)")
+                    HAGlobal.log(.info, "Received: auth: \(state)")
                 case let .event(identifier: identifier, data: _):
-                    HAGlobal.log("Received: event: for \(identifier)")
+                    HAGlobal.log(.info, "Received: event: for \(identifier)")
                 case let .result(identifier: identifier, result: result):
                     switch result {
                     case .success:
-                        HAGlobal.log("Received: result success \(identifier)")
+                        HAGlobal.log(.info, "Received: result success \(identifier)")
                     case let .failure(error):
-                        HAGlobal.log("Received: result failure \(identifier): \(error) via \(string)")
+                        HAGlobal.log(.info, "Received: result failure \(identifier): \(error) via \(string)")
                     }
                 }
 
@@ -105,20 +105,20 @@ internal class HAResponseControllerImpl: HAResponseController {
                 }
             }
         case let .binary(data):
-            HAGlobal.log("Received binary data: \(data.count)")
+            HAGlobal.log(.info, "Received binary data: \(data.count)")
         case .ping:
-            HAGlobal.log("Ping")
+            HAGlobal.log(.info, "Ping")
         case .pong:
-            HAGlobal.log("Pong")
+            HAGlobal.log(.info, "Pong")
         case let .reconnectSuggested(isSuggested):
-            HAGlobal.log("Reconnect suggested: \(isSuggested)")
+            HAGlobal.log(.info, "Reconnect suggested: \(isSuggested)")
         case let .viabilityChanged(isViable):
-            HAGlobal.log("Viability changed: \(isViable)")
+            HAGlobal.log(.info, "Viability changed: \(isViable)")
         case .cancelled:
-            HAGlobal.log("Cancelled")
+            HAGlobal.log(.info, "Cancelled")
             phase = .disconnected(error: nil, forReset: false)
         case let .error(error):
-            HAGlobal.log("Error: \(String(describing: error))")
+            HAGlobal.log(.error, "Error: \(String(describing: error))")
             phase = .disconnected(error: error, forReset: false)
         }
     }

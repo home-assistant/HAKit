@@ -16,7 +16,7 @@ extension HAConnectionImpl {
                     request: .init(type: .auth, data: ["access_token": token])
                 )
             case let .failure(error):
-                HAGlobal.log("delegate failed to provide access token \(error), bailing")
+                HAGlobal.log(.error, "delegate failed to provide access token \(error), bailing")
                 disconnect(permanently: false, error: error)
             }
         }
@@ -45,7 +45,7 @@ extension HAConnectionImpl: HAResponseControllerDelegate {
                     }, event: data)
                 }
             } else {
-                HAGlobal.log("unable to find subscription for identifier \(identifier)")
+                HAGlobal.log(.error, "unable to find subscription for identifier \(identifier)")
             }
         case let .result(identifier: identifier, result: result):
             if let request = requestController.single(for: identifier) {
@@ -59,7 +59,7 @@ extension HAConnectionImpl: HAResponseControllerDelegate {
                     subscription.resolve(result)
                 }
             } else {
-                HAGlobal.log("unable to find request for identifier \(identifier)")
+                HAGlobal.log(.error, "unable to find request for identifier \(identifier)")
             }
         }
     }

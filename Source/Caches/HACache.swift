@@ -117,7 +117,7 @@ public class HACache<ValueType> {
     deinit {
         state.read { state in
             if !state.subscribers.isEmpty {
-                HAGlobal.log("HACache deallocating with \(state.subscribers.count) subscribers")
+                HAGlobal.log(.error, "HACache deallocating with \(state.subscribers.count) subscribers")
             }
 
             state.requestTokens.forEach { $0.cancel() }
@@ -318,7 +318,7 @@ public class HACache<ValueType> {
                     cache.notify(subscribers: state.subscribers, for: value)
                     return .success(cache)
                 } catch {
-                    HAGlobal.log("populate failed: \(error)")
+                    HAGlobal.log(.error, "populate failed: \(error)")
                     return .failure(error)
                 }
             }
@@ -372,7 +372,7 @@ public class HACache<ValueType> {
     /// Start the prepare -> subscribe lifecycle, if there are subscribers
     @objc private func checkStateAndStart() {
         guard let connection = connection else {
-            HAGlobal.log("not subscribing to connection as the connection no longer exists")
+            HAGlobal.log(.error, "not subscribing to connection as the connection no longer exists")
             return
         }
 
