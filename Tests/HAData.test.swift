@@ -198,6 +198,32 @@ internal class HADataTests: XCTestCase {
         }
     }
 
+    func testDecodeToDateWithMissingFractionalSeconds() throws {
+        /*
+         We need to do this because if the fractional seconds are exactly 0, Python sends without it:
+
+         >>> dt_util.parse_datetime('2021-03-31T16:30:12.000+00:00').isoformat()
+         2021-03-31T16:30:12+00:00
+         >>> dt_util.parse_datetime('2021-03-31T16:30:12.001+00:00').isoformat()
+         2021-03-31T16:30:12.001000+00:00
+         */
+
+        let value = HAData(value: ["some_key": "2021-02-20T05:14:52+00:00"])
+        let date: Date = try XCTUnwrap(value.decode("some_key") as Date?)
+
+        let components = Calendar.current.dateComponents(
+            in: try XCTUnwrap(TimeZone(identifier: "GMT+0600")),
+            from: date
+        )
+        XCTAssertEqual(components.year, 2021)
+        XCTAssertEqual(components.month, 2)
+        XCTAssertEqual(components.day, 20)
+        XCTAssertEqual(components.hour, 11)
+        XCTAssertEqual(components.minute, 14)
+        XCTAssertEqual(components.second, 52)
+        XCTAssertEqual(components.nanosecond ?? -1, 0)
+    }
+
     func testDecodeToOptionalDate() throws {
         let value = HAData(value: ["some_key": "2021-02-20T05:14:52.647932+00:00"])
         let date: Date = try XCTUnwrap(value.decode("some_key") as Date?)

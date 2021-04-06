@@ -57,19 +57,32 @@ extension HAData: HADecodeTransformable {
 }
 
 extension Date: HADecodeTransformable {
-    /// Date formatter
-    private static let formatter: ISO8601DateFormatter = {
-        let formatter = ISO8601DateFormatter()
-        formatter.formatOptions = [.withFractionalSeconds, .withInternetDateTime]
-        return formatter
-    }()
+    /// Date formatters
+    private static let formatters: [ISO8601DateFormatter] = [
+        {
+            let formatter = ISO8601DateFormatter()
+            formatter.formatOptions = [.withFractionalSeconds, .withInternetDateTime]
+            return formatter
+        }(),
+        {
+            let formatter = ISO8601DateFormatter()
+            // if python has `0` as the milliseconds value, it omits the field entirely
+            formatter.formatOptions = [.withInternetDateTime]
+            return formatter
+        }(),
+    ]
 
-    /// Converts from ISO 8601 (with milliseconds) String to Date
+    /// Converts from ISO 8601 (with or without milliseconds) String to Date
     /// - Parameter value: A string value to convert
     /// - Returns: The value converted to a Date, or nil if not possible
     public static func decode(unknown value: Any) -> Self? {
         guard let value = value as? String else { return nil }
-        return Self.formatter.date(from: value)
+        for formatter in Self.formatters {
+            if let string = formatter.date(from: value) {
+                return string
+            }
+        }
+        return nil
     }
 }
 
