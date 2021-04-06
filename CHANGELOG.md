@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Changed: `HAGlobal`'s `log` block now contains a log level, either `info` or `error`.
 - Fixed: Failed populate requests no longer crash when a later subscription is updated.
 - Fixed: The error log from a failed `HACache<T>` populate now contains more information.
+- Fixed: Dates from HA which lack milliseconds no longer fail to parse.
 
 ## [0.2.0] - 2021-04-04
 - Added: `HACache<T>` which can send requests and subscribe to events to keep its value up-to-date.
