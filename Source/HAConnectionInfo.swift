@@ -8,13 +8,15 @@ public struct HAConnectionInfo: Equatable {
     /// URLs are in the form of: https://url-to-hass:8123 and /api/websocket will be appended.
     ///
     /// - Parameter url: The url to connect to
-    public init(url: URL) {
-        self.init(url: url, engine: nil)
+    /// - Parameter userAgent: Optionally change the User-Agent to this
+    public init(url: URL, userAgent: String? = nil) {
+        self.init(url: url, userAgent: userAgent, engine: nil)
     }
 
     /// Internally create a connection info with engine
-    internal init(url: URL, engine: Engine?) {
+    internal init(url: URL, userAgent: String?, engine: Engine?) {
         self.url = Self.sanitize(url)
+        self.userAgent = userAgent
         self.engine = engine
     }
 
@@ -24,6 +26,9 @@ public struct HAConnectionInfo: Equatable {
     public var webSocketURL: URL {
         url.appendingPathComponent("api/websocket")
     }
+
+    /// The user agent to use in the connection
+    public var userAgent: String?
 
     /// Used for dependency injection in tests
     internal var engine: Engine?
@@ -39,7 +44,12 @@ public struct HAConnectionInfo: Equatable {
     /// Create a new WebSocket connection
     /// - Returns: The newly-created WebSocket connection
     internal func webSocket() -> WebSocket {
-        let request = URLRequest(url: webSocketURL)
+        var request = URLRequest(url: webSocketURL)
+
+        if let userAgent = userAgent {
+            request.setValue(userAgent, forHTTPHeaderField: "User-Agent")
+        }
+
         let webSocket: WebSocket
 
         if let engine = engine {
