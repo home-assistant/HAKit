@@ -22,6 +22,8 @@ internal class HAConnectionInfoTests: XCTestCase {
 
         let webSocket1 = connectionInfo1.webSocket()
         let webSocket2 = connectionInfo3.webSocket()
+        XCTAssertNil(webSocket1.request.value(forHTTPHeaderField: "User-Agent"))
+        XCTAssertNil(webSocket2.request.value(forHTTPHeaderField: "User-Agent"))
         XCTAssertEqual(webSocket1.request.url, url1.appendingPathComponent("api/websocket"))
         XCTAssertEqual(webSocket2.request.url, url2.appendingPathComponent("api/websocket"))
     }
@@ -31,11 +33,13 @@ internal class HAConnectionInfoTests: XCTestCase {
         let engine1 = FakeEngine()
         let engine2 = FakeEngine()
 
-        let connectionInfo = HAConnectionInfo(url: url, engine: engine1)
+        let connectionInfo = HAConnectionInfo(url: url, userAgent: nil, engine: engine1)
         XCTAssertEqual(connectionInfo.url, url)
         XCTAssertEqual(ObjectIdentifier(connectionInfo.engine as AnyObject), ObjectIdentifier(engine1))
 
         let webSocket = connectionInfo.webSocket()
+        XCTAssertNil(webSocket.request.value(forHTTPHeaderField: "User-Agent"))
+
         webSocket.write(string: "test")
         XCTAssertTrue(engine1.events.contains(.writeString("test")))
 
@@ -43,8 +47,20 @@ internal class HAConnectionInfoTests: XCTestCase {
         // just engine difference isn't enough (since we can't tell)
         XCTAssertFalse(connectionInfoWithoutEngine.shouldReplace(webSocket))
 
-        let connectionInfoWithDifferentEngine = HAConnectionInfo(url: url, engine: engine2)
+        let connectionInfoWithDifferentEngine = HAConnectionInfo(url: url, userAgent: nil, engine: engine2)
         XCTAssertFalse(connectionInfoWithDifferentEngine.shouldReplace(webSocket))
+    }
+
+    func testCreationWithUserAgent() {
+        let url = URL(string: "http://example.com/with_engine")!
+        let userAgent = "SomeAgent/1.0"
+
+        let connectionInfo = HAConnectionInfo(url: url, userAgent: userAgent)
+        XCTAssertEqual(connectionInfo.url, url)
+        XCTAssertEqual(connectionInfo.userAgent, userAgent)
+
+        let webSocket = connectionInfo.webSocket()
+        XCTAssertEqual(webSocket.request.value(forHTTPHeaderField: "User-Agent"), userAgent)
     }
 
     func testShouldReplace() {
@@ -52,8 +68,8 @@ internal class HAConnectionInfoTests: XCTestCase {
         let url2 = URL(string: "http://example.com/2")!
         let engine = FakeEngine()
 
-        let connectionInfo1 = HAConnectionInfo(url: url1, engine: engine)
-        let connectionInfo2 = HAConnectionInfo(url: url2, engine: engine)
+        let connectionInfo1 = HAConnectionInfo(url: url1, userAgent: nil, engine: engine)
+        let connectionInfo2 = HAConnectionInfo(url: url2, userAgent: nil, engine: engine)
 
         let webSocket1 = connectionInfo1.webSocket()
         XCTAssertFalse(connectionInfo1.shouldReplace(webSocket1))

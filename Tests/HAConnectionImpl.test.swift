@@ -46,7 +46,7 @@ internal class HAConnectionImplTests: XCTestCase {
         connection = .init(
             configuration: .init(connectionInfo: { [weak self] in
                 if let url = self?.url, let engine = self?.engine {
-                    return .init(url: url, engine: engine)
+                    return .init(url: url, userAgent: nil, engine: engine)
                 } else {
                     XCTAssertNotNil(self?.engine, "invoked after deallocated")
                     return nil
