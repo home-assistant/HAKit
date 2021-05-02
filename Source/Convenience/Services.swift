@@ -53,7 +53,7 @@ public struct HAServiceDefinition {
         self.init(
             domain: domain,
             service: service,
-            name: try data.decode("name"),
+            name: try data.decode("name", fallback: data.decode("description")),
             description: try data.decode("description"),
             fields: try data.decode("fields")
         )
