@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.2] - 2021-05-01
+- Added: Allow overriding `User-Agent` header in connection via `HAConnectionInfo`.
+- Fixed: `Host` header now properly excludes port so we match URLSession behavior.
+- Fixed: Services now load successfully for versions of HA Core prior to 2021.3 when `name` was added.
+
 ## [0.2.1] - 2021-04-05
 - Changed: `HAGlobal`'s `log` block now contains a log level, either `info` or `error`.
 - Fixed: Failed populate requests no longer crash when a later subscription is updated.
