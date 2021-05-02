@@ -44,10 +44,21 @@ public struct HAConnectionInfo: Equatable {
     /// Create a new WebSocket connection
     /// - Returns: The newly-created WebSocket connection
     internal func webSocket() -> WebSocket {
-        var request = URLRequest(url: webSocketURL)
+        let url = webSocketURL
+        var request = URLRequest(url: url)
 
         if let userAgent = userAgent {
             request.setValue(userAgent, forHTTPHeaderField: "User-Agent")
+        }
+
+        if let host = url.host {
+            if let port = url.port, port != 80, port != 443 {
+                // URLSession behavior: omit optional port if 80 or 443
+                // Starscream does the opposite, where it always includes port
+                request.setValue("\(host):\(port)", forHTTPHeaderField: "Host")
+            } else {
+                request.setValue(host, forHTTPHeaderField: "Host")
+            }
         }
 
         let webSocket: WebSocket

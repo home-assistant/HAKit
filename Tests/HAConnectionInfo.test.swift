@@ -24,6 +24,7 @@ internal class HAConnectionInfoTests: XCTestCase {
         let webSocket2 = connectionInfo3.webSocket()
         XCTAssertNil(webSocket1.request.value(forHTTPHeaderField: "User-Agent"))
         XCTAssertNil(webSocket2.request.value(forHTTPHeaderField: "User-Agent"))
+        XCTAssertEqual(webSocket1.request.value(forHTTPHeaderField: "Host"), "example.com")
         XCTAssertEqual(webSocket1.request.url, url1.appendingPathComponent("api/websocket"))
         XCTAssertEqual(webSocket2.request.url, url2.appendingPathComponent("api/websocket"))
     }
@@ -39,6 +40,7 @@ internal class HAConnectionInfoTests: XCTestCase {
 
         let webSocket = connectionInfo.webSocket()
         XCTAssertNil(webSocket.request.value(forHTTPHeaderField: "User-Agent"))
+        XCTAssertEqual(webSocket.request.value(forHTTPHeaderField: "Host"), "example.com")
 
         webSocket.write(string: "test")
         XCTAssertTrue(engine1.events.contains(.writeString("test")))
@@ -52,7 +54,7 @@ internal class HAConnectionInfoTests: XCTestCase {
     }
 
     func testCreationWithUserAgent() {
-        let url = URL(string: "http://example.com/with_engine")!
+        let url = URL(string: "http://example.com/with_user_agent")!
         let userAgent = "SomeAgent/1.0"
 
         let connectionInfo = HAConnectionInfo(url: url, userAgent: userAgent)
@@ -61,6 +63,31 @@ internal class HAConnectionInfoTests: XCTestCase {
 
         let webSocket = connectionInfo.webSocket()
         XCTAssertEqual(webSocket.request.value(forHTTPHeaderField: "User-Agent"), userAgent)
+        XCTAssertEqual(webSocket.request.value(forHTTPHeaderField: "Host"), "example.com")
+    }
+
+    func testCreationWithNonstandardPort() {
+        let url1 = URL(string: "http://example.com:12345/with_porty_host")!
+        let url2 = URL(string: "http://example.com:80/with_porty_host")!
+        let url3 = URL(string: "https://example.com:443/with_porty_host")!
+
+        let connectionInfo1 = HAConnectionInfo(url: url1)
+        let connectionInfo2 = HAConnectionInfo(url: url2)
+        let connectionInfo3 = HAConnectionInfo(url: url3)
+        XCTAssertEqual(connectionInfo1.url, url1)
+        XCTAssertEqual(connectionInfo2.url, url2)
+        XCTAssertEqual(connectionInfo3.url, url3)
+
+        let webSocket1 = connectionInfo1.webSocket()
+        let webSocket2 = connectionInfo2.webSocket()
+        let webSocket3 = connectionInfo3.webSocket()
+        XCTAssertNil(webSocket1.request.value(forHTTPHeaderField: "User-Agent"))
+        XCTAssertNil(webSocket2.request.value(forHTTPHeaderField: "User-Agent"))
+        XCTAssertNil(webSocket3.request.value(forHTTPHeaderField: "User-Agent"))
+
+        XCTAssertEqual(webSocket1.request.value(forHTTPHeaderField: "Host"), "example.com:12345")
+        XCTAssertEqual(webSocket2.request.value(forHTTPHeaderField: "Host"), "example.com")
+        XCTAssertEqual(webSocket3.request.value(forHTTPHeaderField: "Host"), "example.com")
     }
 
     func testShouldReplace() {
