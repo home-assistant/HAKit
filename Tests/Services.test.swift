@@ -199,4 +199,43 @@ internal class CallServiceTests: XCTestCase {
             XCTAssertEqual(error as? HADataError, .couldntTransform(key: "get_services_root"))
         }
     }
+
+    func testGetServicesWithoutName() throws {
+        // core 2021.3 added name, so make sure we fall back
+        let data = HAData(testJsonString: """
+        {
+            "homeassistant": {
+                "turn_off": {
+                    "description": "Generic turn off",
+                    "fields": {}
+                },
+                "turn_on": {
+                    "description": "Generic turn on",
+                    "fields": {}
+                }
+            }
+        }
+        """)
+        let response = try HAResponseServices(data: data)
+        let ha = try XCTUnwrap(response.allByDomain["homeassistant"])
+        XCTAssertEqual(ha.count, 2)
+
+        var service: HAServiceDefinition!
+
+        service = try XCTUnwrap(ha["turn_on"])
+        XCTAssertEqual(service.domain, "homeassistant")
+        XCTAssertEqual(service.service, "turn_on")
+        XCTAssertEqual(service.domainServicePair, "homeassistant.turn_on")
+        XCTAssertEqual(service.name, "Generic turn on")
+        XCTAssertEqual(service.description, "Generic turn on")
+        XCTAssertTrue(service.fields.isEmpty)
+
+        service = try XCTUnwrap(ha["turn_off"])
+        XCTAssertEqual(service.domain, "homeassistant")
+        XCTAssertEqual(service.service, "turn_off")
+        XCTAssertEqual(service.domainServicePair, "homeassistant.turn_off")
+        XCTAssertEqual(service.name, "Generic turn off")
+        XCTAssertEqual(service.description, "Generic turn off")
+        XCTAssertTrue(service.fields.isEmpty)
+    }
 }

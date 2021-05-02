@@ -96,10 +96,11 @@ public extension HAData {
     /// - Parameters:
     ///   - key: The key to look up in `dictionary` case
     ///   - fallback: The fallback value to use if not found in the dictionary
+    /// - Throws: If the inner fallback block throws
     /// - Returns: The value from the dictionary
-    func decode<T>(_ key: String, fallback: @autoclosure () -> T) -> T {
+    func decode<T>(_ key: String, fallback: @autoclosure () throws -> T) rethrows -> T {
         guard let value: T = try? decode(key) else {
-            return fallback()
+            return try fallback()
         }
 
         return value
