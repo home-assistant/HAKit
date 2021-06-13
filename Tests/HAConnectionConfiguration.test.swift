@@ -15,13 +15,13 @@ internal class HAConnectionConfigurationTests: XCTestCase {
         let url2 = URL(string: "http://example.com/2")!
 
         var configuration = HAConnectionConfiguration(
-            connectionInfo: { .init(url: url1) },
+            connectionInfo: { try? .init(url: url1) },
             fetchAuthToken: { _ in fatalError() }
         )
 
         try XCTAssertEqual(XCTUnwrap(configuration.connectionInfo()).url, url1)
 
-        configuration.connectionInfo = { .init(url: url2) }
+        configuration.connectionInfo = { try? .init(url: url2) }
         try XCTAssertEqual(XCTUnwrap(configuration.connectionInfo()).url, url2)
     }
 

@@ -8,7 +8,7 @@ public extension HAConnectionConfiguration {
     /// This is available to be modified at will; nothing depends on the values provided.
     static var fake = HAConnectionConfiguration(
         connectionInfo: { () -> HAConnectionInfo? in
-            .init(url: URL(string: "http://127.0.0.1:8123")!)
+            try? .init(url: URL(string: "http://127.0.0.1:8123")!)
         }, fetchAuthToken: { completion in
             completion(.success("fake_auth_token"))
         }

@@ -3,18 +3,29 @@ import Starscream
 
 /// Information for connecting to the server
 public struct HAConnectionInfo: Equatable {
+    /// Thrown if connection info was not able to be created
+    enum CreationError: Error {
+        /// The URL's host was empty, which would otherwise crash if used
+        case emptyHostname
+    }
+
     /// Create a connection info
     ///
     /// URLs are in the form of: https://url-to-hass:8123 and /api/websocket will be appended.
     ///
     /// - Parameter url: The url to connect to
     /// - Parameter userAgent: Optionally change the User-Agent to this
-    public init(url: URL, userAgent: String? = nil) {
-        self.init(url: url, userAgent: userAgent, engine: nil)
+    /// - Throws: If the URL provided is invalid in some way, see `CreationError`
+    public init(url: URL, userAgent: String? = nil) throws {
+        try self.init(url: url, userAgent: userAgent, engine: nil)
     }
 
     /// Internally create a connection info with engine
-    internal init(url: URL, userAgent: String?, engine: Engine?) {
+    internal init(url: URL, userAgent: String?, engine: Engine?) throws {
+        guard let host = url.host, !host.isEmpty else {
+            throw CreationError.emptyHostname
+        }
+
         self.url = Self.sanitize(url)
         self.userAgent = userAgent
         self.engine = engine
