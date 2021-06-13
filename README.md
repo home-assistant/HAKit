@@ -20,7 +20,8 @@ You can get a connection instance using the exposed initializer:
 let connection = HAKit.connection(configuration: .init(
   connectionInfo: {
     // Connection is required to be returned synchronously.
-    .init(url: URL(string: "http://homeassistant.local:8123")!)
+    // In a real implementation, handle both URL/connection info without crashing.
+    try! .init(url: URL(string: "http://homeassistant.local:8123")!)
   },
   fetchAuthToken: { completion in
     // Access tokens are retrieved asynchronously, but be aware that Home Assistant
