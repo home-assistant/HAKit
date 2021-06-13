@@ -240,7 +240,8 @@
 <pre class="highlight swift"><code><span class="k">let</span> <span class="nv">connection</span> <span class="o">=</span> <span class="kt">HAKit</span><span class="o">.</span><span class="nf">connection</span><span class="p">(</span><span class="nv">configuration</span><span class="p">:</span> <span class="o">.</span><span class="nf">init</span><span class="p">(</span>
   <span class="nv">connectionInfo</span><span class="p">:</span> <span class="p">{</span>
     <span class="c1">// Connection is required to be returned synchronously.</span>
-    <span class="o">.</span><span class="nf">init</span><span class="p">(</span><span class="nv">url</span><span class="p">:</span> <span class="kt">URL</span><span class="p">(</span><span class="nv">string</span><span class="p">:</span> <span class="s">"http://homeassistant.local:8123"</span><span class="p">)</span><span class="o">!</span><span class="p">)</span>
+    <span class="c1">// In a real implementation, handle both URL/connection info without crashing.</span>
+    <span class="k">try!</span> <span class="o">.</span><span class="nf">init</span><span class="p">(</span><span class="nv">url</span><span class="p">:</span> <span class="kt">URL</span><span class="p">(</span><span class="nv">string</span><span class="p">:</span> <span class="s">"http://homeassistant.local:8123"</span><span class="p">)</span><span class="o">!</span><span class="p">)</span>
   <span class="p">},</span>
   <span class="nv">fetchAuthToken</span><span class="p">:</span> <span class="p">{</span> <span class="n">completion</span> <span class="k">in</span>
     <span class="c1">// Access tokens are retrieved asynchronously, but be aware that Home Assistant</span>
