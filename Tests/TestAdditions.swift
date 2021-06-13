@@ -30,7 +30,7 @@ internal extension HAConnectionConfiguration {
         let accessToken: String = UUID().uuidString
 
         return .init(
-            connectionInfo: { .init(url: url) },
+            connectionInfo: { try? .init(url: url) },
             fetchAuthToken: { $0(.success(accessToken)) }
         )
     }

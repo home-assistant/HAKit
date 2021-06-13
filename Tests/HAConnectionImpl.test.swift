@@ -46,7 +46,7 @@ internal class HAConnectionImplTests: XCTestCase {
         connection = .init(
             configuration: .init(connectionInfo: { [weak self] in
                 if let url = self?.url, let engine = self?.engine {
-                    return .init(url: url, userAgent: nil, engine: engine)
+                    return try? .init(url: url, userAgent: nil, engine: engine)
                 } else {
                     XCTAssertNotNil(self?.engine, "invoked after deallocated")
                     return nil
@@ -109,7 +109,7 @@ internal class HAConnectionImplTests: XCTestCase {
 
     func testConnectionConnect() throws {
         connection.connect()
-        let expectedURL = HAConnectionInfo(url: try XCTUnwrap(url)).webSocketURL
+        let expectedURL = try HAConnectionInfo(url: try XCTUnwrap(url)).webSocketURL
         XCTAssertTrue(engine.events.contains(where: { event in
             if case let .start(request) = event {
                 return request.url == expectedURL
@@ -145,7 +145,7 @@ internal class HAConnectionImplTests: XCTestCase {
         let oldEngine = try XCTUnwrap(engine)
         engine = FakeEngine()
         url = try XCTUnwrap(url).appendingPathComponent("hi")
-        let newExpectedURL = HAConnectionInfo(url: try XCTUnwrap(url)).webSocketURL
+        let newExpectedURL = try HAConnectionInfo(url: try XCTUnwrap(url)).webSocketURL
 
         connection.connect()
         XCTAssertTrue(oldEngine.events.contains(.stop(CloseCode.goingAway.rawValue)))
