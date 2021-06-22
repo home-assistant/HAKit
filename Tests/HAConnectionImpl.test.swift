@@ -29,6 +29,12 @@ internal class HAConnectionImplTests: XCTestCase {
         waitForExpectations(timeout: 10.0)
     }
 
+    private func waitForWorkQueue() {
+        let expectation = self.expectation(description: "work queue wait once")
+        connection.workQueue.async(execute: expectation.fulfill)
+        waitForExpectations(timeout: 10.0)
+    }
+
     override func setUp() {
         super.setUp()
 
@@ -70,11 +76,7 @@ internal class HAConnectionImplTests: XCTestCase {
         file: StaticString = #file,
         line: UInt = #line
     ) throws {
-        let expectation = self.expectation(description: "queue-jumping")
-        connection.workQueue.async {
-            expectation.fulfill()
-        }
-        waitForExpectations(timeout: 10.0)
+        waitForWorkQueue()
 
         let lastEvent = try XCTUnwrap(engine.events.last)
 
@@ -186,11 +188,8 @@ internal class HAConnectionImplTests: XCTestCase {
                 }
             }
             """))
-            let expectation = self.expectation(description: "queue-jumping")
-            connection.workQueue.async {
-                expectation.fulfill()
-            }
-            waitForExpectations(timeout: 10.0)
+            waitForWorkQueue()
+            waitForCallbackQueue()
             XCTAssertTrue(requestController.didResetSubscriptions)
         }
     }
