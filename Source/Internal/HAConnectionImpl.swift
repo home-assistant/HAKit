@@ -59,6 +59,7 @@ internal class HAConnectionImpl: HAConnection {
     let responseController: HAResponseController
     let reconnectManager: HAReconnectManager
     var connectAutomatically: Bool
+    var hasSetupResubscribeEvents = HAProtected<Bool>(value: false)
     private(set) lazy var caches: HACachesContainer = .init(connection: self)
 
     init(
@@ -81,6 +82,24 @@ internal class HAConnectionImpl: HAConnection {
         reconnectManager.delegate = self
     }
 
+    private func setupResubscribeEvents() {
+        let events = hasSetupResubscribeEvents.mutate { value -> [HAEventType] in
+            guard !value else { return [] }
+
+            value = true
+            return requestController.retrySubscriptionsEvents
+        }
+
+        for event in events {
+            _ = commonSubscribe(
+                to: .events(event),
+                allowConnecting: false,
+                initiated: nil,
+                handler: { [requestController] _, _ in requestController.retrySubscriptions() }
+            )
+        }
+    }
+
     // MARK: - Connection Handling
 
     public func connect() {
@@ -101,6 +120,8 @@ internal class HAConnectionImpl: HAConnection {
             disconnect(permanently: false, error: ConnectError.noConnectionInfo)
             return
         }
+
+        setupResubscribeEvents()
 
         let connection: WebSocket = {
             guard let existing = self.connection else {
@@ -188,12 +209,17 @@ internal class HAConnectionImpl: HAConnection {
 
     private func commonSubscribe(
         to request: HARequest,
+        allowConnecting: Bool = true,
         initiated: SubscriptionInitiatedHandler?,
         handler: @escaping SubscriptionHandler
     ) -> HACancellable {
         let sub = HARequestInvocationSubscription(request: request, initiated: initiated, handler: handler)
         requestController.add(sub)
-        defer { connectAutomaticallyIfNeeded() }
+        defer {
+            if allowConnecting {
+                connectAutomaticallyIfNeeded()
+            }
+        }
         return HACancellableImpl { [requestController] in
             requestController.cancel(sub)
         }
@@ -201,21 +227,27 @@ internal class HAConnectionImpl: HAConnection {
 
     private func commonSubscribe<T>(
         to request: HATypedSubscription<T>,
+        allowConnecting: Bool = true,
         initiated: SubscriptionInitiatedHandler?,
         handler: @escaping (HACancellable, T) -> Void
     ) -> HACancellable {
-        commonSubscribe(to: request.request, initiated: initiated, handler: { [workQueue, callbackQueue] token, data in
-            workQueue.async {
-                do {
-                    let value = try T(data: data)
-                    callbackQueue.async {
-                        handler(token, value)
+        commonSubscribe(
+            to: request.request,
+            allowConnecting: allowConnecting,
+            initiated: initiated,
+            handler: { [workQueue, callbackQueue] token, data in
+                workQueue.async {
+                    do {
+                        let value = try T(data: data)
+                        callbackQueue.async {
+                            handler(token, value)
+                        }
+                    } catch {
+                        HAGlobal.log(.info, "couldn't parse data \(error)")
                     }
-                } catch {
-                    HAGlobal.log(.info, "couldn't parse data \(error)")
                 }
             }
-        })
+        )
     }
 
     @discardableResult

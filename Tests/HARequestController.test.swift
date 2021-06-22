@@ -205,6 +205,62 @@ internal class HARequestControllerTests: XCTestCase {
 
         XCTAssertNil(controller.single(for: try XCTUnwrap(invocation.identifier)))
     }
+
+    func testRetrySubscriptions() {
+        XCTAssertEqual(Set(controller.retrySubscriptionsEvents), Set([.componentLoaded, .coreConfigUpdated]))
+
+        // failures
+        let invocation1 = HARequestInvocationSubscription(
+            request: .init(type: "try1", data: [:]),
+            initiated: nil,
+            handler: { _, _ in }
+        )
+        let invocation2 = HARequestInvocationSubscription(
+            request: .init(type: "try2", data: [:]),
+            initiated: nil,
+            handler: { _, _ in }
+        )
+        // successes
+        let invocation3 = HARequestInvocationSubscription(
+            request: .init(type: "try3", data: [:]),
+            initiated: nil,
+            handler: { _, _ in }
+        )
+        // not initiated at all
+        let invocation4 = HARequestInvocationSubscription(
+            request: .init(type: "try4", data: [:]),
+            initiated: nil,
+            handler: { _, _ in }
+        )
+
+        delegate.shouldSendRequests = true
+        controller.add(invocation1)
+        controller.add(invocation2)
+        controller.add(invocation3)
+        controller.add(invocation4)
+        XCTAssertEqual(delegate.didPrepare.count, 4)
+
+        for (request, identifier) in delegate.didPrepare {
+            switch request.type {
+            case "try1", "try2":
+                controller.subscription(for: identifier)?.resolve(.failure(.internal(debugDescription: "unit-test")))
+            case "try3":
+                controller.subscription(for: identifier)?.resolve(.success(.empty))
+            case "try4": break
+            default: break
+            }
+        }
+
+        delegate.didPrepare = []
+
+        controller.retrySubscriptions()
+        XCTAssertEqual(delegate.didPrepare.count, 2)
+
+        XCTAssertEqual(
+            Set(delegate.didPrepare.map(\.request.type.rawValue)),
+            Set(["try1", "try2"])
+        )
+    }
 }
 
 private class TestHARequestControllerDelegate: HARequestControllerDelegate {

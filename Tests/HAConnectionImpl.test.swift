@@ -29,6 +29,12 @@ internal class HAConnectionImplTests: XCTestCase {
         waitForExpectations(timeout: 10.0)
     }
 
+    private func waitForWorkQueue() {
+        let expectation = self.expectation(description: "work queue wait once")
+        connection.workQueue.async(execute: expectation.fulfill)
+        waitForExpectations(timeout: 10.0)
+    }
+
     override func setUp() {
         super.setUp()
 
@@ -70,11 +76,7 @@ internal class HAConnectionImplTests: XCTestCase {
         file: StaticString = #file,
         line: UInt = #line
     ) throws {
-        let expectation = self.expectation(description: "queue-jumping")
-        connection.workQueue.async {
-            expectation.fulfill()
-        }
-        waitForExpectations(timeout: 10.0)
+        waitForWorkQueue()
 
         let lastEvent = try XCTUnwrap(engine.events.last)
 
@@ -160,6 +162,36 @@ internal class HAConnectionImplTests: XCTestCase {
         XCTAssertTrue(responseController.wasReset)
         XCTAssertFalse(reconnectManager.didPermanently)
         XCTAssertFalse(reconnectManager.didTemporarily)
+    }
+
+    func testSubscribeRetryEvents() {
+        requestController.retrySubscriptionsEvents = ["event1", "event2"]
+        connection.connect()
+        connection.connect()
+
+        responseController.phase = .command(version: "123")
+        connection.responseController(responseController, didTransitionTo: .command(version: "123"))
+        waitForCallbackQueue()
+
+        let subscriptions = requestController.added.compactMap { $0 as? HARequestInvocationSubscription }
+        XCTAssertEqual(subscriptions.count, requestController.retrySubscriptionsEvents.count)
+
+        for subscription in subscriptions {
+            requestController.didResetSubscriptions = false
+            subscription.invoke(token: HACancellableImpl {}, event: HAData(testJsonString: """
+            {
+                "event_type": "whatevs",
+                "origin": "REMOTE",
+                "time_fired": "2021-02-24T04:31:10.045916+00:00",
+                "context": {
+                    "id": "ebc9bf93dd90efc0770f1dc49096788f"
+                }
+            }
+            """))
+            waitForWorkQueue()
+            waitForCallbackQueue()
+            XCTAssertTrue(requestController.didResetSubscriptions)
+        }
     }
 
     func testConnectWithoutConnectionInfo() {
@@ -1298,6 +1330,13 @@ private class FakeHARequestController: HARequestController {
     var cancelled: [HARequestInvocation] = []
     func cancel(_ request: HARequestInvocation) {
         cancelled.append(request)
+    }
+
+    var retrySubscriptionsEvents: [HAEventType] = []
+
+    var didResetSubscriptions = false
+    func retrySubscriptions() {
+        didResetSubscriptions = true
     }
 
     var didPrepare = false
