@@ -59,7 +59,7 @@ internal class HAConnectionImpl: HAConnection {
     let responseController: HAResponseController
     let reconnectManager: HAReconnectManager
     var connectAutomatically: Bool
-    var retrySubscriptionTokens: [HACancellable] = []
+    var hasSetupResubscribeEvents = HAProtected<Bool>(value: false)
     private(set) lazy var caches: HACachesContainer = .init(connection: self)
 
     init(
@@ -83,14 +83,19 @@ internal class HAConnectionImpl: HAConnection {
     }
 
     private func setupResubscribeEvents() {
-        guard retrySubscriptionTokens.isEmpty else { return }
+        let events = hasSetupResubscribeEvents.mutate { value -> [HAEventType] in
+            guard !value else { return [] }
 
-        retrySubscriptionTokens = requestController.retrySubscriptionsEvents.map { [requestController] event in
-            commonSubscribe(
+            value = true
+            return requestController.retrySubscriptionsEvents
+        }
+
+        for event in events {
+            _ = commonSubscribe(
                 to: .events(event),
                 allowConnecting: false,
                 initiated: nil,
-                handler: { _, _ in requestController.retrySubscriptions() }
+                handler: { [requestController] _, _ in requestController.retrySubscriptions() }
             )
         }
     }

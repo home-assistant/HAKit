@@ -165,13 +165,14 @@ internal class HAConnectionImplTests: XCTestCase {
     func testSubscribeRetryEvents() {
         requestController.retrySubscriptionsEvents = ["event1", "event2"]
         connection.connect()
+        connection.connect()
 
         responseController.phase = .command(version: "123")
         connection.responseController(responseController, didTransitionTo: .command(version: "123"))
         waitForCallbackQueue()
 
         let subscriptions = requestController.added.compactMap { $0 as? HARequestInvocationSubscription }
-        XCTAssertFalse(subscriptions.isEmpty)
+        XCTAssertEqual(subscriptions.count, requestController.retrySubscriptionsEvents.count)
 
         for subscription in subscriptions {
             requestController.didResetSubscriptions = false
