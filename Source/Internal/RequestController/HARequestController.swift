@@ -18,6 +18,9 @@ internal protocol HARequestController: AnyObject {
     func add(_ invocation: HARequestInvocation)
     func cancel(_ request: HARequestInvocation)
 
+    var retrySubscriptionsEvents: [HAEventType] { get }
+    func retrySubscriptions()
+
     func prepare()
     func resetActive()
 
@@ -127,6 +130,22 @@ internal class HARequestControllerImpl: HARequestController {
 
             state.pending.remove(invocation)
         }
+    }
+
+    var retrySubscriptionsEvents: [HAEventType] { [
+        .coreConfigUpdated,
+        .componentLoaded,
+    ] }
+
+    func retrySubscriptions() {
+        state.mutate { state in
+            state.pending
+                .compactMap { $0 as? HARequestInvocationSubscription }
+                .filter { $0.needsRetry && $0.request.shouldRetry }
+                .forEach { $0.identifier = nil }
+        }
+
+        prepare()
     }
 
     func prepare() {

@@ -1,6 +1,7 @@
 internal class HARequestInvocationSubscription: HARequestInvocation {
     private var handler: HAResetLock<HAConnection.SubscriptionHandler>
     private var initiated: HAResetLock<HAConnection.SubscriptionInitiatedHandler>
+    private var lastInitiatedResult: Result<HAData, HAError>?
 
     init(
         request: HARequest,
@@ -18,6 +19,14 @@ internal class HARequestInvocationSubscription: HARequestInvocation {
         initiated.reset()
     }
 
+    internal var needsRetry: Bool {
+        if case .failure = lastInitiatedResult {
+            return true
+        } else {
+            return false
+        }
+    }
+
     override var needsAssignment: Bool {
         // not initiated, since it is optional
         super.needsAssignment && handler.read() != nil
@@ -32,6 +41,7 @@ internal class HARequestInvocationSubscription: HARequestInvocation {
     }
 
     func resolve(_ result: Result<HAData, HAError>) {
+        lastInitiatedResult = result
         initiated.read()?(result)
     }
 

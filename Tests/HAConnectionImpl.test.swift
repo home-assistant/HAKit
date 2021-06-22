@@ -162,6 +162,38 @@ internal class HAConnectionImplTests: XCTestCase {
         XCTAssertFalse(reconnectManager.didTemporarily)
     }
 
+    func testSubscribeRetryEvents() {
+        requestController.retrySubscriptionsEvents = ["event1", "event2"]
+        connection.connect()
+
+        responseController.phase = .command(version: "123")
+        connection.responseController(responseController, didTransitionTo: .command(version: "123"))
+        waitForCallbackQueue()
+
+        let subscriptions = requestController.added.compactMap { $0 as? HARequestInvocationSubscription }
+        XCTAssertFalse(subscriptions.isEmpty)
+
+        for subscription in subscriptions {
+            requestController.didResetSubscriptions = false
+            subscription.invoke(token: HACancellableImpl {}, event: HAData(testJsonString: """
+            {
+                "event_type": "whatevs",
+                "origin": "REMOTE",
+                "time_fired": "2021-02-24T04:31:10.045916+00:00",
+                "context": {
+                    "id": "ebc9bf93dd90efc0770f1dc49096788f"
+                }
+            }
+            """))
+            let expectation = self.expectation(description: "queue-jumping")
+            connection.workQueue.async {
+                expectation.fulfill()
+            }
+            waitForExpectations(timeout: 10.0)
+            XCTAssertTrue(requestController.didResetSubscriptions)
+        }
+    }
+
     func testConnectWithoutConnectionInfo() {
         url = nil
         connection.connect()
@@ -1298,6 +1330,13 @@ private class FakeHARequestController: HARequestController {
     var cancelled: [HARequestInvocation] = []
     func cancel(_ request: HARequestInvocation) {
         cancelled.append(request)
+    }
+
+    var retrySubscriptionsEvents: [HAEventType] = []
+
+    var didResetSubscriptions = false
+    func retrySubscriptions() {
+        didResetSubscriptions = true
     }
 
     var didPrepare = false
