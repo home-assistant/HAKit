@@ -7,6 +7,8 @@ public struct HAConnectionInfo: Equatable {
     enum CreationError: Error {
         /// The URL's host was empty, which would otherwise crash if used
         case emptyHostname
+        /// The port provided exceeds the maximum allowed TCP port (2^16-1)
+        case invalidPort
     }
 
     /// Create a connection info
@@ -24,6 +26,10 @@ public struct HAConnectionInfo: Equatable {
     internal init(url: URL, userAgent: String?, engine: Engine?) throws {
         guard let host = url.host, !host.isEmpty else {
             throw CreationError.emptyHostname
+        }
+
+        guard (url.port ?? 80) <= UInt16.max else {
+            throw CreationError.invalidPort
         }
 
         self.url = Self.sanitize(url)

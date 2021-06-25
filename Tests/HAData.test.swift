@@ -306,9 +306,7 @@ internal class HADataTests: XCTestCase {
 
     func testDecodeWithThrowingTransform() throws {
         let value = HAData(value: ["name": "zacwest"])
-        XCTAssertThrowsError(try value.decode("name", transform: { (_: String) in
-            nil
-        }) as Int) { error in
+        XCTAssertThrowsError(try value.decode("name", transform: { (_: String) in nil }) as Int) { error in
             XCTAssertEqual(error as? HADataError, .couldntTransform(key: "name"))
         }
     }

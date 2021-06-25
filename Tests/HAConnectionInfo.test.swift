@@ -100,6 +100,16 @@ internal class HAConnectionInfoTests: XCTestCase {
         XCTAssertThrowsError(try HAConnectionInfo(url: url1)) { error in
             XCTAssertEqual(error as? HAConnectionInfo.CreationError, .emptyHostname)
         }
+
+        for port in [
+            String(Int(UInt16.max) + 1),
+            "999999999999999",
+        ] {
+            let url2 = URL(string: "http://example.com:" + port)!
+            XCTAssertThrowsError(try HAConnectionInfo(url: url2)) { error in
+                XCTAssertEqual(error as? HAConnectionInfo.CreationError, .invalidPort)
+            }
+        }
     }
 
     func testShouldReplace() throws {
