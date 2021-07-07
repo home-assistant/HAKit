@@ -61,32 +61,14 @@ internal class HAReconnectManagerImpl: HAReconnectManager {
     private(set) var retryCount: Int = 0
     private(set) var lastError: Error?
     private(set) var nextTimerDate: Date?
-    private(set) var reconnectTimer: Timer? {
-        willSet {
-            reconnectTimer?.invalidate()
-        }
-
+    @HASchedulingTimer private(set) var reconnectTimer: Timer? {
         didSet {
-            if let timer = reconnectTimer {
-                RunLoop.main.add(timer, forMode: .default)
-                nextTimerDate = timer.fireDate
-            } else {
-                nextTimerDate = nil
-            }
+            nextTimerDate = reconnectTimer?.fireDate
         }
     }
 
     private(set) var lastPingDuration: Measurement<UnitDuration>?
-    private(set) var pingTimer: Timer? {
-        willSet {
-            pingTimer?.invalidate()
-        }
-        didSet {
-            if let timer = pingTimer {
-                RunLoop.main.add(timer, forMode: .default)
-            }
-        }
-    }
+    @HASchedulingTimer private(set) var pingTimer: Timer?
 
     var reason: HAConnectionState.DisconnectReason {
         guard let nextTimerDate = nextTimerDate else {

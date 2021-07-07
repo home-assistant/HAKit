@@ -206,7 +206,7 @@ internal class HARequestControllerTests: XCTestCase {
         XCTAssertNil(controller.single(for: try XCTUnwrap(invocation.identifier)))
     }
 
-    func testRetrySubscriptions() {
+    func testRetrySubscriptions() throws {
         XCTAssertEqual(Set(controller.retrySubscriptionsEvents), Set([.componentLoaded, .coreConfigUpdated]))
 
         // failures
@@ -253,8 +253,27 @@ internal class HARequestControllerTests: XCTestCase {
 
         delegate.didPrepare = []
 
+        let date1 = Date(timeIntervalSinceNow: 1000)
+        HAGlobal.date = { date1 }
         controller.retrySubscriptions()
+        XCTAssertEqual(delegate.didPrepare.count, 0)
+        let fireDate1 = try XCTUnwrap(controller.retrySubscriptionsTimer).fireDate
+
+        XCTAssertEqual(fireDate1, date1.addingTimeInterval(5.0))
+
+        let date2 = date1.addingTimeInterval(100)
+        HAGlobal.date = { date2 }
+        controller.retrySubscriptions()
+        XCTAssertEqual(delegate.didPrepare.count, 0)
+        let fireDate2 = try XCTUnwrap(controller.retrySubscriptionsTimer).fireDate
+
+        XCTAssertEqual(fireDate2, date2.addingTimeInterval(5.0))
+
+        XCTAssertGreaterThan(fireDate2, fireDate1)
+
+        try XCTUnwrap(controller.retrySubscriptionsTimer).fire()
         XCTAssertEqual(delegate.didPrepare.count, 2)
+        XCTAssertNil(controller.retrySubscriptionsTimer)
 
         XCTAssertEqual(
             Set(delegate.didPrepare.map(\.request.type.rawValue)),

@@ -31,6 +31,7 @@ internal protocol HARequestController: AnyObject {
 
 internal class HARequestControllerImpl: HARequestController {
     private struct State {
+        @HASchedulingTimer var retrySubscriptionsTimer: Timer?
         var identifierGenerator = IdentifierGenerator()
         var pending: Set<HARequestInvocation> = Set()
         var active: [HARequestIdentifier: HARequestInvocation] = [:]
@@ -53,7 +54,11 @@ internal class HARequestControllerImpl: HARequestController {
     weak var delegate: HARequestControllerDelegate?
     var workQueue: DispatchQueue = .global()
 
-    private var state = HAProtected<State>(value: .init())
+    private let state = HAProtected<State>(value: .init())
+    internal var retrySubscriptionsTimer: Timer? {
+        // this method exists exclusively for tests so we don't need to expose state
+        state.read(\.retrySubscriptionsTimer)
+    }
 
     func add(_ invocation: HARequestInvocation) {
         state.mutate { state in
@@ -139,6 +144,23 @@ internal class HARequestControllerImpl: HARequestController {
 
     func retrySubscriptions() {
         state.mutate { state in
+            let fireDate = HAGlobal.date().addingTimeInterval(5.0)
+
+            if let timer = state.retrySubscriptionsTimer, timer.isValid {
+                timer.fireDate = fireDate
+            } else {
+                let timer = Timer(fire: fireDate, interval: 0, repeats: false, block: { [weak self] _ in
+                    self?.delayedRetrySubscriptions()
+                })
+                timer.tolerance = 5.0
+                state.retrySubscriptionsTimer = timer
+            }
+        }
+    }
+
+    private func delayedRetrySubscriptions() {
+        state.mutate { state in
+            state.retrySubscriptionsTimer = nil
             state.pending
                 .compactMap { $0 as? HARequestInvocationSubscription }
                 .filter { $0.needsRetry && $0.request.shouldRetry }
