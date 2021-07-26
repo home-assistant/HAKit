@@ -37,6 +37,12 @@ internal protocol HAResponseController: AnyObject {
 
     func reset()
     func didReceive(event: Starscream.WebSocketEvent)
+    func didReceive(
+        `for` identifier: HARequestIdentifier,
+        urlResponse: URLResponse?,
+        data: Data?,
+        error: Error?
+    )
 }
 
 internal class HAResponseControllerImpl: HAResponseController {
@@ -120,6 +126,47 @@ internal class HAResponseControllerImpl: HAResponseController {
         case let .error(error):
             HAGlobal.log(.error, "Error: \(String(describing: error))")
             phase = .disconnected(error: error, forReset: false)
+        }
+    }
+
+    func didReceive(
+        `for` identifier: HARequestIdentifier,
+        urlResponse: URLResponse?,
+        data: Data?,
+        error: Error?
+    ) {
+        if let error = error {
+            delegate?.responseController(self, didReceive: .result(identifier: identifier, result: .failure(.internal(debugDescription: error.localizedDescription))))
+        } else if let urlResponse = urlResponse {
+            if let urlResponse = urlResponse as? HTTPURLResponse, urlResponse.statusCode >= 400 {
+                let errorMessage: String
+
+                if let data = data, let string = String(data: data, encoding: .utf8) {
+                    errorMessage = string
+                } else {
+                    errorMessage = "Unacceptable status code"
+                }
+
+                delegate?.responseController(self, didReceive: .result(identifier: identifier, result: .failure(.external(.init(code: String(urlResponse.statusCode), message: errorMessage)))))
+            } else {
+                workQueue.async { [self] in
+                    do {
+                        let result: HAData
+
+                        if let data = data {
+                            result = HAData(value: try JSONSerialization.jsonObject(with: data, options: []))
+                        } else {
+                            result = HAData.empty
+                        }
+
+                        delegate?.responseController(self, didReceive: .result(identifier: identifier, result: .success(result)))
+                    } catch {
+                        delegate?.responseController(self, didReceive: .result(identifier: identifier, result: .failure(.internal(debugDescription: error.localizedDescription))))
+                    }
+                }
+            }
+        } else {
+            delegate?.responseController(self, didReceive: .result(identifier: identifier, result: .failure(.internal(debugDescription: "Unknown response from REST call"))))
         }
     }
 }

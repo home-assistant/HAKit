@@ -91,7 +91,7 @@ internal class HAConnectionImplTests: XCTestCase {
                 XCTAssertEqual(jsonRep["id"] as? Int, identifier.rawValue)
             }
 
-            XCTAssertEqual(jsonRep["type"] as? String, request.type.rawValue)
+            XCTAssertEqual(jsonRep["type"] as? String, request.type.command)
 
             var copy = jsonRep
             copy["id"] = nil
@@ -1392,6 +1392,14 @@ private class FakeHAResponseController: HAResponseController {
     var received: [WebSocketEvent] = []
     func didReceive(event: WebSocketEvent) {
         received.append(event)
+    }
+
+    func didReceive(
+        for identifier: HARequestIdentifier,
+        urlResponse: URLResponse?,
+        data: Data?, error: Error?
+    ) {
+        fatalError()
     }
 }
 

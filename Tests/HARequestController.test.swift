@@ -37,7 +37,7 @@ internal class HARequestControllerTests: XCTestCase {
             try delegate.didPrepare.get(throwing: 0),
             try delegate.didPrepare.get(throwing: 1),
         ].sorted(by: { lhs, rhs in
-            lhs.request.type.rawValue < rhs.request.type.rawValue
+            lhs.request.type < rhs.request.type
         })
 
         let event1 = allEvents[0]
@@ -45,10 +45,10 @@ internal class HARequestControllerTests: XCTestCase {
 
         XCTAssertNotEqual(event1.identifier.rawValue, event2.identifier.rawValue)
 
-        XCTAssertEqual(event1.request.type.rawValue, "test1")
+        XCTAssertEqual(event1.request.type.command, "test1")
         XCTAssertGreaterThan(event1.identifier.rawValue, 0)
 
-        XCTAssertEqual(event2.request.type.rawValue, "test2")
+        XCTAssertEqual(event2.request.type.command, "test2")
         XCTAssertGreaterThan(event2.identifier.rawValue, 0)
     }
 
@@ -100,7 +100,7 @@ internal class HARequestControllerTests: XCTestCase {
         controller.prepare()
         XCTAssertEqual(delegate.didPrepare.count, 2)
 
-        let types = Set(delegate.didPrepare.map(\.request.type.rawValue))
+        let types = Set(delegate.didPrepare.map(\.request.type.command))
         XCTAssertEqual(types, Set(["test3", "test4"]))
     }
 
@@ -276,7 +276,7 @@ internal class HARequestControllerTests: XCTestCase {
         XCTAssertNil(controller.retrySubscriptionsTimer)
 
         XCTAssertEqual(
-            Set(delegate.didPrepare.map(\.request.type.rawValue)),
+            Set(delegate.didPrepare.map(\.request.type.command)),
             Set(["try1", "try2"])
         )
     }

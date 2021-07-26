@@ -288,16 +288,17 @@ internal class HAConnectionImpl: HAConnection {
 // MARK: -
 
 extension HAConnectionImpl {
-    func sendRaw(
+    private func sendWebSocket(
         identifier: HARequestIdentifier?,
-        request: HARequest
+        request: HARequest,
+        command: String
     ) {
         workQueue.async { [connection] in
             var dictionary = request.data
             if let identifier = identifier {
                 dictionary["id"] = identifier.rawValue
             }
-            dictionary["type"] = request.type.rawValue
+            dictionary["type"] = command
 
             // the only cases where JSONSerialization appears to fail are cases where it throws exceptions too
             // this is bad API from Apple that I don't feel like dealing with :grimace:
@@ -313,6 +314,55 @@ extension HAConnectionImpl {
             }
 
             connection?.write(string: string)
+        }
+    }
+
+    private func sendRest(
+        identifier: HARequestIdentifier?,
+        request: HARequest,
+        method: HAHTTPMethod,
+        command: String
+    ) {
+        guard let identifier = identifier else {
+            return
+        }
+
+        guard let connectionInfo = configuration.connectionInfo() else {
+            responseController.didReceive(for: identifier, urlResponse: nil, data: nil, error: ConnectError.noConnectionInfo)
+            return
+        }
+
+        configuration.fetchAuthToken { [self] result in
+            let bearerToken: String
+
+            do {
+                bearerToken = try result.get()
+            } catch {
+                responseController.didReceive(for: identifier, urlResponse: nil, data: nil, error: error)
+                return
+            }
+
+            var httpRequest = connectionInfo.request(path: "api/" + command, queryItems: request.queryItems)
+            httpRequest.httpMethod = method.rawValue
+            httpRequest.setValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
+
+            let task = URLSession.shared.dataTask(with: httpRequest) { data, response, error in
+                responseController.didReceive(for: identifier, urlResponse: response, data: data, error: error)
+            }
+
+            task.resume()
+        }
+    }
+
+    func sendRaw(
+        identifier: HARequestIdentifier?,
+        request: HARequest
+    ) {
+        switch request.type {
+        case let .webSocket(command):
+            sendWebSocket(identifier: identifier, request: request, command: command)
+        case let .rest(method, command):
+            sendRest(identifier: identifier, request: request, method: method, command: command)
         }
     }
 }

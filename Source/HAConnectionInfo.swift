@@ -58,10 +58,7 @@ public struct HAConnectionInfo: Equatable {
         webSocket.request.url.map(Self.sanitize) != Self.sanitize(url)
     }
 
-    /// Create a new WebSocket connection
-    /// - Returns: The newly-created WebSocket connection
-    internal func webSocket() -> WebSocket {
-        let url = webSocketURL
+    internal func request(url: URL) -> URLRequest {
         var request = URLRequest(url: url)
 
         if let userAgent = userAgent {
@@ -78,6 +75,28 @@ public struct HAConnectionInfo: Equatable {
             }
         }
 
+        return request
+    }
+
+    internal func request(
+        path: String,
+        queryItems: [URLQueryItem]
+    ) -> URLRequest {
+        var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false)!
+        urlComponents.path = "/" + path
+
+        if !queryItems.isEmpty {
+            // providing an empty array will cause `?` to be added in all cases
+            urlComponents.queryItems = (urlComponents.queryItems ?? []) + queryItems
+        }
+
+        return request(url: urlComponents.url!)
+    }
+
+    /// Create a new WebSocket connection
+    /// - Returns: The newly-created WebSocket connection
+    internal func webSocket() -> WebSocket {
+        let request = self.request(url: webSocketURL)
         let webSocket: WebSocket
 
         if let engine = engine {
