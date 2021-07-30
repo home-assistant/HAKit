@@ -194,7 +194,7 @@ internal class HAConnectionImpl: HAConnection {
                         let updated = try T(data: data)
                         return .success(updated)
                     } catch {
-                        return .failure(.internal(debugDescription: String(describing: error)))
+                        return .failure(.underlying(error as NSError))
                     }
                 }
 
@@ -328,29 +328,29 @@ extension HAConnectionImpl {
         }
 
         guard let connectionInfo = configuration.connectionInfo() else {
-            responseController.didReceive(for: identifier, urlResponse: nil, data: nil, error: ConnectError.noConnectionInfo)
+            responseController.didReceive(for: identifier, response: .failure(ConnectError.noConnectionInfo))
             return
         }
 
         configuration.fetchAuthToken { [self] result in
-            let bearerToken: String
+            switch result {
+            case let .success(bearerToken):
+                var httpRequest = connectionInfo.request(path: "api/" + command, queryItems: request.queryItems)
+                httpRequest.httpMethod = method.rawValue
+                httpRequest.setValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
 
-            do {
-                bearerToken = try result.get()
-            } catch {
-                responseController.didReceive(for: identifier, urlResponse: nil, data: nil, error: error)
-                return
+                let task = URLSession.shared.dataTask(with: httpRequest) { data, response, error in
+                    if let response = response {
+                        responseController.didReceive(for: identifier, response: .success((response, data)))
+                    } else {
+                        responseController.didReceive(for: identifier, response: .failure(error!))
+                    }
+                }
+
+                task.resume()
+            case let .failure(error):
+                responseController.didReceive(for: identifier, response: .failure(error))
             }
-
-            var httpRequest = connectionInfo.request(path: "api/" + command, queryItems: request.queryItems)
-            httpRequest.httpMethod = method.rawValue
-            httpRequest.setValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
-
-            let task = URLSession.shared.dataTask(with: httpRequest) { data, response, error in
-                responseController.didReceive(for: identifier, urlResponse: response, data: data, error: error)
-            }
-
-            task.resume()
         }
     }
 

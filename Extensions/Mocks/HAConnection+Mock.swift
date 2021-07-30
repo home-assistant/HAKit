@@ -156,7 +156,7 @@ public class HAMockConnection: HAConnection {
                 do {
                     completion(.success(try T(data: data)))
                 } catch {
-                    completion(.failure(HAError.internal(debugDescription: "mock: decode failure: \(error)")))
+                    completion(.failure(.underlying(error)))
                 }
             case let .failure(error):
                 completion(.failure(error))

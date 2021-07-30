@@ -1,8 +1,10 @@
 extension HAConnectionImpl: HARequestControllerDelegate {
-    func requestControllerShouldSendRequests(_ requestController: HARequestController) -> Bool {
+    func requestControllerAllowedSendKinds(
+        _ requestController: HARequestController
+    ) -> HARequestControllerAllowedSendKind {
         switch responseController.phase {
-        case .auth, .disconnected: return false
-        case .command: return true
+        case .auth, .disconnected: return .rest
+        case .command: return [.webSocket, .rest]
         }
     }
 

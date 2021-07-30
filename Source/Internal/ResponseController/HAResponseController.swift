@@ -38,10 +38,8 @@ internal protocol HAResponseController: AnyObject {
     func reset()
     func didReceive(event: Starscream.WebSocketEvent)
     func didReceive(
-        `for` identifier: HARequestIdentifier,
-        urlResponse: URLResponse?,
-        data: Data?,
-        error: Error?
+        for identifier: HARequestIdentifier,
+        response: Result<(URLResponse, Data?), Error>
     )
 }
 
@@ -130,14 +128,20 @@ internal class HAResponseControllerImpl: HAResponseController {
     }
 
     func didReceive(
-        `for` identifier: HARequestIdentifier,
-        urlResponse: URLResponse?,
-        data: Data?,
-        error: Error?
+        for identifier: HARequestIdentifier,
+        response: Result<(URLResponse, Data?), Error>
     ) {
-        if let error = error {
-            delegate?.responseController(self, didReceive: .result(identifier: identifier, result: .failure(.internal(debugDescription: error.localizedDescription))))
-        } else if let urlResponse = urlResponse {
+        let didReceive = HAResetLock { [self] (result: Result<HAData, HAError>) in
+            delegate?.responseController(
+                self,
+                didReceive: .result(identifier: identifier, result: result)
+            )
+        }
+
+        switch response {
+        case let .failure(error):
+            didReceive.pop()?(.failure(.internal(debugDescription: error.localizedDescription)))
+        case let .success((urlResponse, data)):
             if let urlResponse = urlResponse as? HTTPURLResponse, urlResponse.statusCode >= 400 {
                 let errorMessage: String
 
@@ -147,7 +151,10 @@ internal class HAResponseControllerImpl: HAResponseController {
                     errorMessage = "Unacceptable status code"
                 }
 
-                delegate?.responseController(self, didReceive: .result(identifier: identifier, result: .failure(.external(.init(code: String(urlResponse.statusCode), message: errorMessage)))))
+                didReceive.pop()?(.failure(.external(.init(
+                    code: String(urlResponse.statusCode),
+                    message: errorMessage
+                ))))
             } else {
                 workQueue.async { [self] in
                     do {
@@ -159,14 +166,12 @@ internal class HAResponseControllerImpl: HAResponseController {
                             result = HAData.empty
                         }
 
-                        delegate?.responseController(self, didReceive: .result(identifier: identifier, result: .success(result)))
+                        didReceive.pop()?(.success(result))
                     } catch {
-                        delegate?.responseController(self, didReceive: .result(identifier: identifier, result: .failure(.internal(debugDescription: error.localizedDescription))))
+                        didReceive.pop()?(.failure(.underlying(error as NSError)))
                     }
                 }
             }
-        } else {
-            delegate?.responseController(self, didReceive: .result(identifier: identifier, result: .failure(.internal(debugDescription: "Unknown response from REST call"))))
         }
     }
 }
