@@ -471,13 +471,13 @@ internal class HAConnectionImplTests: XCTestCase {
 
     func testShouldSendRequestsDuringCommandPhase() {
         responseController.phase = .disconnected(error: nil, forReset: false)
-        XCTAssertFalse(connection.requestControllerShouldSendRequests(requestController))
+        XCTAssertEqual(connection.requestControllerAllowedSendKinds(requestController), [.rest])
 
         responseController.phase = .auth
-        XCTAssertFalse(connection.requestControllerShouldSendRequests(requestController))
+        XCTAssertEqual(connection.requestControllerAllowedSendKinds(requestController), [.rest])
 
         responseController.phase = .command(version: "")
-        XCTAssertTrue(connection.requestControllerShouldSendRequests(requestController))
+        XCTAssertEqual(connection.requestControllerAllowedSendKinds(requestController), .all)
     }
 
     func testDidPrepareRequest() throws {
@@ -899,7 +899,7 @@ internal class HAConnectionImplTests: XCTestCase {
                 case let .failure(error):
                     XCTAssertEqual(
                         error,
-                        .internal(debugDescription: String(describing: MockTypedRequestResult.DecodeError.intentional))
+                        .underlying(MockTypedRequestResult.DecodeError.intentional as NSError)
                     )
                 }
                 expectation.fulfill()
@@ -1394,11 +1394,7 @@ private class FakeHAResponseController: HAResponseController {
         received.append(event)
     }
 
-    func didReceive(
-        for identifier: HARequestIdentifier,
-        urlResponse: URLResponse?,
-        data: Data?, error: Error?
-    ) {
+    func didReceive(for identifier: HARequestIdentifier, response: Swift.Result<(URLResponse, Data?), Error>) {
         fatalError()
     }
 }

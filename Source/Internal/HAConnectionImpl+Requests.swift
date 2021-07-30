@@ -4,7 +4,7 @@ extension HAConnectionImpl: HARequestControllerDelegate {
     ) -> HARequestControllerAllowedSendKind {
         switch responseController.phase {
         case .auth, .disconnected: return .rest
-        case .command: return [.webSocket, .rest]
+        case .command: return .all
         }
     }
 

@@ -156,7 +156,7 @@ internal class HAResponseControllerImpl: HAResponseController {
                     message: errorMessage
                 ))))
             } else {
-                workQueue.async { [self] in
+                workQueue.async {
                     do {
                         let result: HAData
 

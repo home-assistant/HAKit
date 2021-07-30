@@ -156,7 +156,7 @@ public class HAMockConnection: HAConnection {
                 do {
                     completion(.success(try T(data: data)))
                 } catch {
-                    completion(.failure(.underlying(error)))
+                    completion(.failure(.underlying(error as NSError)))
                 }
             case let .failure(error):
                 completion(.failure(error))
