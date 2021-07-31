@@ -1,7 +1,7 @@
 import Foundation
 import XCTest
 
-class StubbingURLProtocol: URLProtocol {
+internal class StubbingURLProtocol: URLProtocol {
     typealias PendingResult = Result<(HTTPURLResponse, Data?), Error>
     private static var pending = [URL: PendingResult]()
     static var received = [URL: URLRequest]()
@@ -47,7 +47,5 @@ class StubbingURLProtocol: URLProtocol {
         }
     }
 
-    override func stopLoading() {
-        
-    }
+    override func stopLoading() {}
 }

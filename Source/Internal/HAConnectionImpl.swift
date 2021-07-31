@@ -296,7 +296,7 @@ extension HAConnectionImpl {
         // this is bad API from Apple that I don't feel like dealing with :grimace:
 
         // swiftlint:disable:next force_try
-        return try! JSONSerialization.data(withJSONObject: dictionary, options: [.sortedKeys])
+        try! JSONSerialization.data(withJSONObject: dictionary, options: [.sortedKeys])
     }
 
     private func sendWebSocket(

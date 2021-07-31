@@ -126,7 +126,11 @@ internal class HAConnectionImplTests: XCTestCase {
         }
         XCTAssertEqual(
             String(data: sentRequest.httpBodyStreamAsData, encoding: .utf8),
-            String(data: try JSONSerialization.data(withJSONObject: request.data, options: [.sortedKeys, .fragmentsAllowed]), encoding: .utf8)
+            String(
+                data: try JSONSerialization
+                    .data(withJSONObject: request.data, options: [.sortedKeys, .fragmentsAllowed]),
+                encoding: .utf8
+            )
         )
 
         XCTAssertEqual(responseController.receivedRest.count, 1)
@@ -561,7 +565,11 @@ internal class HAConnectionImplTests: XCTestCase {
         }
 
         let identifier: HARequestIdentifier = 456
-        let request = HARequest(type: .rest(.post, "some_path"), data: ["body": true], queryItems: [.init(name: "key", value: "value")])
+        let request = HARequest(
+            type: .rest(.post, "some_path"),
+            data: ["body": true],
+            queryItems: [.init(name: "key", value: "value")]
+        )
 
         let expectation = self.expectation(description: "response received")
         responseController.receivedRestWaitExpectation = expectation
@@ -583,11 +591,18 @@ internal class HAConnectionImplTests: XCTestCase {
 
     func testDidPrepareRequestRestSuccess() throws {
         let identifier: HARequestIdentifier = 456
-        let request = HARequest(type: .rest(.post, "some_path"), data: ["body": true], queryItems: [.init(name: "key", value: "value")])
+        let request = HARequest(
+            type: .rest(.post, "some_path"),
+            data: ["body": true],
+            queryItems: [.init(name: "key", value: "value")]
+        )
 
         let requestURL = try XCTUnwrap(URL(string: XCTUnwrap(url).absoluteString + "/api/some_path?key=value"))
 
-        let expectedResult = Swift.Result<(HTTPURLResponse, Data?), Error>.success((try XCTUnwrap(HTTPURLResponse(url: requestURL, statusCode: 204, httpVersion: nil, headerFields: nil)), "response data".data(using: .utf8)))
+        let expectedResult = Swift.Result<(HTTPURLResponse, Data?), Error>.success((
+            try XCTUnwrap(HTTPURLResponse(url: requestURL, statusCode: 204, httpVersion: nil, headerFields: nil)),
+            "response data".data(using: .utf8)
+        ))
         StubbingURLProtocol.register(requestURL, result: expectedResult)
 
         let expectation = self.expectation(description: "response received")
@@ -604,7 +619,11 @@ internal class HAConnectionImplTests: XCTestCase {
 
     func testDidPrepareRequestRestNetworkingFailure() throws {
         let identifier: HARequestIdentifier = 456
-        let request = HARequest(type: .rest(.post, "some_path"), data: ["body": true], queryItems: [.init(name: "key", value: "value")])
+        let request = HARequest(
+            type: .rest(.post, "some_path"),
+            data: ["body": true],
+            queryItems: [.init(name: "key", value: "value")]
+        )
 
         let requestURL = try XCTUnwrap(URL(string: XCTUnwrap(url).absoluteString + "/api/some_path?key=value"))
 

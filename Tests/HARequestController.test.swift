@@ -134,7 +134,6 @@ internal class HARequestControllerTests: XCTestCase {
 
         let types = Set(delegate.didPrepare.map(\.request.type.command))
         XCTAssertEqual(types, Set(["test2"]))
-
     }
 
     func testAddedAndResetActive() throws {
@@ -370,7 +369,8 @@ internal class HARequestControllerTests: XCTestCase {
 private class TestHARequestControllerDelegate: HARequestControllerDelegate {
     var allowedSendKinds: HARequestControllerAllowedSendKind = []
 
-    func requestControllerAllowedSendKinds(_ requestController: HARequestController) -> HARequestControllerAllowedSendKind {
+    func requestControllerAllowedSendKinds(_ requestController: HARequestController)
+        -> HARequestControllerAllowedSendKind {
         allowedSendKinds
     }
 
