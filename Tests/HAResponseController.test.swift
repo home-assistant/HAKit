@@ -201,7 +201,10 @@ internal class HAResponseControllerTests: XCTestCase {
         let resultDictionary = ["test": true]
         controller.didReceive(
             for: 2,
-            response: .success((responseJSON, try JSONSerialization.data(withJSONObject: resultDictionary, options: [])))
+            response: .success((
+                responseJSON,
+                try JSONSerialization.data(withJSONObject: resultDictionary, options: [])
+            ))
         )
         waitForCallback()
         XCTAssertEqual(delegate.lastReceived, .result(identifier: 2, result: .success(.dictionary(resultDictionary))))

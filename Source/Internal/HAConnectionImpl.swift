@@ -345,7 +345,12 @@ extension HAConnectionImpl {
 
                 let task = urlSession.dataTask(with: httpRequest) { data, response, error in
                     if let response = response {
-                        responseController.didReceive(for: identifier, response: .success((response as! HTTPURLResponse, data)))
+                        responseController.didReceive(
+                            for: identifier,
+                            // This badly-typed API will always return HTTPURLResponses to http/https endpoints.
+                            // swiftlint:disable:next force_cast
+                            response: .success((response as! HTTPURLResponse, data))
+                        )
                     } else {
                         responseController.didReceive(for: identifier, response: .failure(error!))
                     }
