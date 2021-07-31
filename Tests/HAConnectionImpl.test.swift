@@ -13,6 +13,7 @@ internal class HAConnectionImplTests: XCTestCase {
     private var connection: HAConnectionImpl!
     private var callbackQueue: DispatchQueue!
     private var queueSpecific = DispatchSpecificKey<Bool>()
+    private var urlSession: URLSession!
     private var requestController: FakeHARequestController!
     private var responseController: FakeHAResponseController!
     private var reconnectManager: FakeHAReconnectManager!
@@ -42,6 +43,10 @@ internal class HAConnectionImplTests: XCTestCase {
         responseController = FakeHAResponseController()
         reconnectManager = FakeHAReconnectManager()
 
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.protocolClasses = [StubbingURLProtocol.self]
+        urlSession = URLSession(configuration: configuration)
+
         queueSpecific = .init()
         callbackQueue = DispatchQueue(label: "test-callback-queue")
         callbackQueue.setSpecific(key: queueSpecific, value: true)
@@ -62,7 +67,8 @@ internal class HAConnectionImplTests: XCTestCase {
             }),
             requestController: requestController,
             responseController: responseController,
-            reconnectManager: reconnectManager
+            reconnectManager: reconnectManager,
+            urlSession: urlSession
         )
         connection.callbackQueue = callbackQueue
 
@@ -70,7 +76,7 @@ internal class HAConnectionImplTests: XCTestCase {
         connection.delegate = delegate
     }
 
-    private func assertSent(
+    private func assertSentWebSocket(
         identifier: HARequestIdentifier?,
         request: HARequest,
         file: StaticString = #file,
@@ -101,6 +107,49 @@ internal class HAConnectionImplTests: XCTestCase {
             XCTAssertEqual(copyData, requestData)
         default:
             XCTFail("did not write a string for the last event")
+        }
+    }
+
+    private func assertSentRest(
+        request: HARequest,
+        requestURL: URL,
+        expectedResult: Swift.Result<(HTTPURLResponse, Data?), Error>
+    ) throws {
+        let sentRequest = try XCTUnwrap(StubbingURLProtocol.received[requestURL])
+        XCTAssertEqual(sentRequest.value(forHTTPHeaderField: "Authorization"), "Bearer token!")
+        XCTAssertEqual(sentRequest.value(forHTTPHeaderField: "Content-type"), "application/json")
+        switch request.type {
+        case let .rest(method, _):
+            XCTAssertEqual(sentRequest.httpMethod, method.rawValue)
+        default:
+            XCTFail("expected rest request")
+        }
+        XCTAssertEqual(
+            String(data: sentRequest.httpBodyStreamAsData, encoding: .utf8),
+            String(data: try JSONSerialization.data(withJSONObject: request.data, options: [.sortedKeys, .fragmentsAllowed]), encoding: .utf8)
+        )
+
+        XCTAssertEqual(responseController.receivedRest.count, 1)
+        let receivedResult = try XCTUnwrap(responseController.receivedRest.first)
+
+        switch expectedResult {
+        case let .failure(expectedError as NSError):
+            switch receivedResult {
+            case let .failure(receivedError as NSError):
+                XCTAssertEqual(receivedError.domain, expectedError.domain)
+                XCTAssertEqual(receivedError.code, expectedError.code)
+            default:
+                XCTFail("unexpected received result \(receivedResult)")
+            }
+        case let .success((expectedResponse, expectedData)):
+            switch receivedResult {
+            case let .success((receivedResponse, receivedData)):
+                XCTAssertEqual(receivedResponse.url, expectedResponse.url)
+                XCTAssertEqual((receivedResponse as? HTTPURLResponse)?.statusCode, expectedResponse.statusCode)
+                XCTAssertEqual(receivedData, expectedData)
+            default:
+                XCTFail("unexpected received result \(receivedResult)")
+            }
         }
     }
 
@@ -480,13 +529,98 @@ internal class HAConnectionImplTests: XCTestCase {
         XCTAssertEqual(connection.requestControllerAllowedSendKinds(requestController), .all)
     }
 
-    func testDidPrepareRequest() throws {
+    func testDidPrepareRequestWebSocket() throws {
         connection.connect()
 
         let identifier: HARequestIdentifier = 123
         let request = HARequest(type: "test_type", data: ["test": true])
         connection.requestController(requestController, didPrepareRequest: request, with: identifier)
-        try assertSent(identifier: identifier, request: request)
+        try assertSentWebSocket(identifier: identifier, request: request)
+    }
+
+    func testDidPrepareRequestRestNoConnectionInfo() throws {
+        url = nil
+
+        let identifier: HARequestIdentifier = 1010
+
+        let request = HARequest(type: .rest(.post, "some_path"), data: [:])
+        connection.requestController(requestController, didPrepareRequest: request, with: identifier)
+
+        let result = try XCTUnwrap(responseController.receivedRest.first)
+        switch result {
+        case let .failure(error):
+            XCTAssertEqual(error as? HAConnectionImpl.ConnectError, .noConnectionInfo)
+        default:
+            XCTFail("expected error")
+        }
+    }
+
+    func testDidPrepareRequestRestTokenFailure() throws {
+        enum FakeError: Error {
+            case error
+        }
+
+        let identifier: HARequestIdentifier = 456
+        let request = HARequest(type: .rest(.post, "some_path"), data: ["body": true], queryItems: [.init(name: "key", value: "value")])
+
+        let expectation = self.expectation(description: "response received")
+        responseController.receivedRestWaitExpectation = expectation
+        connection.requestController(requestController, didPrepareRequest: request, with: identifier)
+
+        let tokenBlock = try XCTUnwrap(pendingFetchAccessTokens.last)
+        tokenBlock(.failure(FakeError.error))
+
+        wait(for: [expectation], timeout: 10.0)
+
+        let result = try XCTUnwrap(responseController.receivedRest.first)
+        switch result {
+        case let .failure(error):
+            XCTAssertEqual(error as? FakeError, .error)
+        default:
+            XCTFail("expected error")
+        }
+    }
+
+    func testDidPrepareRequestRestSuccess() throws {
+        let identifier: HARequestIdentifier = 456
+        let request = HARequest(type: .rest(.post, "some_path"), data: ["body": true], queryItems: [.init(name: "key", value: "value")])
+
+        let requestURL = try XCTUnwrap(URL(string: XCTUnwrap(url).absoluteString + "/api/some_path?key=value"))
+
+        let expectedResult = Swift.Result<(HTTPURLResponse, Data?), Error>.success((try XCTUnwrap(HTTPURLResponse(url: requestURL, statusCode: 204, httpVersion: nil, headerFields: nil)), "response data".data(using: .utf8)))
+        StubbingURLProtocol.register(requestURL, result: expectedResult)
+
+        let expectation = self.expectation(description: "response received")
+        responseController.receivedRestWaitExpectation = expectation
+        connection.requestController(requestController, didPrepareRequest: request, with: identifier)
+
+        let tokenBlock = try XCTUnwrap(pendingFetchAccessTokens.last)
+        tokenBlock(.success("token!"))
+
+        wait(for: [expectation], timeout: 10.0)
+
+        try assertSentRest(request: request, requestURL: requestURL, expectedResult: expectedResult)
+    }
+
+    func testDidPrepareRequestRestNetworkingFailure() throws {
+        let identifier: HARequestIdentifier = 456
+        let request = HARequest(type: .rest(.post, "some_path"), data: ["body": true], queryItems: [.init(name: "key", value: "value")])
+
+        let requestURL = try XCTUnwrap(URL(string: XCTUnwrap(url).absoluteString + "/api/some_path?key=value"))
+
+        let expectedError = NSError(domain: "test", code: 454, userInfo: [:])
+        StubbingURLProtocol.register(requestURL, result: .failure(expectedError))
+
+        let expectation = self.expectation(description: "response received")
+        responseController.receivedRestWaitExpectation = expectation
+        connection.requestController(requestController, didPrepareRequest: request, with: identifier)
+
+        let tokenBlock = try XCTUnwrap(pendingFetchAccessTokens.last)
+        tokenBlock(.success("token!"))
+
+        wait(for: [expectation], timeout: 10.0)
+
+        try assertSentRest(request: request, requestURL: requestURL, expectedResult: .failure(expectedError))
     }
 
     func testConnectedSendsAuthTokenGetInvokedTwice() throws {
@@ -507,7 +641,7 @@ internal class HAConnectionImplTests: XCTestCase {
         let tokenBlock = try XCTUnwrap(pendingFetchAccessTokens.last)
 
         tokenBlock(.success("token!"))
-        try assertSent(identifier: nil, request: .init(
+        try assertSentWebSocket(identifier: nil, request: .init(
             type: .auth,
             data: ["access_token": "token!"]
         ))
@@ -532,7 +666,7 @@ internal class HAConnectionImplTests: XCTestCase {
         XCTAssertTrue(engine.events.isEmpty)
 
         try XCTUnwrap(pendingFetchAccessTokens.last)(.success("token!"))
-        try assertSent(identifier: nil, request: .init(
+        try assertSentWebSocket(identifier: nil, request: .init(
             type: .auth,
             data: ["access_token": "token!"]
         ))
@@ -1389,13 +1523,18 @@ private class FakeHAResponseController: HAResponseController {
         phase = .disconnected(error: nil, forReset: true)
     }
 
+    var receivedWaitExpectation: XCTestExpectation?
     var received: [WebSocketEvent] = []
     func didReceive(event: WebSocketEvent) {
         received.append(event)
+        receivedWaitExpectation?.fulfill()
     }
 
+    var receivedRestWaitExpectation: XCTestExpectation?
+    var receivedRest: [Swift.Result<(URLResponse, Data?), Error>] = []
     func didReceive(for identifier: HARequestIdentifier, response: Swift.Result<(URLResponse, Data?), Error>) {
-        fatalError()
+        receivedRest.append(response)
+        receivedRestWaitExpectation?.fulfill()
     }
 }
 
@@ -1426,5 +1565,29 @@ private class FakeHAReconnectManager: HAReconnectManager {
         didTemporarily = true
         didTemporarilyError = error
         reason = .waitingToReconnect(lastError: error, atLatest: Date(), retryCount: 0)
+    }
+}
+
+extension URLRequest {
+    var httpBodyStreamAsData: Data {
+        var data = Data()
+
+        guard let stream = httpBodyStream else {
+            return data
+        }
+
+        let maxLength = 4096
+        let buffer = UnsafeMutablePointer<UInt8>.allocate(capacity: maxLength)
+        defer { buffer.deallocate() }
+
+        stream.open()
+        defer { stream.close() }
+
+        while stream.hasBytesAvailable {
+            let length = stream.read(buffer, maxLength: maxLength)
+            data.append(buffer, count: length)
+        }
+
+        return data
     }
 }

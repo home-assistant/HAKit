@@ -58,6 +58,7 @@ internal class HAConnectionImpl: HAConnection {
     let requestController: HARequestController
     let responseController: HAResponseController
     let reconnectManager: HAReconnectManager
+    let urlSession: URLSession
     var connectAutomatically: Bool
     var hasSetupResubscribeEvents = HAProtected<Bool>(value: false)
     private(set) lazy var caches: HACachesContainer = .init(connection: self)
@@ -67,12 +68,14 @@ internal class HAConnectionImpl: HAConnection {
         requestController: HARequestController = HARequestControllerImpl(),
         responseController: HAResponseController = HAResponseControllerImpl(),
         reconnectManager: HAReconnectManager = HAReconnectManagerImpl(),
+        urlSession: URLSession = .init(configuration: .ephemeral),
         connectAutomatically: Bool = false
     ) {
         self.configuration = configuration
         self.requestController = requestController
         self.responseController = responseController
         self.reconnectManager = reconnectManager
+        self.urlSession = urlSession
         self.connectAutomatically = connectAutomatically
 
         requestController.delegate = self
@@ -288,6 +291,14 @@ internal class HAConnectionImpl: HAConnection {
 // MARK: -
 
 extension HAConnectionImpl {
+    private static func data(from dictionary: [String: Any]) -> Data {
+        // the only cases where JSONSerialization appears to fail are cases where it throws exceptions too
+        // this is bad API from Apple that I don't feel like dealing with :grimace:
+
+        // swiftlint:disable:next force_try
+        return try! JSONSerialization.data(withJSONObject: dictionary, options: [.sortedKeys])
+    }
+
     private func sendWebSocket(
         identifier: HARequestIdentifier?,
         request: HARequest,
@@ -300,12 +311,7 @@ extension HAConnectionImpl {
             }
             dictionary["type"] = command
 
-            // the only cases where JSONSerialization appears to fail are cases where it throws exceptions too
-            // this is bad API from Apple that I don't feel like dealing with :grimace:
-
-            // swiftlint:disable:next force_try
-            let data = try! JSONSerialization.data(withJSONObject: dictionary, options: [.sortedKeys])
-            let string = String(data: data, encoding: .utf8)!
+            let string = String(data: Self.data(from: dictionary), encoding: .utf8)!
 
             if request.type == .auth {
                 HAGlobal.log(.info, "Sending: (auth)")
@@ -318,15 +324,11 @@ extension HAConnectionImpl {
     }
 
     private func sendRest(
-        identifier: HARequestIdentifier?,
+        identifier: HARequestIdentifier,
         request: HARequest,
         method: HAHTTPMethod,
         command: String
     ) {
-        guard let identifier = identifier else {
-            return
-        }
-
         guard let connectionInfo = configuration.connectionInfo() else {
             responseController.didReceive(for: identifier, response: .failure(ConnectError.noConnectionInfo))
             return
@@ -338,8 +340,10 @@ extension HAConnectionImpl {
                 var httpRequest = connectionInfo.request(path: "api/" + command, queryItems: request.queryItems)
                 httpRequest.httpMethod = method.rawValue
                 httpRequest.setValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
+                httpRequest.setValue("application/json", forHTTPHeaderField: "Content-type")
+                httpRequest.httpBody = Self.data(from: request.data)
 
-                let task = URLSession.shared.dataTask(with: httpRequest) { data, response, error in
+                let task = urlSession.dataTask(with: httpRequest) { data, response, error in
                     if let response = response {
                         responseController.didReceive(for: identifier, response: .success((response, data)))
                     } else {
@@ -362,7 +366,7 @@ extension HAConnectionImpl {
         case let .webSocket(command):
             sendWebSocket(identifier: identifier, request: request, command: command)
         case let .rest(method, command):
-            sendRest(identifier: identifier, request: request, method: method, command: command)
+            sendRest(identifier: identifier!, request: request, method: method, command: command)
         }
     }
 }

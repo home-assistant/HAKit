@@ -83,7 +83,7 @@ public struct HAConnectionInfo: Equatable {
         queryItems: [URLQueryItem]
     ) -> URLRequest {
         var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false)!
-        urlComponents.path = "/" + path
+        urlComponents.path += "/" + path
 
         if !queryItems.isEmpty {
             // providing an empty array will cause `?` to be added in all cases
