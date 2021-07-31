@@ -52,6 +52,91 @@ internal class HARequestControllerTests: XCTestCase {
         XCTAssertGreaterThan(event2.identifier.rawValue, 0)
     }
 
+    func testAddedPerpetualAndReset() throws {
+        delegate.allowedSendKinds = .all
+
+        // will completed before reset
+        let invoc1 = HARequestInvocationSingle(
+            request: .init(type: .rest(.get, "test1"), data: [:]),
+            completion: { _ in }
+        )
+        // will not be completed before reset
+        let invoc2 = HARequestInvocationSingle(
+            request: .init(type: .rest(.post, "test2"), data: [:]),
+            completion: { _ in }
+        )
+        // will be reset
+        let invoc3 = HARequestInvocationSingle(
+            request: .init(type: .webSocket("test3"), data: [:]),
+            completion: { _ in }
+        )
+
+        controller.add(invoc1)
+        controller.add(invoc2)
+        controller.add(invoc3)
+
+        XCTAssertEqual(delegate.didPrepare.count, 3)
+        delegate.didPrepare.removeAll()
+
+        let invocation = controller.single(for: try XCTUnwrap(invoc1.identifier))
+        XCTAssertEqual(invocation, invoc1)
+        invocation?.resolve(.success(.empty))
+
+        controller.resetActive()
+
+        // should still be available even after reset
+        XCTAssertNotNil(controller.single(for: try XCTUnwrap(invoc2.identifier)))
+
+        XCTAssertFalse(invoc1.needsAssignment)
+        XCTAssertFalse(invoc2.needsAssignment)
+        XCTAssertTrue(invoc3.needsAssignment)
+
+        controller.prepare()
+        XCTAssertEqual(delegate.didPrepare.count, 1)
+
+        let types = Set(delegate.didPrepare.map(\.request.type.command))
+        XCTAssertEqual(types, Set(["test3"]))
+    }
+
+    func testAddedOnlyRest() {
+        delegate.allowedSendKinds = .rest
+
+        let invoc1 = HARequestInvocationSingle(
+            request: .init(type: .rest(.get, "test1"), data: [:]),
+            completion: { _ in }
+        )
+        // will be reset
+        let invoc2 = HARequestInvocationSingle(
+            request: .init(type: .webSocket("test2"), data: [:]),
+            completion: { _ in }
+        )
+
+        controller.add(invoc1)
+        controller.add(invoc2)
+
+        XCTAssertEqual(delegate.didPrepare.count, 1)
+        delegate.didPrepare.removeAll()
+        controller.resetActive()
+
+        // should still be available even after reset
+        XCTAssertNotNil(controller.single(for: try XCTUnwrap(invoc1.identifier)))
+
+        XCTAssertFalse(invoc1.needsAssignment)
+        XCTAssertTrue(invoc2.needsAssignment)
+
+        controller.prepare()
+        XCTAssertEqual(delegate.didPrepare.count, 0)
+
+        delegate.allowedSendKinds = .all
+
+        controller.prepare()
+        XCTAssertEqual(delegate.didPrepare.count, 1)
+
+        let types = Set(delegate.didPrepare.map(\.request.type.command))
+        XCTAssertEqual(types, Set(["test2"]))
+
+    }
+
     func testAddedAndResetActive() throws {
         delegate.allowedSendKinds = .all
 

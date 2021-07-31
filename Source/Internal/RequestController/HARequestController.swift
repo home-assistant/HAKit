@@ -190,7 +190,7 @@ internal class HARequestControllerImpl: HARequestController {
     }
 
     func prepare() {
-        guard let allowed = delegate?.requestControllerAllowedSendKinds(self) else {
+        guard let allowed = delegate?.requestControllerAllowedSendKinds(self), !allowed.isEmpty else {
             return
         }
 
