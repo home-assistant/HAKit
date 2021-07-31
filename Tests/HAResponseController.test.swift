@@ -170,7 +170,21 @@ internal class HAResponseControllerTests: XCTestCase {
     }
 
     func testRestResponseSuccess() throws {
-        let response =
+        let responseJSON =
+            try XCTUnwrap(HTTPURLResponse(
+                url: URL(string: "http://example.com")!,
+                statusCode: 200,
+                httpVersion: nil,
+                headerFields: ["Content-Type": "application/json"]
+            ))
+        let responseString =
+            try XCTUnwrap(HTTPURLResponse(
+                url: URL(string: "http://example.com")!,
+                statusCode: 200,
+                httpVersion: nil,
+                headerFields: ["Content-Type": "application/octet-stream"]
+            ))
+        let responseNoHeader =
             try XCTUnwrap(HTTPURLResponse(
                 url: URL(string: "http://example.com")!,
                 statusCode: 200,
@@ -178,7 +192,7 @@ internal class HAResponseControllerTests: XCTestCase {
                 headerFields: nil
             ))
 
-        controller.didReceive(for: 1, response: .success((response, nil)))
+        controller.didReceive(for: 1, response: .success((responseJSON, nil)))
         waitForCallback()
         XCTAssertEqual(delegate.lastReceived, .result(identifier: 1, result: .success(.empty)))
 
@@ -187,7 +201,7 @@ internal class HAResponseControllerTests: XCTestCase {
         let resultDictionary = ["test": true]
         controller.didReceive(
             for: 2,
-            response: .success((response, try JSONSerialization.data(withJSONObject: resultDictionary, options: [])))
+            response: .success((responseJSON, try JSONSerialization.data(withJSONObject: resultDictionary, options: [])))
         )
         waitForCallback()
         XCTAssertEqual(delegate.lastReceived, .result(identifier: 2, result: .success(.dictionary(resultDictionary))))
@@ -195,7 +209,7 @@ internal class HAResponseControllerTests: XCTestCase {
         delegate.lastReceived = nil
 
         let invalidJson = "{".data(using: .utf8)
-        controller.didReceive(for: 3, response: .success((response, invalidJson)))
+        controller.didReceive(for: 3, response: .success((responseJSON, invalidJson)))
         waitForCallback()
 
         switch delegate.lastReceived {
@@ -205,6 +219,18 @@ internal class HAResponseControllerTests: XCTestCase {
         default:
             XCTFail("expected error response")
         }
+
+        delegate.lastReceived = nil
+
+        controller.didReceive(for: 4, response: .success((responseString, invalidJson)))
+        waitForCallback()
+        XCTAssertEqual(delegate.lastReceived, .result(identifier: 4, result: .success(.primitive("{"))))
+
+        delegate.lastReceived = nil
+
+        controller.didReceive(for: 5, response: .success((responseNoHeader, invalidJson)))
+        waitForCallback()
+        XCTAssertEqual(delegate.lastReceived, .result(identifier: 5, result: .success(.primitive("{"))))
     }
 }
 

@@ -39,7 +39,7 @@ internal protocol HAResponseController: AnyObject {
     func didReceive(event: Starscream.WebSocketEvent)
     func didReceive(
         for identifier: HARequestIdentifier,
-        response: Result<(URLResponse, Data?), Error>
+        response: Result<(HTTPURLResponse, Data?), Error>
     )
 }
 
@@ -129,7 +129,7 @@ internal class HAResponseControllerImpl: HAResponseController {
 
     func didReceive(
         for identifier: HARequestIdentifier,
-        response: Result<(URLResponse, Data?), Error>
+        response: Result<(HTTPURLResponse, Data?), Error>
     ) {
         let didReceive = HAResetLock { [self] (result: Result<HAData, HAError>) in
             delegate?.responseController(
@@ -142,7 +142,7 @@ internal class HAResponseControllerImpl: HAResponseController {
         case let .failure(error):
             didReceive.pop()?(.failure(.underlying(error as NSError)))
         case let .success((urlResponse, data)):
-            if let urlResponse = urlResponse as? HTTPURLResponse, urlResponse.statusCode >= 400 {
+            if urlResponse.statusCode >= 400 {
                 let errorMessage: String
 
                 if let data = data, let string = String(data: data, encoding: .utf8) {
@@ -161,7 +161,12 @@ internal class HAResponseControllerImpl: HAResponseController {
                         let result: HAData
 
                         if let data = data {
-                            result = HAData(value: try JSONSerialization.jsonObject(with: data, options: []))
+                            switch urlResponse.allHeaderFields["Content-Type"] as? String {
+                            case "application/json", .none:
+                                result = HAData(value: try JSONSerialization.jsonObject(with: data, options: [.allowFragments]))
+                            default:
+                                result = HAData(value: String(data: data, encoding: .utf8))
+                            }
                         } else {
                             result = HAData.empty
                         }

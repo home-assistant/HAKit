@@ -340,12 +340,12 @@ extension HAConnectionImpl {
                 var httpRequest = connectionInfo.request(path: "api/" + command, queryItems: request.queryItems)
                 httpRequest.httpMethod = method.rawValue
                 httpRequest.setValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
-                httpRequest.setValue("application/json", forHTTPHeaderField: "Content-type")
+                httpRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
                 httpRequest.httpBody = Self.data(from: request.data)
 
                 let task = urlSession.dataTask(with: httpRequest) { data, response, error in
                     if let response = response {
-                        responseController.didReceive(for: identifier, response: .success((response, data)))
+                        responseController.didReceive(for: identifier, response: .success((response as! HTTPURLResponse, data)))
                     } else {
                         responseController.didReceive(for: identifier, response: .failure(error!))
                     }

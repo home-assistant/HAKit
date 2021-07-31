@@ -149,7 +149,7 @@ internal class HAConnectionImplTests: XCTestCase {
             switch receivedResult {
             case let .success((receivedResponse, receivedData)):
                 XCTAssertEqual(receivedResponse.url, expectedResponse.url)
-                XCTAssertEqual((receivedResponse as? HTTPURLResponse)?.statusCode, expectedResponse.statusCode)
+                XCTAssertEqual(receivedResponse.statusCode, expectedResponse.statusCode)
                 XCTAssertEqual(receivedData, expectedData)
             default:
                 XCTFail("unexpected received result \(receivedResult)")
@@ -589,7 +589,7 @@ internal class HAConnectionImplTests: XCTestCase {
         }
     }
 
-    func testDidPrepareRequestRestSuccess() throws {
+    func testDidPrepareRequestRestSuccessJSON() throws {
         let identifier: HARequestIdentifier = 456
         let request = HARequest(
             type: .rest(.post, "some_path"),
@@ -1550,8 +1550,8 @@ private class FakeHAResponseController: HAResponseController {
     }
 
     var receivedRestWaitExpectation: XCTestExpectation?
-    var receivedRest: [Swift.Result<(URLResponse, Data?), Error>] = []
-    func didReceive(for identifier: HARequestIdentifier, response: Swift.Result<(URLResponse, Data?), Error>) {
+    var receivedRest: [Swift.Result<(HTTPURLResponse, Data?), Error>] = []
+    func didReceive(for identifier: HARequestIdentifier, response: Swift.Result<(HTTPURLResponse, Data?), Error>) {
         receivedRest.append(response)
         receivedRestWaitExpectation?.fulfill()
     }
