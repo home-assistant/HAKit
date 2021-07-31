@@ -231,9 +231,15 @@ internal class HAResponseControllerTests: XCTestCase {
 
         delegate.lastReceived = nil
 
-        controller.didReceive(for: 5, response: .success((responseNoHeader, invalidJson)))
+        controller.didReceive(
+            for: 2,
+            response: .success((
+                responseNoHeader,
+                try JSONSerialization.data(withJSONObject: resultDictionary, options: [])
+            ))
+        )
         waitForCallback()
-        XCTAssertEqual(delegate.lastReceived, .result(identifier: 5, result: .success(.primitive("{"))))
+        XCTAssertEqual(delegate.lastReceived, .result(identifier: 2, result: .success(.dictionary(resultDictionary))))
     }
 }
 
