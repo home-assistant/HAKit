@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+- Added: REST API calls can now be issued.
+- Changed: `HARequestType` is now an enum of `webSocket` and `rest`. The command value for REST calls is the value after 'api/', e.g. 'api/template' has a type of `.rest(.post, "template")`.
+- Changed: `HAData` now includes a `primitive` case to express non-array/dictionary values that aren't `null`.
 
 ## [0.3] - 2021-07-08
 - Added: Subscriptions will now retry (when their request `shouldRetry`) when the HA config changes or components are loaded.
