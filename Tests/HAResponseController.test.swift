@@ -132,6 +132,53 @@ internal class HAResponseControllerTests: XCTestCase {
             expectingPhase: commandPhase
         )
     }
+
+    func testRestResponseFailure() throws {
+        enum FakeError: Error {
+            case error
+        }
+        controller.didReceive(for: 456, response: .failure(FakeError.error))
+        XCTAssertEqual(delegate.lastReceived, .result(identifier: 456, result: .failure(.underlying(FakeError.error as NSError))))
+    }
+
+    func testRestResponse4xx() throws {
+        let response = try XCTUnwrap(HTTPURLResponse(url: URL(string: "http://example.com")!, statusCode: 401, httpVersion: nil, headerFields: nil))
+        let dataString = "error msg"
+        controller.didReceive(for: 888, response: .success((response, dataString.data(using: .utf8))))
+        XCTAssertEqual(delegate.lastReceived, .result(identifier: 888, result: .failure(.external(.init(code: "401", message: dataString)))))
+
+        controller.didReceive(for: 888, response: .success((response, nil)))
+        XCTAssertEqual(delegate.lastReceived, .result(identifier: 888, result: .failure(.external(.init(code: "401", message: "Unacceptable status code")))))
+    }
+
+    func testRestResponseSuccess() throws {
+        let response = try XCTUnwrap(HTTPURLResponse(url: URL(string: "http://example.com")!, statusCode: 200, httpVersion: nil, headerFields: nil))
+
+        controller.didReceive(for: 1, response: .success((response, nil)))
+        waitForCallback()
+        XCTAssertEqual(delegate.lastReceived, .result(identifier: 1, result: .success(.empty)))
+
+        delegate.lastReceived = nil
+
+        let resultDictionary = ["test": true]
+        controller.didReceive(for: 2, response: .success((response, try JSONSerialization.data(withJSONObject: resultDictionary, options: []))))
+        waitForCallback()
+        XCTAssertEqual(delegate.lastReceived, .result(identifier: 2, result: .success(.dictionary(resultDictionary))))
+
+        delegate.lastReceived = nil
+
+        let invalidJson = "{".data(using: .utf8)
+        controller.didReceive(for: 3, response: .success((response, invalidJson)))
+        waitForCallback()
+
+        switch delegate.lastReceived {
+        case .result(identifier: 3, result: .failure(.underlying(_))):
+            // pass
+            break
+        default:
+            XCTFail("expected error response")
+        }
+    }
 }
 
 private extension HAResponseControllerTests {

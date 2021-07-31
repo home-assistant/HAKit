@@ -140,7 +140,7 @@ internal class HAResponseControllerImpl: HAResponseController {
 
         switch response {
         case let .failure(error):
-            didReceive.pop()?(.failure(.internal(debugDescription: error.localizedDescription)))
+            didReceive.pop()?(.failure(.underlying(error as NSError)))
         case let .success((urlResponse, data)):
             if let urlResponse = urlResponse as? HTTPURLResponse, urlResponse.statusCode >= 400 {
                 let errorMessage: String
