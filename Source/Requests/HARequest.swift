@@ -12,7 +12,12 @@ public struct HARequest {
     ///   - data: The data to accompany with the request, at the top level
     ///   - queryItems: Query items to include in the call, for REST requests
     ///   - shouldRetry: Whether to retry the request when a connection change occurs
-    public init(type: HARequestType, data: [String: Any], queryItems: [URLQueryItem] = [], shouldRetry: Bool = true) {
+    public init(
+        type: HARequestType,
+        data: [String: Any] = [:],
+        queryItems: [URLQueryItem] = [],
+        shouldRetry: Bool = true
+    ) {
         precondition(JSONSerialization.isValidJSONObject(data))
         self.type = type
         self.data = data
