@@ -78,6 +78,11 @@ public struct HAConnectionInfo: Equatable {
         return request
     }
 
+    /// Create a URLRequest for a given REST API path and query items
+    /// - Parameters:
+    ///   - path: The path to invoke, including the 'api/' part.
+    ///   - queryItems: The query items to include in the URL
+    /// - Returns: The URLRequest for the given parameters
     internal func request(
         path: String,
         queryItems: [URLQueryItem]
