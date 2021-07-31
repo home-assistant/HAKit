@@ -341,7 +341,10 @@ extension HAConnectionImpl {
                 httpRequest.httpMethod = method.rawValue
                 httpRequest.setValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
                 httpRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
-                httpRequest.httpBody = Self.data(from: request.data)
+
+                if method != .get, !request.data.isEmpty {
+                    httpRequest.httpBody = Self.data(from: request.data)
+                }
 
                 let task = urlSession.dataTask(with: httpRequest) { data, response, error in
                     if let response = response {
