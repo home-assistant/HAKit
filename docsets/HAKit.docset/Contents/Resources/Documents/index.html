@@ -16,7 +16,7 @@
     <a title="HAKit  Reference"></a>
     <header>
       <div class="content-wrapper">
-        <p><a href="index.html">HAKit 0.3 Docs</a> (100% documented)</p>
+        <p><a href="index.html">HAKit 0.3 Docs</a> (97% documented)</p>
         <p class="header-right"><a href="https://www.github.com/home-assistant/ha-swift-api"><img src="img/gh.png"/>View on GitHub</a></p>
         <p class="header-right">
           <form role="search" action="search.json">
@@ -75,6 +75,9 @@
               </li>
               <li class="nav-group-task">
                 <a href="Enums/HAKit.html">HAKit</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Enums/HARequestType.html">HARequestType</a>
               </li>
             </ul>
           </li>
@@ -161,10 +164,10 @@
                 <a href="Structs/HAEventType.html">HAEventType</a>
               </li>
               <li class="nav-group-task">
-                <a href="Structs/HARequest.html">HARequest</a>
+                <a href="Structs/HAHTTPMethod.html">HAHTTPMethod</a>
               </li>
               <li class="nav-group-task">
-                <a href="Structs/HARequestType.html">HARequestType</a>
+                <a href="Structs/HARequest.html">HARequest</a>
               </li>
               <li class="nav-group-task">
                 <a href="Structs/HAResponseCurrentUser.html">HAResponseCurrentUser</a>
@@ -224,11 +227,9 @@
             
             <h1 id='hakit' class='heading'>HAKit</h1>
 
-<p><strong>This is still in early development.</strong></p>
-
 <p><a href="https://home-assistant.github.io/HAKit/"><img src="https://home-assistant.github.io/HAKit/badge.svg" alt="Documentation"></a> <a href="https://codecov.io/gh/home-assistant/HAKit"><img src="https://codecov.io/gh/home-assistant/HAKit/branch/main/graph/badge.svg?token=M0ZUCTQMBM" alt="codecov"></a> <a href="https://github.com/home-assistant/HAKit/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-Apache%202.0-green.svg?style=flat" alt="License Apache 2.0"></a></p>
 
-<p>This library allows you to connect to the <a href="https://developers.home-assistant.io/docs/api/websocket">Home Assistant WebSocket API</a> to issue commands and subscribe to events. Future plans include offering minimal <a href="https://developers.home-assistant.io/docs/api/rest">REST API</a> support, largely around authentication.</p>
+<p>This library allows you to connect to the <a href="https://developers.home-assistant.io/docs/api/websocket">Home Assistant WebSocket API</a> to issue commands and subscribe to events as well as issue <a href="https://developers.home-assistant.io/docs/api/rest">REST API</a> requests. Future plans include offering authentication support.</p>
 <h2 id='api-reference' class='heading'>API Reference</h2>
 
 <p>You can view the <a href="https://home-assistant.github.io/HAKit/">full set of documentation</a>. The most important set of available methods are on the <a href="https://home-assistant.github.io/HAKit/Protocols/HAConnection.html">HAConnection</a> protocol. This protocol acts as the main entrypoint to talking to a Home Assistant instance.</p>
@@ -292,6 +293,16 @@
     <span class="c1">// an error occurred with the request</span>
   <span class="p">}</span>
 <span class="p">}</span>
+
+<span class="c1">// you can also issue REST calls</span>
+<span class="kt">Current</span><span class="o">.</span><span class="n">apiConnection</span><span class="o">.</span><span class="nf">send</span><span class="p">(</span><span class="o">.</span><span class="nf">init</span><span class="p">(</span>
+  <span class="c1">// this will POST to `/api/template` with the data as the body</span>
+  <span class="nv">type</span><span class="p">:</span> <span class="o">.</span><span class="nf">rest</span><span class="p">(</span><span class="o">.</span><span class="n">post</span><span class="p">,</span> <span class="s">"template"</span><span class="p">),</span>
+  <span class="nv">data</span><span class="p">:</span> <span class="p">[</span><span class="s">"template"</span><span class="p">:</span> <span class="s">"{{ now() }}"</span><span class="p">]</span>
+<span class="p">))</span> <span class="p">{</span> <span class="n">result</span> <span class="k">in</span>
+  <span class="c1">// same result type as sending a WebSocket request</span>
+<span class="p">}</span>
+
 </code></pre>
 
 <p>Similarly, subscribing to events can be done both using the convenience helper or directly. </p>
@@ -427,7 +438,7 @@
           </section>
         </section>
         <section id="footer">
-          <p>&copy; 2021 <a class="link" href="https://github.com/home-assistant/HAKit" target="_blank" rel="external">Home Assistant</a>. All rights reserved. (Last updated: 2021-07-08)</p>
+          <p>&copy; 2021 <a class="link" href="https://github.com/home-assistant/HAKit" target="_blank" rel="external">Home Assistant</a>. All rights reserved. (Last updated: 2021-08-01)</p>
           <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.13.7</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external">Realm</a> project.</p>
         </section>
       </article>

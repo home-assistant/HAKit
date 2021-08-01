@@ -1,6 +1,61 @@
 {
   "warnings": [
-
+    {
+      "file": "/Users/runner/work/HAKit/HAKit/Source/Requests/HAHTTPMethod.swift",
+      "line": 1,
+      "symbol": "HAHTTPMethod",
+      "symbol_kind": "source.lang.swift.decl.struct",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/HAKit/HAKit/Source/Requests/HAHTTPMethod.swift",
+      "line": 6,
+      "symbol": "HAHTTPMethod.get",
+      "symbol_kind": "source.lang.swift.decl.var.static",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/HAKit/HAKit/Source/Requests/HAHTTPMethod.swift",
+      "line": 7,
+      "symbol": "HAHTTPMethod.post",
+      "symbol_kind": "source.lang.swift.decl.var.static",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/HAKit/HAKit/Source/Requests/HAHTTPMethod.swift",
+      "line": 8,
+      "symbol": "HAHTTPMethod.delete",
+      "symbol_kind": "source.lang.swift.decl.var.static",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/HAKit/HAKit/Source/Requests/HAHTTPMethod.swift",
+      "line": 9,
+      "symbol": "HAHTTPMethod.put",
+      "symbol_kind": "source.lang.swift.decl.var.static",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/HAKit/HAKit/Source/Requests/HAHTTPMethod.swift",
+      "line": 10,
+      "symbol": "HAHTTPMethod.patch",
+      "symbol_kind": "source.lang.swift.decl.var.static",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/HAKit/HAKit/Source/Requests/HAHTTPMethod.swift",
+      "line": 11,
+      "symbol": "HAHTTPMethod.head",
+      "symbol_kind": "source.lang.swift.decl.var.static",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/HAKit/HAKit/Source/Requests/HAHTTPMethod.swift",
+      "line": 12,
+      "symbol": "HAHTTPMethod.options",
+      "symbol_kind": "source.lang.swift.decl.var.static",
+      "warning": "undocumented"
+    }
   ],
   "source_directory": "/Users/runner/work/HAKit/HAKit"
 }

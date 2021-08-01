@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>HAData Enumeration Reference</title>
+    <title>HARequestType Enumeration Reference</title>
     <link rel="stylesheet" type="text/css" href="../css/jazzy.css" />
     <link rel="stylesheet" type="text/css" href="../css/highlight.css" />
     <meta charset='utf-8'>
@@ -13,8 +13,8 @@
     <script src="../js/jazzy.search.js" defer></script>
   </head>
   <body>
-    <a name="//apple_ref/swift/Enum/HAData" class="dashAnchor"></a>
-    <a title="HAData Enumeration Reference"></a>
+    <a name="//apple_ref/swift/Enum/HARequestType" class="dashAnchor"></a>
+    <a title="HARequestType Enumeration Reference"></a>
     <header>
       <div class="content-wrapper">
         <p><a href="../index.html">HAKit 0.3 Docs</a> (97% documented)</p>
@@ -30,7 +30,7 @@
       <p id="breadcrumbs">
         <a href="../index.html">HAKit Reference</a>
         <img id="carat" src="../img/carat.png" />
-        HAData Enumeration Reference
+        HARequestType Enumeration Reference
       </p>
     </div>
     <div class="content-wrapper">
@@ -225,18 +225,15 @@
       <article class="main-content">
         <section>
           <section class="section">
-            <h1>HAData</h1>
+            <h1>HARequestType</h1>
               <div class="declaration">
                 <div class="language">
                   
-                  <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">enum</span> <span class="kt">HAData</span> <span class="p">:</span> <span class="kt">Equatable</span></code></pre>
-<pre class="highlight swift"><code><span class="kd">extension</span> <span class="kt">HAData</span><span class="p">:</span> <span class="kt"><a href="../Protocols/HADecodeTransformable.html">HADecodeTransformable</a></span></code></pre>
+                  <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">enum</span> <span class="kt">HARequestType</span> <span class="p">:</span> <span class="kt">Hashable</span><span class="p">,</span> <span class="kt">Comparable</span><span class="p">,</span> <span class="kt">ExpressibleByStringLiteral</span></code></pre>
 
                 </div>
               </div>
-            <p>Data from a response</p>
-
-<p>The root-level information in either the <code>result</code> for individual requests or <code>event</code> for subscriptions.</p>
+            <p>The command to issue</p>
 
           </section>
           <section class="section task-group-section">
@@ -245,9 +242,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:5HAKit6HADataO10dictionaryyACSDySSypGcACmF"></a>
-                    <a name="//apple_ref/swift/Element/dictionary(_:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:5HAKit6HADataO10dictionaryyACSDySSypGcACmF">dictionary(_:<wbr>)</a>
+                    <a name="/s:5HAKit13HARequestTypeO9webSocketyACSScACmF"></a>
+                    <a name="//apple_ref/swift/Element/webSocket(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:5HAKit13HARequestTypeO9webSocketyACSScACmF">webSocket(_:<wbr>)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -255,19 +252,14 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>A dictionary response.</p>
-<div class="aside aside-see-also">
-    <p class="aside-title">See also</p>
-    <code>get(_:)</code>and associated methods
-
-</div>
+                        <p>Sent over WebSocket, the command of the request</p>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="k">case</span> <span class="nf">dictionary</span><span class="p">([</span><span class="kt">String</span> <span class="p">:</span> <span class="kt">Any</span><span class="p">])</span></code></pre>
+                          <pre class="highlight swift"><code><span class="k">case</span> <span class="nf">webSocket</span><span class="p">(</span><span class="kt">String</span><span class="p">)</span></code></pre>
 
                         </div>
                       </div>
@@ -277,9 +269,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:5HAKit6HADataO5arrayyACSayACGcACmF"></a>
-                    <a name="//apple_ref/swift/Element/array(_:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:5HAKit6HADataO5arrayyACSayACGcACmF">array(_:<wbr>)</a>
+                    <a name="/s:5HAKit13HARequestTypeO4restyAcA12HAHTTPMethodV_SStcACmF"></a>
+                    <a name="//apple_ref/swift/Element/rest(_:_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:5HAKit13HARequestTypeO4restyAcA12HAHTTPMethodV_SStcACmF">rest(_:<wbr>_:<wbr>)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -287,14 +279,14 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>An array response.</p>
+                        <p>Sent over REST, the HTTP method to use and the post-<code>api/</code> path</p>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="k">case</span> <span class="nf">array</span><span class="p">([</span><span class="kt">HAData</span><span class="p">])</span></code></pre>
+                          <pre class="highlight swift"><code><span class="k">case</span> <span class="nf">rest</span><span class="p">(</span><span class="kt"><a href="../Structs/HAHTTPMethod.html">HAHTTPMethod</a></span><span class="p">,</span> <span class="kt">String</span><span class="p">)</span></code></pre>
 
                         </div>
                       </div>
@@ -304,9 +296,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:5HAKit6HADataO9primitiveyACypcACmF"></a>
-                    <a name="//apple_ref/swift/Element/primitive(_:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:5HAKit6HADataO9primitiveyACypcACmF">primitive(_:<wbr>)</a>
+                    <a name="/s:5HAKit13HARequestTypeO13stringLiteralACSS_tcfc"></a>
+                    <a name="//apple_ref/swift/Method/init(stringLiteral:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:5HAKit13HARequestTypeO13stringLiteralACSS_tcfc">init(stringLiteral:<wbr>)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -314,69 +306,14 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Any other response, e.g. a string or number</p>
+                        <p>Create a WebSocket request type by string literal</p>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="k">case</span> <span class="nf">primitive</span><span class="p">(</span><span class="kt">Any</span><span class="p">)</span></code></pre>
-
-                        </div>
-                      </div>
-                    </section>
-                  </div>
-                </li>
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/s:5HAKit6HADataO5emptyyA2CmF"></a>
-                    <a name="//apple_ref/swift/Element/empty" class="dashAnchor"></a>
-                    <a class="token" href="#/s:5HAKit6HADataO5emptyyA2CmF">empty</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>An empty response, such as <code>null</code></p>
-
-                      </div>
-                      <div class="declaration">
-                        <h4>Declaration</h4>
-                        <div class="language">
-                          <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="k">case</span> <span class="n">empty</span></code></pre>
-
-                        </div>
-                      </div>
-                    </section>
-                  </div>
-                </li>
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/s:5HAKit6HADataO5valueACypSg_tcfc"></a>
-                    <a name="//apple_ref/swift/Method/init(value:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:5HAKit6HADataO5valueACypSg_tcfc">init(value:<wbr>)</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>Convert an unknown value type into an enum case
-For use with direct response handling.</p>
-
-                      </div>
-                      <div class="declaration">
-                        <h4>Declaration</h4>
-                        <div class="language">
-                          <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="nf">init</span><span class="p">(</span><span class="nv">value</span><span class="p">:</span> <span class="kt">Any</span><span class="p">?)</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="nf">init</span><span class="p">(</span><span class="n">stringLiteral</span> <span class="nv">value</span><span class="p">:</span> <span class="kt">StringLiteralType</span><span class="p">)</span></code></pre>
 
                         </div>
                       </div>
@@ -392,7 +329,7 @@ For use with direct response handling.</p>
                               </td>
                               <td>
                                 <div>
-                                  <p>The value to convert</p>
+                                  <p>The name of the WebSocket command</p>
                                 </div>
                               </td>
                             </tr>
@@ -405,9 +342,9 @@ For use with direct response handling.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:SQ2eeoiySbx_xtFZ"></a>
-                    <a name="//apple_ref/swift/Method/==(_:_:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:SQ2eeoiySbx_xtFZ">==(_:<wbr>_:<wbr>)</a>
+                    <a name="/s:5HAKit13HARequestTypeO7commandSSvp"></a>
+                    <a name="//apple_ref/swift/Property/command" class="dashAnchor"></a>
+                    <a class="token" href="#/s:5HAKit13HARequestTypeO7commandSSvp">command</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -415,13 +352,14 @@ For use with direct response handling.</p>
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        
+                        <p>The command of the request, agnostic of protocol type</p>
+
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">static</span> <span class="kd">func</span> <span class="o">==</span> <span class="p">(</span><span class="nv">lhs</span><span class="p">:</span> <span class="kt">HAData</span><span class="p">,</span> <span class="nv">rhs</span><span class="p">:</span> <span class="kt">HAData</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Bool</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">command</span><span class="p">:</span> <span class="kt">String</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
 
                         </div>
                       </div>
@@ -431,9 +369,9 @@ For use with direct response handling.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:5HAKit6HADataO6decodeyxSSKlF"></a>
-                    <a name="//apple_ref/swift/Method/decode(_:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:5HAKit6HADataO6decodeyxSSKlF">decode(_:<wbr>)</a>
+                    <a name="/s:5HAKit13HARequestTypeO11isPerpetualSbvp"></a>
+                    <a name="//apple_ref/swift/Property/isPerpetual" class="dashAnchor"></a>
+                    <a class="token" href="#/s:5HAKit13HARequestTypeO11isPerpetualSbvp">isPerpetual</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -441,44 +379,16 @@ For use with direct response handling.</p>
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Convenience access to the dictionary case for a particular key, with an expected type</p>
-<div class="aside aside-throws">
-    <p class="aside-title">Throws</p>
-    If the key was not present in the dictionary or the type was not the expected type or convertable
-
-</div>
+                        <p>The request is issued outside of the lifecycle of a connection</p>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="n">decode</span><span class="o">&lt;</span><span class="kt">T</span><span class="o">&gt;</span><span class="p">(</span><span class="n">_</span> <span class="nv">key</span><span class="p">:</span> <span class="kt">String</span><span class="p">)</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">T</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">isPerpetual</span><span class="p">:</span> <span class="kt">Bool</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
 
                         </div>
-                      </div>
-                      <div>
-                        <h4>Parameters</h4>
-                        <table class="graybox">
-                          <tbody>
-                            <tr>
-                              <td>
-                                <code>
-                                <em>key</em>
-                                </code>
-                              </td>
-                              <td>
-                                <div>
-                                  <p>The key to look up in <code>dictionary</code> case</p>
-                                </div>
-                              </td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>
-                      <div>
-                        <h4>Return Value</h4>
-                        <p>The value from the dictionary</p>
                       </div>
                     </section>
                   </div>
@@ -486,9 +396,9 @@ For use with direct response handling.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:5HAKit6HADataO6decode_9transformq_SS_q_SgxKXEtKr0_lF"></a>
-                    <a name="//apple_ref/swift/Method/decode(_:transform:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:5HAKit6HADataO6decode_9transformq_SS_q_SgxKXEtKr0_lF">decode(_:<wbr>transform:<wbr>)</a>
+                    <a name="/s:5HAKit13HARequestTypeO1loiySbAC_ACtFZ"></a>
+                    <a name="//apple_ref/swift/Method/&lt;(_:_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:5HAKit13HARequestTypeO1loiySbAC_ACtFZ"><(_:<wbr>_:<wbr>)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -496,20 +406,14 @@ For use with direct response handling.</p>
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Convenience access to the dictionary case for a particular key, with an expected type, with a transform applied</p>
-<div class="aside aside-throws">
-    <p class="aside-title">Throws</p>
-    If the key was not present in the dictionary or the type was not the expected type or the value
-      couldn&rsquo;t be transformed
-
-</div>
+                        <p>Sort the request type by command name</p>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="n">decode</span><span class="o">&lt;</span><span class="kt">Value</span><span class="p">,</span> <span class="kt">Transform</span><span class="o">&gt;</span><span class="p">(</span><span class="n">_</span> <span class="nv">key</span><span class="p">:</span> <span class="kt">String</span><span class="p">,</span> <span class="nv">transform</span><span class="p">:</span> <span class="p">(</span><span class="kt">Value</span><span class="p">)</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">Transform</span><span class="p">?)</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">Transform</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">static</span> <span class="kd">func</span> <span class="o">&lt;</span> <span class="p">(</span><span class="nv">lhs</span><span class="p">:</span> <span class="kt">HARequestType</span><span class="p">,</span> <span class="nv">rhs</span><span class="p">:</span> <span class="kt">HARequestType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Bool</span></code></pre>
 
                         </div>
                       </div>
@@ -520,24 +424,24 @@ For use with direct response handling.</p>
                             <tr>
                               <td>
                                 <code>
-                                <em>key</em>
+                                <em>lhs</em>
                                 </code>
                               </td>
                               <td>
                                 <div>
-                                  <p>The key to look up in <code>dictionary</code> case</p>
+                                  <p>The first type to compare</p>
                                 </div>
                               </td>
                             </tr>
                             <tr>
                               <td>
                                 <code>
-                                <em>transform</em>
+                                <em>rhs</em>
                                 </code>
                               </td>
                               <td>
                                 <div>
-                                  <p>The transform to apply to the value, when found</p>
+                                  <p>The second value to compare</p>
                                 </div>
                               </td>
                             </tr>
@@ -546,74 +450,7 @@ For use with direct response handling.</p>
                       </div>
                       <div>
                         <h4>Return Value</h4>
-                        <p>The value from the dictionary</p>
-                      </div>
-                    </section>
-                  </div>
-                </li>
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/s:5HAKit6HADataO6decode_8fallbackxSS_xyKXKtKlF"></a>
-                    <a name="//apple_ref/swift/Method/decode(_:fallback:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:5HAKit6HADataO6decode_8fallbackxSS_xyKXKtKlF">decode(_:<wbr>fallback:<wbr>)</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>Convenience access to the dictionary case for a particular key, with an expected type</p>
-<div class="aside aside-throws">
-    <p class="aside-title">Throws</p>
-    If the inner fallback block throws
-
-</div>
-
-                      </div>
-                      <div class="declaration">
-                        <h4>Declaration</h4>
-                        <div class="language">
-                          <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="n">decode</span><span class="o">&lt;</span><span class="kt">T</span><span class="o">&gt;</span><span class="p">(</span><span class="n">_</span> <span class="nv">key</span><span class="p">:</span> <span class="kt">String</span><span class="p">,</span> <span class="nv">fallback</span><span class="p">:</span> <span class="kd">@autoclosure</span> <span class="p">()</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">T</span><span class="p">)</span> <span class="k">rethrows</span> <span class="o">-&gt;</span> <span class="kt">T</span></code></pre>
-
-                        </div>
-                      </div>
-                      <div>
-                        <h4>Parameters</h4>
-                        <table class="graybox">
-                          <tbody>
-                            <tr>
-                              <td>
-                                <code>
-                                <em>key</em>
-                                </code>
-                              </td>
-                              <td>
-                                <div>
-                                  <p>The key to look up in <code>dictionary</code> case</p>
-                                </div>
-                              </td>
-                            </tr>
-                            <tr>
-                              <td>
-                                <code>
-                                <em>fallback</em>
-                                </code>
-                              </td>
-                              <td>
-                                <div>
-                                  <p>The fallback value to use if not found in the dictionary</p>
-                                </div>
-                              </td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>
-                      <div>
-                        <h4>Return Value</h4>
-                        <p>The value from the dictionary</p>
+                        <p>Whether the first type preceeds the second</p>
                       </div>
                     </section>
                   </div>
@@ -622,11 +459,11 @@ For use with direct response handling.</p>
             </div>
             <div class="task-group">
               <div class="task-name-container">
-                <a name="/Values"></a>
-                <a name="//apple_ref/swift/Section/Values" class="dashAnchor"></a>
+                <a name="/Requests"></a>
+                <a name="//apple_ref/swift/Section/Requests" class="dashAnchor"></a>
                 <div class="section-name-container">
-                  <a class="section-name-link" href="#/Values"></a>
-                  <h3 class="section-name"><p>Values</p>
+                  <a class="section-name-link" href="#/Requests"></a>
+                  <h3 class="section-name"><p>Requests</p>
 </h3>
                 </div>
               </div>
@@ -634,9 +471,9 @@ For use with direct response handling.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:5HAKit6HADataO6decode7unknownACSgyp_tFZ"></a>
-                    <a name="//apple_ref/swift/Method/decode(unknown:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:5HAKit6HADataO6decode7unknownACSgyp_tFZ">decode(unknown:<wbr>)</a>
+                    <a name="/s:5HAKit13HARequestTypeO11callServiceACvpZ"></a>
+                    <a name="//apple_ref/swift/Variable/callService" class="dashAnchor"></a>
+                    <a class="token" href="#/s:5HAKit13HARequestTypeO11callServiceACvpZ">callService</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -644,39 +481,300 @@ For use with direct response handling.</p>
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Allows HAData to be transformed from any underlying value</p>
+                        <p><code>call_service</code></p>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">static</span> <span class="kd">func</span> <span class="nf">decode</span><span class="p">(</span><span class="n">unknown</span> <span class="nv">value</span><span class="p">:</span> <span class="kt">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="err">`</span><span class="k">Self</span><span class="err">`</span><span class="p">?</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">static</span> <span class="k">var</span> <span class="nv">callService</span><span class="p">:</span> <span class="err">`</span><span class="k">Self</span><span class="err">`</span></code></pre>
 
                         </div>
                       </div>
-                      <div>
-                        <h4>Parameters</h4>
-                        <table class="graybox">
-                          <tbody>
-                            <tr>
-                              <td>
-                                <code>
-                                <em>value</em>
-                                </code>
-                              </td>
-                              <td>
-                                <div>
-                                  <p>Any value</p>
-                                </div>
-                              </td>
-                            </tr>
-                          </tbody>
-                        </table>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:5HAKit13HARequestTypeO11currentUserACvpZ"></a>
+                    <a name="//apple_ref/swift/Variable/currentUser" class="dashAnchor"></a>
+                    <a class="token" href="#/s:5HAKit13HARequestTypeO11currentUserACvpZ">currentUser</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p><code>auth/current_user</code></p>
+
                       </div>
-                      <div>
-                        <h4>Return Value</h4>
-                        <p>The <code>HAData</code>-wrapped version of the value</p>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">static</span> <span class="k">var</span> <span class="nv">currentUser</span><span class="p">:</span> <span class="err">`</span><span class="k">Self</span><span class="err">`</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:5HAKit13HARequestTypeO9getStatesACvpZ"></a>
+                    <a name="//apple_ref/swift/Variable/getStates" class="dashAnchor"></a>
+                    <a class="token" href="#/s:5HAKit13HARequestTypeO9getStatesACvpZ">getStates</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p><code>get_states</code></p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">static</span> <span class="k">var</span> <span class="nv">getStates</span><span class="p">:</span> <span class="err">`</span><span class="k">Self</span><span class="err">`</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:5HAKit13HARequestTypeO9getConfigACvpZ"></a>
+                    <a name="//apple_ref/swift/Variable/getConfig" class="dashAnchor"></a>
+                    <a class="token" href="#/s:5HAKit13HARequestTypeO9getConfigACvpZ">getConfig</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p><code>get_config</code></p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">static</span> <span class="k">var</span> <span class="nv">getConfig</span><span class="p">:</span> <span class="err">`</span><span class="k">Self</span><span class="err">`</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:5HAKit13HARequestTypeO11getServicesACvpZ"></a>
+                    <a name="//apple_ref/swift/Variable/getServices" class="dashAnchor"></a>
+                    <a class="token" href="#/s:5HAKit13HARequestTypeO11getServicesACvpZ">getServices</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p><code>get_services</code></p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">static</span> <span class="k">var</span> <span class="nv">getServices</span><span class="p">:</span> <span class="err">`</span><span class="k">Self</span><span class="err">`</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <div class="task-name-container">
+                <a name="/Subscription%20Handling"></a>
+                <a name="//apple_ref/swift/Section/Subscription Handling" class="dashAnchor"></a>
+                <div class="section-name-container">
+                  <a class="section-name-link" href="#/Subscription%20Handling"></a>
+                  <h3 class="section-name"><p>Subscription Handling</p>
+</h3>
+                </div>
+              </div>
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:5HAKit13HARequestTypeO15subscribeEventsACvpZ"></a>
+                    <a name="//apple_ref/swift/Variable/subscribeEvents" class="dashAnchor"></a>
+                    <a class="token" href="#/s:5HAKit13HARequestTypeO15subscribeEventsACvpZ">subscribeEvents</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p><code>subscribe_events</code></p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">static</span> <span class="k">var</span> <span class="nv">subscribeEvents</span><span class="p">:</span> <span class="err">`</span><span class="k">Self</span><span class="err">`</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:5HAKit13HARequestTypeO17unsubscribeEventsACvpZ"></a>
+                    <a name="//apple_ref/swift/Variable/unsubscribeEvents" class="dashAnchor"></a>
+                    <a class="token" href="#/s:5HAKit13HARequestTypeO17unsubscribeEventsACvpZ">unsubscribeEvents</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p><code>unsubscribe_events</code></p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">static</span> <span class="k">var</span> <span class="nv">unsubscribeEvents</span><span class="p">:</span> <span class="err">`</span><span class="k">Self</span><span class="err">`</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <div class="task-name-container">
+                <a name="/Subscriptions"></a>
+                <a name="//apple_ref/swift/Section/Subscriptions" class="dashAnchor"></a>
+                <div class="section-name-container">
+                  <a class="section-name-link" href="#/Subscriptions"></a>
+                  <h3 class="section-name"><p>Subscriptions</p>
+</h3>
+                </div>
+              </div>
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:5HAKit13HARequestTypeO14renderTemplateACvpZ"></a>
+                    <a name="//apple_ref/swift/Variable/renderTemplate" class="dashAnchor"></a>
+                    <a class="token" href="#/s:5HAKit13HARequestTypeO14renderTemplateACvpZ">renderTemplate</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p><code>render_template</code></p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">static</span> <span class="k">var</span> <span class="nv">renderTemplate</span><span class="p">:</span> <span class="err">`</span><span class="k">Self</span><span class="err">`</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <div class="task-name-container">
+                <a name="/Internal"></a>
+                <a name="//apple_ref/swift/Section/Internal" class="dashAnchor"></a>
+                <div class="section-name-container">
+                  <a class="section-name-link" href="#/Internal"></a>
+                  <h3 class="section-name"><p>Internal</p>
+</h3>
+                </div>
+              </div>
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:5HAKit13HARequestTypeO4pingACvpZ"></a>
+                    <a name="//apple_ref/swift/Variable/ping" class="dashAnchor"></a>
+                    <a class="token" href="#/s:5HAKit13HARequestTypeO4pingACvpZ">ping</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p><code>ping</code>
+This will always get a success response, when a response is received.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">static</span> <span class="k">var</span> <span class="nv">ping</span><span class="p">:</span> <span class="err">`</span><span class="k">Self</span><span class="err">`</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:5HAKit13HARequestTypeO4authACvpZ"></a>
+                    <a name="//apple_ref/swift/Variable/auth" class="dashAnchor"></a>
+                    <a class="token" href="#/s:5HAKit13HARequestTypeO4authACvpZ">auth</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p><code>auth</code>
+This is likely not useful for external consumers as this is handled automatically on connection.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">static</span> <span class="k">var</span> <span class="nv">auth</span><span class="p">:</span> <span class="err">`</span><span class="k">Self</span><span class="err">`</span></code></pre>
+
+                        </div>
                       </div>
                     </section>
                   </div>
