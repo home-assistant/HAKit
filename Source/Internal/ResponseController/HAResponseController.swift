@@ -37,6 +37,10 @@ internal protocol HAResponseController: AnyObject {
 
     func reset()
     func didReceive(event: Starscream.WebSocketEvent)
+    func didReceive(
+        for identifier: HARequestIdentifier,
+        response: Result<(HTTPURLResponse, Data?), Error>
+    )
 }
 
 internal class HAResponseControllerImpl: HAResponseController {
@@ -120,6 +124,60 @@ internal class HAResponseControllerImpl: HAResponseController {
         case let .error(error):
             HAGlobal.log(.error, "Error: \(String(describing: error))")
             phase = .disconnected(error: error, forReset: false)
+        }
+    }
+
+    func didReceive(
+        for identifier: HARequestIdentifier,
+        response: Result<(HTTPURLResponse, Data?), Error>
+    ) {
+        let didReceive = HAResetLock { [self] (result: Result<HAData, HAError>) in
+            delegate?.responseController(
+                self,
+                didReceive: .result(identifier: identifier, result: result)
+            )
+        }
+
+        switch response {
+        case let .failure(error):
+            didReceive.pop()?(.failure(.underlying(error as NSError)))
+        case let .success((urlResponse, data)):
+            if urlResponse.statusCode >= 400 {
+                let errorMessage: String
+
+                if let data = data, let string = String(data: data, encoding: .utf8) {
+                    errorMessage = string
+                } else {
+                    errorMessage = "Unacceptable status code"
+                }
+
+                didReceive.pop()?(.failure(.external(.init(
+                    code: String(urlResponse.statusCode),
+                    message: errorMessage
+                ))))
+            } else {
+                workQueue.async {
+                    do {
+                        let result: HAData
+
+                        if let data = data {
+                            switch urlResponse.allHeaderFields["Content-Type"] as? String {
+                            case "application/json", .none:
+                                let value = try JSONSerialization.jsonObject(with: data, options: [.allowFragments])
+                                result = HAData(value: value)
+                            default:
+                                result = HAData(value: String(data: data, encoding: .utf8))
+                            }
+                        } else {
+                            result = HAData.empty
+                        }
+
+                        didReceive.pop()?(.success(result))
+                    } catch {
+                        didReceive.pop()?(.failure(.underlying(error as NSError)))
+                    }
+                }
+            }
         }
     }
 }

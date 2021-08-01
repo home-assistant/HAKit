@@ -1,12 +1,45 @@
 /// The command to issue
-public struct HARequestType: RawRepresentable, Hashable, ExpressibleByStringLiteral {
-    public var rawValue: String
-    public init(rawValue: String) {
-        self.rawValue = rawValue
+public enum HARequestType: Hashable, Comparable, ExpressibleByStringLiteral {
+    /// Sent over WebSocket, the command of the request
+    case webSocket(String)
+    /// Sent over REST, the HTTP method to use and the post-`api/` path
+    case rest(HAHTTPMethod, String)
+
+    /// Create a WebSocket request type by string literal
+    /// - Parameter value: The name of the WebSocket command
+    public init(stringLiteral value: StringLiteralType) {
+        self = .webSocket(value)
     }
 
-    public init(stringLiteral value: StringLiteralType) {
-        self.init(rawValue: value)
+    /// The command of the request, agnostic of protocol type
+    public var command: String {
+        switch self {
+        case let .webSocket(command), let .rest(_, command):
+            return command
+        }
+    }
+
+    /// The request is issued outside of the lifecycle of a connection
+    public var isPerpetual: Bool {
+        switch self {
+        case .webSocket: return false
+        case .rest: return true
+        }
+    }
+
+    /// Sort the request type by command name
+    /// - Parameters:
+    ///   - lhs: The first type to compare
+    ///   - rhs: The second value to compare
+    /// - Returns: Whether the first type preceeds the second
+    public static func < (lhs: HARequestType, rhs: HARequestType) -> Bool {
+        switch (lhs, rhs) {
+        case (.webSocket, .rest): return true
+        case (.rest, .webSocket): return false
+        case let (.webSocket(lhsCommand), .webSocket(rhsCommand)),
+             let (.rest(_, lhsCommand), .rest(_, rhsCommand)):
+            return lhsCommand < rhsCommand
+        }
     }
 
     // MARK: - Requests

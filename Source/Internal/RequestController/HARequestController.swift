@@ -1,9 +1,26 @@
 import Foundation
 
+internal struct HARequestControllerAllowedSendKind: OptionSet {
+    var rawValue: Int
+
+    static let webSocket: Self = .init(rawValue: 0b1)
+    static let rest: Self = .init(rawValue: 0b10)
+    static let all: Self = [.webSocket, .rest]
+
+    func allows(requestType: HARequestType) -> Bool {
+        switch requestType {
+        case .webSocket:
+            return contains(.webSocket)
+        case .rest:
+            return contains(.rest)
+        }
+    }
+}
+
 internal protocol HARequestControllerDelegate: AnyObject {
-    func requestControllerShouldSendRequests(
+    func requestControllerAllowedSendKinds(
         _ requestController: HARequestController
-    ) -> Bool
+    ) -> HARequestControllerAllowedSendKind
     func requestController(
         _ requestController: HARequestController,
         didPrepareRequest request: HARequest,
@@ -35,6 +52,7 @@ internal class HARequestControllerImpl: HARequestController {
         var identifierGenerator = IdentifierGenerator()
         var pending: Set<HARequestInvocation> = Set()
         var active: [HARequestIdentifier: HARequestInvocation] = [:]
+        var perpetual: [HARequestIdentifier: HARequestInvocation] = [:]
 
         struct IdentifierGenerator {
             private var lastIdentifierInteger = 0
@@ -114,7 +132,7 @@ internal class HARequestControllerImpl: HARequestController {
 
     private func invocation(for identifier: HARequestIdentifier) -> HARequestInvocation? {
         state.read { state in
-            state.active[identifier]
+            state.active[identifier] ?? state.perpetual[identifier]
         }
     }
 
@@ -131,6 +149,7 @@ internal class HARequestControllerImpl: HARequestController {
         state.mutate { state in
             if let identifier = invocation.identifier {
                 state.active[identifier] = nil
+                state.perpetual[identifier] = nil
             }
 
             state.pending.remove(invocation)
@@ -171,7 +190,7 @@ internal class HARequestControllerImpl: HARequestController {
     }
 
     func prepare() {
-        guard delegate?.requestControllerShouldSendRequests(self) == true else {
+        guard let allowed = delegate?.requestControllerAllowedSendKinds(self), !allowed.isEmpty else {
             return
         }
 
@@ -179,10 +198,19 @@ internal class HARequestControllerImpl: HARequestController {
         var pendingCalls = [(HARequestControllerDelegate, HARequestControllerImpl) -> Void]()
 
         state.mutate { state in
-            for item in state.pending.filter(\.needsAssignment) {
+            let items = state.pending
+                .filter { $0.needsAssignment && allowed.allows(requestType: $0.request.type) }
+
+            for item in items {
                 let identifier = state.identifierGenerator.next()
-                state.active[identifier] = item
                 item.identifier = identifier
+
+                if item.request.type.isPerpetual {
+                    state.perpetual[identifier] = item
+                    state.pending.remove(item)
+                } else {
+                    state.active[identifier] = item
+                }
 
                 pendingCalls.append { delegate, controller in
                     delegate.requestController(controller, didPrepareRequest: item.request, with: identifier)

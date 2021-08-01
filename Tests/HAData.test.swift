@@ -56,15 +56,19 @@ internal class HADataTests: XCTestCase {
     }
 
     func testEmpty() {
-        for value: Any? in [
-            true, 3, (), nil,
-        ] {
-            let data = HAData(value: value)
-            switch data {
-            case .empty: break // pass
-            default: XCTFail("expected empty, got \(data)")
-            }
-        }
+        XCTAssertEqual(HAData(value: nil), .empty)
+    }
+
+    func testPrimitive() {
+        XCTAssertEqual(HAData(value: 3), .primitive(3))
+        XCTAssertNotEqual(HAData(value: 3), .primitive("other"))
+        XCTAssertEqual(HAData(value: "test"), .primitive("test"))
+        XCTAssertNotEqual(HAData(value: "test"), .primitive(-1))
+        XCTAssertEqual(HAData(value: 3.0), .primitive(3.0))
+        XCTAssertNotEqual(HAData(value: 3.0), .primitive("other"))
+        XCTAssertEqual(HAData(value: true), .primitive(true))
+        XCTAssertNotEqual(HAData(value: true), .primitive("other"))
+        XCTAssertEqual(HAData(value: false), .primitive(false))
     }
 
     func testDecodeMissingKey() {
@@ -126,10 +130,10 @@ internal class HADataTests: XCTestCase {
         let value = HAData(value: ["key": ["a": true, "b": ["test": true]]])
         let keyValue: [String: HAData] = try value.decode("key")
 
-        if case .empty = keyValue["a"] {
-            // pass
+        if case let .primitive(primitiveValue) = keyValue["a"] {
+            XCTAssertEqual(primitiveValue as? Bool, true)
         } else {
-            XCTFail("expected empty but got \(String(describing: keyValue["a"]))")
+            XCTFail("expected primitive but got \(String(describing: keyValue["a"]))")
         }
 
         if case let .dictionary(dictionary) = keyValue["b"] {

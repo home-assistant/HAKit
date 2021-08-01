@@ -20,14 +20,14 @@ internal class HARequestControllerTests: XCTestCase {
         XCTAssertTrue(delegate.didPrepare.isEmpty)
 
         // transition to allowed
-        delegate.shouldSendRequests = true
+        delegate.allowedSendKinds = .all
 
         controller.prepare()
         XCTAssertFalse(delegate.didPrepare.isEmpty)
     }
 
     func testAddingWhenAllowed() throws {
-        delegate.shouldSendRequests = true
+        delegate.allowedSendKinds = .all
 
         controller.add(.init(request: .init(type: "test1", data: [:])))
         controller.add(.init(request: .init(type: "test2", data: [:])))
@@ -37,7 +37,7 @@ internal class HARequestControllerTests: XCTestCase {
             try delegate.didPrepare.get(throwing: 0),
             try delegate.didPrepare.get(throwing: 1),
         ].sorted(by: { lhs, rhs in
-            lhs.request.type.rawValue < rhs.request.type.rawValue
+            lhs.request.type < rhs.request.type
         })
 
         let event1 = allEvents[0]
@@ -45,15 +45,99 @@ internal class HARequestControllerTests: XCTestCase {
 
         XCTAssertNotEqual(event1.identifier.rawValue, event2.identifier.rawValue)
 
-        XCTAssertEqual(event1.request.type.rawValue, "test1")
+        XCTAssertEqual(event1.request.type.command, "test1")
         XCTAssertGreaterThan(event1.identifier.rawValue, 0)
 
-        XCTAssertEqual(event2.request.type.rawValue, "test2")
+        XCTAssertEqual(event2.request.type.command, "test2")
         XCTAssertGreaterThan(event2.identifier.rawValue, 0)
     }
 
+    func testAddedPerpetualAndReset() throws {
+        delegate.allowedSendKinds = .all
+
+        // will completed before reset
+        let invoc1 = HARequestInvocationSingle(
+            request: .init(type: .rest(.get, "test1"), data: [:]),
+            completion: { _ in }
+        )
+        // will not be completed before reset
+        let invoc2 = HARequestInvocationSingle(
+            request: .init(type: .rest(.post, "test2"), data: [:]),
+            completion: { _ in }
+        )
+        // will be reset
+        let invoc3 = HARequestInvocationSingle(
+            request: .init(type: .webSocket("test3"), data: [:]),
+            completion: { _ in }
+        )
+
+        controller.add(invoc1)
+        controller.add(invoc2)
+        controller.add(invoc3)
+
+        XCTAssertEqual(delegate.didPrepare.count, 3)
+        delegate.didPrepare.removeAll()
+
+        let invocation = controller.single(for: try XCTUnwrap(invoc1.identifier))
+        XCTAssertEqual(invocation, invoc1)
+        invocation?.resolve(.success(.empty))
+
+        controller.resetActive()
+
+        // should still be available even after reset
+        XCTAssertNotNil(controller.single(for: try XCTUnwrap(invoc2.identifier)))
+
+        XCTAssertFalse(invoc1.needsAssignment)
+        XCTAssertFalse(invoc2.needsAssignment)
+        XCTAssertTrue(invoc3.needsAssignment)
+
+        controller.prepare()
+        XCTAssertEqual(delegate.didPrepare.count, 1)
+
+        let types = Set(delegate.didPrepare.map(\.request.type.command))
+        XCTAssertEqual(types, Set(["test3"]))
+    }
+
+    func testAddedOnlyRest() {
+        delegate.allowedSendKinds = .rest
+
+        let invoc1 = HARequestInvocationSingle(
+            request: .init(type: .rest(.get, "test1"), data: [:]),
+            completion: { _ in }
+        )
+        // will be reset
+        let invoc2 = HARequestInvocationSingle(
+            request: .init(type: .webSocket("test2"), data: [:]),
+            completion: { _ in }
+        )
+
+        controller.add(invoc1)
+        controller.add(invoc2)
+
+        XCTAssertEqual(delegate.didPrepare.count, 1)
+        delegate.didPrepare.removeAll()
+        controller.resetActive()
+
+        // should still be available even after reset
+        XCTAssertNotNil(controller.single(for: try XCTUnwrap(invoc1.identifier)))
+
+        XCTAssertFalse(invoc1.needsAssignment)
+        XCTAssertTrue(invoc2.needsAssignment)
+
+        controller.prepare()
+        XCTAssertEqual(delegate.didPrepare.count, 0)
+
+        delegate.allowedSendKinds = .all
+
+        controller.prepare()
+        XCTAssertEqual(delegate.didPrepare.count, 1)
+
+        let types = Set(delegate.didPrepare.map(\.request.type.command))
+        XCTAssertEqual(types, Set(["test2"]))
+    }
+
     func testAddedAndResetActive() throws {
-        delegate.shouldSendRequests = true
+        delegate.allowedSendKinds = .all
 
         // will completed
         let invoc1 = HARequestInvocationSingle(
@@ -100,7 +184,7 @@ internal class HARequestControllerTests: XCTestCase {
         controller.prepare()
         XCTAssertEqual(delegate.didPrepare.count, 2)
 
-        let types = Set(delegate.didPrepare.map(\.request.type.rawValue))
+        let types = Set(delegate.didPrepare.map(\.request.type.command))
         XCTAssertEqual(types, Set(["test3", "test4"]))
     }
 
@@ -115,14 +199,14 @@ internal class HARequestControllerTests: XCTestCase {
 
         XCTAssertFalse(invocation.needsAssignment)
 
-        delegate.shouldSendRequests = true
+        delegate.allowedSendKinds = .all
         controller.prepare()
 
         XCTAssertTrue(delegate.didPrepare.isEmpty)
     }
 
     func testCancelSingleAfterSent() {
-        delegate.shouldSendRequests = true
+        delegate.allowedSendKinds = .all
 
         var didCallCompletion = false
 
@@ -157,14 +241,14 @@ internal class HARequestControllerTests: XCTestCase {
 
         XCTAssertFalse(invocation.needsAssignment)
 
-        delegate.shouldSendRequests = true
+        delegate.allowedSendKinds = .all
         controller.prepare()
 
         XCTAssertTrue(delegate.didPrepare.isEmpty)
     }
 
     func testCancelSubscriptionAfterSent() throws {
-        delegate.shouldSendRequests = true
+        delegate.allowedSendKinds = .all
 
         let invocation = HARequestInvocationSubscription(
             request: .init(type: "test1", data: [:]),
@@ -191,7 +275,7 @@ internal class HARequestControllerTests: XCTestCase {
     }
 
     func testClearSingle() {
-        delegate.shouldSendRequests = true
+        delegate.allowedSendKinds = .all
 
         let invocation = HARequestInvocationSingle(
             request: .init(type: "test1", data: [:]),
@@ -233,7 +317,7 @@ internal class HARequestControllerTests: XCTestCase {
             handler: { _, _ in }
         )
 
-        delegate.shouldSendRequests = true
+        delegate.allowedSendKinds = .all
         controller.add(invocation1)
         controller.add(invocation2)
         controller.add(invocation3)
@@ -276,17 +360,18 @@ internal class HARequestControllerTests: XCTestCase {
         XCTAssertNil(controller.retrySubscriptionsTimer)
 
         XCTAssertEqual(
-            Set(delegate.didPrepare.map(\.request.type.rawValue)),
+            Set(delegate.didPrepare.map(\.request.type.command)),
             Set(["try1", "try2"])
         )
     }
 }
 
 private class TestHARequestControllerDelegate: HARequestControllerDelegate {
-    var shouldSendRequests = false
+    var allowedSendKinds: HARequestControllerAllowedSendKind = []
 
-    func requestControllerShouldSendRequests(_ requestController: HARequestController) -> Bool {
-        shouldSendRequests
+    func requestControllerAllowedSendKinds(_ requestController: HARequestController)
+        -> HARequestControllerAllowedSendKind {
+        allowedSendKinds
     }
 
     var didPrepare: [(request: HARequest, identifier: HARequestIdentifier)] = []

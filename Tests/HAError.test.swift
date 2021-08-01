@@ -8,6 +8,10 @@ internal class HAErrorTests: XCTestCase {
 
         let error2 = HAError.external(.init(code: "code", message: "msg2"))
         XCTAssertEqual(error2.localizedDescription, "msg2")
+
+        let underlying = NSError(domain: "test", code: 123, userInfo: [:])
+        let error3 = HAError.underlying(underlying)
+        XCTAssertEqual(error3.localizedDescription, underlying.localizedDescription)
     }
 
     func testExternalErrorInitWithBad() {

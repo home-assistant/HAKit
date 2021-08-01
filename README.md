@@ -1,10 +1,8 @@
 # HAKit
 
-**This is still in early development.**
-
 [![Documentation](https://home-assistant.github.io/HAKit/badge.svg)](https://home-assistant.github.io/HAKit/) [![codecov](https://codecov.io/gh/home-assistant/HAKit/branch/main/graph/badge.svg?token=M0ZUCTQMBM)](https://codecov.io/gh/home-assistant/HAKit) [![License Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-green.svg?style=flat)](https://github.com/home-assistant/HAKit/blob/master/LICENSE)
 
-This library allows you to connect to the [Home Assistant WebSocket API](https://developers.home-assistant.io/docs/api/websocket) to issue commands and subscribe to events. Future plans include offering minimal [REST API](https://developers.home-assistant.io/docs/api/rest) support, largely around authentication.
+This library allows you to connect to the [Home Assistant WebSocket API](https://developers.home-assistant.io/docs/api/websocket) to issue commands and subscribe to events as well as issue [REST API](https://developers.home-assistant.io/docs/api/rest) requests. Future plans include offering authentication support.
 
 ## API Reference
 
@@ -78,6 +76,16 @@ connection.send(.init(type: .currentUser, data: [:])) { result in
     // an error occurred with the request
   }
 }
+
+// you can also issue REST calls
+Current.apiConnection.send(.init(
+  // this will POST to `/api/template` with the data as the body
+  type: .rest(.post, "template"),
+  data: ["template": "{{ now() }}"]
+)) { result in
+  // same result type as sending a WebSocket request
+}
+
 ```
 
 Similarly, subscribing to events can be done both using the convenience helper or directly. 

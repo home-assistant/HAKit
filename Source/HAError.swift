@@ -4,6 +4,8 @@ import Foundation
 public enum HAError: Error, Equatable, LocalizedError {
     /// An error occurred in parsing or other internal handling
     case `internal`(debugDescription: String)
+    /// An underlying error occurred, in e.g. Codable parsing or otherwise. NSError because Equatable is annoying.
+    case underlying(NSError)
     /// An error response from the server indicating a request problem
     case external(ExternalError)
 
@@ -11,6 +13,7 @@ public enum HAError: Error, Equatable, LocalizedError {
     public var errorDescription: String? {
         switch self {
         case let .external(error): return error.message
+        case let .underlying(error): return error.localizedDescription
         case let .internal(debugDescription): return debugDescription
         }
     }

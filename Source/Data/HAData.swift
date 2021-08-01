@@ -9,8 +9,9 @@ public enum HAData: Equatable {
     case dictionary([String: Any])
     /// An array response.
     case array([HAData])
-    /// Any other response, including `null`
-    /// - TODO: Should we expose the actual underlying type here? Are there actually responses that use it?
+    /// Any other response, e.g. a string or number
+    case primitive(Any)
+    /// An empty response, such as `null`
     case empty
 
     /// Convert an unknown value type into an enum case
@@ -22,6 +23,8 @@ public enum HAData: Equatable {
             self = .dictionary(value)
         } else if let value = value as? [Any] {
             self = .array(value.map(Self.init(value:)))
+        } else if let value = value, !(value is NSNull) {
+            self = .primitive(value)
         } else {
             self = .empty
         }
@@ -31,6 +34,18 @@ public enum HAData: Equatable {
         switch (lhs, rhs) {
         case (.empty, .empty):
             return true
+        case let (.primitive(l), .primitive(r)):
+            if let l = l as? Int, let r = r as? Int {
+                return l == r
+            } else if let l = l as? String, let r = r as? String {
+                return l == r
+            } else if let l = l as? Double, let r = r as? Double {
+                return l == r
+            } else if let l = l as? Bool, let r = r as? Bool {
+                return l == r
+            }
+
+            return false
         case let (.array(lhsArray), .array(rhsArray)):
             return lhsArray == rhsArray
         case let (.dictionary(lhsDict), .dictionary(rhsDict)):
@@ -54,11 +69,17 @@ public enum HAData: Equatable {
                 return false
             }
         case (.dictionary, .array),
+             (.dictionary, .primitive),
              (.dictionary, .empty),
              (.array, .dictionary),
+             (.array, .primitive),
              (.array, .empty),
              (.empty, .dictionary),
-             (.empty, .array):
+             (.empty, .array),
+             (.empty, .primitive),
+             (.primitive, .dictionary),
+             (.primitive, .array),
+             (.primitive, .empty):
             return false
         }
     }

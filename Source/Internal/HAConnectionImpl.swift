@@ -58,6 +58,7 @@ internal class HAConnectionImpl: HAConnection {
     let requestController: HARequestController
     let responseController: HAResponseController
     let reconnectManager: HAReconnectManager
+    let urlSession: URLSession
     var connectAutomatically: Bool
     var hasSetupResubscribeEvents = HAProtected<Bool>(value: false)
     private(set) lazy var caches: HACachesContainer = .init(connection: self)
@@ -67,12 +68,14 @@ internal class HAConnectionImpl: HAConnection {
         requestController: HARequestController = HARequestControllerImpl(),
         responseController: HAResponseController = HAResponseControllerImpl(),
         reconnectManager: HAReconnectManager = HAReconnectManagerImpl(),
+        urlSession: URLSession = .init(configuration: .ephemeral),
         connectAutomatically: Bool = false
     ) {
         self.configuration = configuration
         self.requestController = requestController
         self.responseController = responseController
         self.reconnectManager = reconnectManager
+        self.urlSession = urlSession
         self.connectAutomatically = connectAutomatically
 
         requestController.delegate = self
@@ -194,7 +197,7 @@ internal class HAConnectionImpl: HAConnection {
                         let updated = try T(data: data)
                         return .success(updated)
                     } catch {
-                        return .failure(.internal(debugDescription: String(describing: error)))
+                        return .failure(.underlying(error as NSError))
                     }
                 }
 
@@ -288,23 +291,27 @@ internal class HAConnectionImpl: HAConnection {
 // MARK: -
 
 extension HAConnectionImpl {
-    func sendRaw(
+    private static func data(from dictionary: [String: Any]) -> Data {
+        // the only cases where JSONSerialization appears to fail are cases where it throws exceptions too
+        // this is bad API from Apple that I don't feel like dealing with :grimace:
+
+        // swiftlint:disable:next force_try
+        try! JSONSerialization.data(withJSONObject: dictionary, options: [.sortedKeys])
+    }
+
+    private func sendWebSocket(
         identifier: HARequestIdentifier?,
-        request: HARequest
+        request: HARequest,
+        command: String
     ) {
         workQueue.async { [connection] in
             var dictionary = request.data
             if let identifier = identifier {
                 dictionary["id"] = identifier.rawValue
             }
-            dictionary["type"] = request.type.rawValue
+            dictionary["type"] = command
 
-            // the only cases where JSONSerialization appears to fail are cases where it throws exceptions too
-            // this is bad API from Apple that I don't feel like dealing with :grimace:
-
-            // swiftlint:disable:next force_try
-            let data = try! JSONSerialization.data(withJSONObject: dictionary, options: [.sortedKeys])
-            let string = String(data: data, encoding: .utf8)!
+            let string = String(data: Self.data(from: dictionary), encoding: .utf8)!
 
             if request.type == .auth {
                 HAGlobal.log(.info, "Sending: (auth)")
@@ -313,6 +320,61 @@ extension HAConnectionImpl {
             }
 
             connection?.write(string: string)
+        }
+    }
+
+    private func sendRest(
+        identifier: HARequestIdentifier,
+        request: HARequest,
+        method: HAHTTPMethod,
+        command: String
+    ) {
+        guard let connectionInfo = configuration.connectionInfo() else {
+            responseController.didReceive(for: identifier, response: .failure(ConnectError.noConnectionInfo))
+            return
+        }
+
+        configuration.fetchAuthToken { [self] result in
+            switch result {
+            case let .success(bearerToken):
+                var httpRequest = connectionInfo.request(path: "api/" + command, queryItems: request.queryItems)
+                httpRequest.httpMethod = method.rawValue
+                httpRequest.setValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
+                httpRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+                if method != .get, !request.data.isEmpty {
+                    httpRequest.httpBody = Self.data(from: request.data)
+                }
+
+                let task = urlSession.dataTask(with: httpRequest) { data, response, error in
+                    if let response = response {
+                        responseController.didReceive(
+                            for: identifier,
+                            // This badly-typed API will always return HTTPURLResponses to http/https endpoints.
+                            // swiftlint:disable:next force_cast
+                            response: .success((response as! HTTPURLResponse, data))
+                        )
+                    } else {
+                        responseController.didReceive(for: identifier, response: .failure(error!))
+                    }
+                }
+
+                task.resume()
+            case let .failure(error):
+                responseController.didReceive(for: identifier, response: .failure(error))
+            }
+        }
+    }
+
+    func sendRaw(
+        identifier: HARequestIdentifier?,
+        request: HARequest
+    ) {
+        switch request.type {
+        case let .webSocket(command):
+            sendWebSocket(identifier: identifier, request: request, command: command)
+        case let .rest(method, command):
+            sendRest(identifier: identifier!, request: request, method: method, command: command)
         }
     }
 }
