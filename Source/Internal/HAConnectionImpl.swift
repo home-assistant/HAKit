@@ -359,6 +359,16 @@ extension HAConnectionImpl {
                     }
                 }
 
+                let loggableBody: String
+
+                if let body = httpRequest.httpBody {
+                    loggableBody = String(data: body, encoding: .utf8) ?? "(undecodable)"
+                } else {
+                    loggableBody = ""
+                }
+
+                HAGlobal.log(.info, "Sending: \(identifier) \(method.rawValue) /api/\(command) \(loggableBody)")
+
                 task.resume()
             case let .failure(error):
                 responseController.didReceive(for: identifier, response: .failure(error))

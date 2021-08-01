@@ -132,6 +132,13 @@ internal class HAResponseControllerImpl: HAResponseController {
         response: Result<(HTTPURLResponse, Data?), Error>
     ) {
         let didReceive = HAResetLock { [self] (result: Result<HAData, HAError>) in
+            switch result {
+            case .success:
+                HAGlobal.log(.info, "Received: result success \(identifier)")
+            case let .failure(error):
+                HAGlobal.log(.info, "Received: result failure \(identifier): \(error)")
+            }
+
             delegate?.responseController(
                 self,
                 didReceive: .result(identifier: identifier, result: result)
