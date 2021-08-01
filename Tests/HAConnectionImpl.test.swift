@@ -122,7 +122,7 @@ internal class HAConnectionImplTests: XCTestCase {
         case let .rest(method, _):
             XCTAssertEqual(sentRequest.httpMethod, method.rawValue)
             if method == .get {
-                XCTAssertNil(sentRequest.httpBodyStream)
+                XCTAssertFalse(sentRequest.httpBodyStream?.hasBytesAvailable ?? false)
             } else {
                 XCTAssertEqual(
                     String(data: sentRequest.httpBodyStreamAsData, encoding: .utf8),
