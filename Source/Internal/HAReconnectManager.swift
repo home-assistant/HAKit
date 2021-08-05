@@ -67,6 +67,7 @@ internal class HAReconnectManagerImpl: HAReconnectManager {
                 nextTimerDate = reconnectTimer?.fireDate
             }
         }
+
         var lastPingDuration: Measurement<UnitDuration>?
         @HASchedulingTimer var pingTimer: Timer?
 
@@ -78,6 +79,7 @@ internal class HAReconnectManagerImpl: HAReconnectManager {
             retryCount = 0
         }
     }
+
     private let state = HAProtected<State>(value: .init())
 
     var reason: HAConnectionState.DisconnectReason {
@@ -229,12 +231,15 @@ extension HAReconnectManagerImpl {
     var reconnectTimer: Timer? {
         state.read(\.reconnectTimer)
     }
+
     var lastPingDuration: Measurement<UnitDuration>? {
         state.read(\.lastPingDuration)
     }
+
     var pingTimer: Timer? {
         state.read(\.pingTimer)
     }
+
     var retryCount: Int {
         state.read(\.retryCount)
     }
