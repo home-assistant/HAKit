@@ -58,46 +58,56 @@ internal class HAReconnectManagerImpl: HAReconnectManager {
     let pathMonitor = NWPathMonitor()
     #endif
 
-    private(set) var retryCount: Int = 0
-    private(set) var lastError: Error?
-    private(set) var nextTimerDate: Date?
-    @HASchedulingTimer private(set) var reconnectTimer: Timer? {
-        didSet {
-            nextTimerDate = reconnectTimer?.fireDate
+    private struct State {
+        var retryCount: Int = 0
+        var lastError: Error?
+        var nextTimerDate: Date?
+        @HASchedulingTimer var reconnectTimer: Timer? {
+            didSet {
+                nextTimerDate = reconnectTimer?.fireDate
+            }
+        }
+        var lastPingDuration: Measurement<UnitDuration>?
+        @HASchedulingTimer var pingTimer: Timer?
+
+        mutating func reset() {
+            lastPingDuration = nil
+            pingTimer = nil
+            reconnectTimer = nil
+            lastError = nil
+            retryCount = 0
         }
     }
-
-    private(set) var lastPingDuration: Measurement<UnitDuration>?
-    @HASchedulingTimer private(set) var pingTimer: Timer?
+    private let state = HAProtected<State>(value: .init())
 
     var reason: HAConnectionState.DisconnectReason {
-        guard let nextTimerDate = nextTimerDate else {
-            return .disconnected
-        }
+        state.read { state in
+            guard let nextTimerDate = state.nextTimerDate else {
+                return .disconnected
+            }
 
-        return .waitingToReconnect(
-            lastError: lastError,
-            atLatest: nextTimerDate,
-            retryCount: retryCount
-        )
+            return .waitingToReconnect(
+                lastError: state.lastError,
+                atLatest: nextTimerDate,
+                retryCount: state.retryCount
+            )
+        }
     }
 
     init() {
         #if canImport(Network)
         pathMonitor.pathUpdateHandler = { [weak self] _ in
             // if we're waiting to reconnect, try now!
-            self?.reconnectTimer?.fire()
+            self?.state.read(\.reconnectTimer)?.fire()
         }
         pathMonitor.start(queue: .main)
         #endif
     }
 
     private func reset() {
-        lastPingDuration = nil
-        pingTimer = nil
-        reconnectTimer = nil
-        lastError = nil
-        retryCount = 0
+        state.mutate { state in
+            state.reset()
+        }
     }
 
     @objc private func retryTimerFired(_ timer: Timer) {
@@ -118,26 +128,28 @@ internal class HAReconnectManagerImpl: HAReconnectManager {
     }
 
     func didDisconnectTemporarily(error: Error?) {
-        lastError = error
+        state.mutate { state in
+            state.lastError = error
 
-        let delay: TimeInterval = {
-            switch retryCount {
-            case 0: return 0.0
-            case 1: return 5.0
-            case 2, 3: return 10.0
-            default: return 15.0
-            }
-        }()
+            let delay: TimeInterval = {
+                switch state.retryCount {
+                case 0: return 0.0
+                case 1: return 5.0
+                case 2, 3: return 10.0
+                default: return 15.0
+                }
+            }()
 
-        reconnectTimer = Timer(
-            fireAt: HAGlobal.date().addingTimeInterval(delay),
-            interval: 0,
-            target: self,
-            selector: #selector(retryTimerFired(_:)),
-            userInfo: nil,
-            repeats: false
-        )
-        retryCount += 1
+            state.reconnectTimer = Timer(
+                fireAt: HAGlobal.date().addingTimeInterval(delay),
+                interval: 0,
+                target: self,
+                selector: #selector(retryTimerFired(_:)),
+                userInfo: nil,
+                repeats: false
+            )
+            state.retryCount += 1
+        }
     }
 
     private func schedulePing() {
@@ -156,7 +168,10 @@ internal class HAReconnectManagerImpl: HAReconnectManager {
             self?.sendPing()
         }
         timer.tolerance = 10.0
-        pingTimer = timer
+
+        state.mutate { state in
+            state.pingTimer = timer
+        }
     }
 
     private func sendPing() {
@@ -183,18 +198,44 @@ internal class HAReconnectManagerImpl: HAReconnectManager {
             self?.handle(pingResult: .failure(HAReconnectManagerError.timeout))
         }
         timeoutTimer?.tolerance = 5.0
-        pingTimer = timeoutTimer
+
+        state.mutate { state in
+            state.pingTimer = timeoutTimer
+        }
     }
 
     private func handle(pingResult: Result<Measurement<UnitDuration>, Error>) {
-        pingTimer = nil
+        let needsReschedule = state.mutate { state -> Bool in
+            state.pingTimer = nil
 
-        switch pingResult {
-        case let .success(duration):
-            lastPingDuration = duration
-            schedulePing()
-        case let .failure(error):
-            delegate?.reconnect(self, wantsDisconnectFor: error)
+            switch pingResult {
+            case let .success(duration):
+                state.lastPingDuration = duration
+                return true
+            case let .failure(error):
+                delegate?.reconnect(self, wantsDisconnectFor: error)
+                return false
+            }
         }
+
+        if needsReschedule {
+            schedulePing()
+        }
+    }
+}
+
+// for tests
+extension HAReconnectManagerImpl {
+    var reconnectTimer: Timer? {
+        state.read(\.reconnectTimer)
+    }
+    var lastPingDuration: Measurement<UnitDuration>? {
+        state.read(\.lastPingDuration)
+    }
+    var pingTimer: Timer? {
+        state.read(\.pingTimer)
+    }
+    var retryCount: Int {
+        state.read(\.retryCount)
     }
 }

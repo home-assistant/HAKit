@@ -106,11 +106,15 @@ internal class HAConnectionImpl: HAConnection {
     // MARK: - Connection Handling
 
     public func connect() {
-        connect(resettingState: true)
+        performConnectionChange { [self] in
+            connect(resettingState: true)
+        }
     }
 
     public func disconnect() {
-        disconnect(permanently: true, error: nil)
+        performConnectionChange { [self] in
+            disconnect(permanently: true, error: nil)
+        }
     }
 
     private func connectAutomaticallyIfNeeded() {
@@ -118,7 +122,17 @@ internal class HAConnectionImpl: HAConnection {
         connect()
     }
 
+    func performConnectionChange(_ block: @escaping () -> Void) {
+        if Thread.isMainThread {
+            block()
+        } else {
+            DispatchQueue.main.async(execute: block)
+        }
+    }
+
     func connect(resettingState: Bool) {
+        precondition(Thread.isMainThread)
+
         guard let connectionInfo = configuration.connectionInfo() else {
             disconnect(permanently: false, error: ConnectError.noConnectionInfo)
             return
@@ -155,6 +169,8 @@ internal class HAConnectionImpl: HAConnection {
     }
 
     func disconnect(permanently: Bool, error: Error?) {
+        precondition(Thread.isMainThread)
+
         HAGlobal.log(.info, "disconnecting; permanently: \(permanently), error: \(String(describing: error))")
 
         connection?.delegate = nil
