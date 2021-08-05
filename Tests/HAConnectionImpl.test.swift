@@ -221,6 +221,39 @@ internal class HAConnectionImplTests: XCTestCase {
         XCTAssertFalse(reconnectManager.didTemporarily)
     }
 
+    func testConnectionConnectDisconnectOffThread() throws {
+        XCTAssertTrue(engine.events.isEmpty)
+        XCTAssertFalse(reconnectManager.didStartInitial)
+
+        let connectExpectation = expectation(description: "after a run loop")
+        DispatchQueue.global().async { [self] in
+            connection.connect()
+            DispatchQueue.main.async {
+                connectExpectation.fulfill()
+            }
+        }
+
+        wait(for: [connectExpectation], timeout: 10.0)
+        waitForCallbackQueue()
+
+        XCTAssertFalse(engine.events.isEmpty)
+        XCTAssertTrue(reconnectManager.didStartInitial)
+
+        let disconnectExpectation = expectation(description: "after a run loop")
+        DispatchQueue.global().async { [self] in
+            connection.disconnect()
+            DispatchQueue.main.async {
+                disconnectExpectation.fulfill()
+            }
+        }
+
+        wait(for: [disconnectExpectation], timeout: 10.0)
+        waitForCallbackQueue()
+
+        XCTAssertTrue(responseController.wasReset)
+        XCTAssertTrue(engine.events.contains(.stop(CloseCode.goingAway.rawValue)))
+    }
+
     func testSubscribeRetryEvents() {
         requestController.retrySubscriptionsEvents = ["event1", "event2"]
         connection.connect()
