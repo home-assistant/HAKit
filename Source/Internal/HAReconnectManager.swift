@@ -207,21 +207,19 @@ internal class HAReconnectManagerImpl: HAReconnectManager {
     }
 
     private func handle(pingResult: Result<Measurement<UnitDuration>, Error>) {
-        let needsReschedule = state.mutate { state -> Bool in
+        state.mutate { state in
             state.pingTimer = nil
 
-            switch pingResult {
-            case let .success(duration):
+            if case let .success(duration) = pingResult {
                 state.lastPingDuration = duration
-                return true
-            case let .failure(error):
-                delegate?.reconnect(self, wantsDisconnectFor: error)
-                return false
             }
         }
 
-        if needsReschedule {
+        switch pingResult {
+        case .success:
             schedulePing()
+        case let .failure(error):
+            delegate?.reconnect(self, wantsDisconnectFor: error)
         }
     }
 }
