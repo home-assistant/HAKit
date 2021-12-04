@@ -1,6 +1,6 @@
 import Foundation
 
-internal class HAProtected<ValueType> {
+public class HAProtected<ValueType> {
     private var value: ValueType
     private let lock: os_unfair_lock_t = {
         let value = os_unfair_lock_t.allocate(capacity: 1)
@@ -8,7 +8,7 @@ internal class HAProtected<ValueType> {
         return value
     }()
 
-    init(value: ValueType) {
+    public init(value: ValueType) {
         self.value = value
     }
 
@@ -18,13 +18,13 @@ internal class HAProtected<ValueType> {
     }
 
     @discardableResult
-    func mutate<HandlerType>(using handler: (inout ValueType) -> HandlerType) -> HandlerType {
+    public func mutate<HandlerType>(using handler: (inout ValueType) -> HandlerType) -> HandlerType {
         os_unfair_lock_lock(lock)
         defer { os_unfair_lock_unlock(lock) }
         return handler(&value)
     }
 
-    func read<T>(_ handler: (ValueType) -> T) -> T {
+    public func read<T>(_ handler: (ValueType) -> T) -> T {
         os_unfair_lock_lock(lock)
         defer { os_unfair_lock_unlock(lock) }
         return handler(value)
