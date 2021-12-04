@@ -17,7 +17,7 @@
     <a title="HAProtected Class Reference"></a>
     <header>
       <div class="content-wrapper">
-        <p><a href="../index.html">HAKit 0.3 Docs</a> (96% documented)</p>
+        <p><a href="../index.html">HAKit 0.3 Docs</a> (97% documented)</p>
         <p class="header-right"><a href="https://www.github.com/home-assistant/ha-swift-api"><img src="../img/gh.png" alt="GitHub"/>View on GitHub</a></p>
         <div class="header-right">
           <form role="search" action="../search.json">
@@ -236,7 +236,9 @@
 
                 </div>
               </div>
-            <p>Undocumented</p>
+            <p>Wrapper around a value with a lock</p>
+
+<p>Provided publicly as a convenience in case the library uses it anywhere.</p>
 
           </section>
           <section class="section task-group-section">
@@ -255,7 +257,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p>Create a new protected value</p>
 
                       </div>
                       <div class="declaration">
@@ -265,6 +267,25 @@
                           <pre class="highlight swift"><code><span class="kd">public</span> <span class="nf">init</span><span class="p">(</span><span class="nv">value</span><span class="p">:</span> <span class="kt">ValueType</span><span class="p">)</span></code></pre>
 
                         </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>value</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The initial value</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
                       </div>
                     </section>
                   </div>
@@ -282,7 +303,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p>Get and optionally change the value</p>
 
                       </div>
                       <div class="declaration">
@@ -293,6 +314,29 @@
 <span class="kd">public</span> <span class="kd">func</span> <span class="n">mutate</span><span class="o">&lt;</span><span class="kt">HandlerType</span><span class="o">&gt;</span><span class="p">(</span><span class="n">using</span> <span class="nv">handler</span><span class="p">:</span> <span class="p">(</span><span class="k">inout</span> <span class="kt">ValueType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">HandlerType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">HandlerType</span></code></pre>
 
                         </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>handler</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Will be invoked immediately with the current value as an inout parameter.</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <div>
+                        <h4>Return Value</h4>
+                        <p>The value returned by the handler block</p>
                       </div>
                     </section>
                   </div>
@@ -310,7 +354,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p>Read the value and get a result out of it</p>
 
                       </div>
                       <div class="declaration">
@@ -320,6 +364,29 @@
                           <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">func</span> <span class="n">read</span><span class="o">&lt;</span><span class="kt">T</span><span class="o">&gt;</span><span class="p">(</span><span class="n">_</span> <span class="nv">handler</span><span class="p">:</span> <span class="p">(</span><span class="kt">ValueType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">T</span></code></pre>
 
                         </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>handler</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Will be invoked immediately with the current value.</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <div>
+                        <h4>Return Value</h4>
+                        <p>The value returned by the handler block</p>
                       </div>
                     </section>
                   </div>

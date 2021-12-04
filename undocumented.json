@@ -1,34 +1,6 @@
 {
   "warnings": [
     {
-      "file": "/Users/runner/work/HAKit/HAKit/Source/Internal/HAProtected.swift",
-      "line": 3,
-      "symbol": "HAProtected",
-      "symbol_kind": "source.lang.swift.decl.class",
-      "warning": "undocumented"
-    },
-    {
-      "file": "/Users/runner/work/HAKit/HAKit/Source/Internal/HAProtected.swift",
-      "line": 11,
-      "symbol": "HAProtected.init(value:)",
-      "symbol_kind": "source.lang.swift.decl.function.method.instance",
-      "warning": "undocumented"
-    },
-    {
-      "file": "/Users/runner/work/HAKit/HAKit/Source/Internal/HAProtected.swift",
-      "line": 21,
-      "symbol": "HAProtected.mutate(using:)",
-      "symbol_kind": "source.lang.swift.decl.function.method.instance",
-      "warning": "undocumented"
-    },
-    {
-      "file": "/Users/runner/work/HAKit/HAKit/Source/Internal/HAProtected.swift",
-      "line": 27,
-      "symbol": "HAProtected.read(_:)",
-      "symbol_kind": "source.lang.swift.decl.function.method.instance",
-      "warning": "undocumented"
-    },
-    {
       "file": "/Users/runner/work/HAKit/HAKit/Source/Requests/HAHTTPMethod.swift",
       "line": 1,
       "symbol": "HAHTTPMethod",
