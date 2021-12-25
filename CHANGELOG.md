@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added: REST API calls can now be issued.
 - Changed: `HARequestType` is now an enum of `webSocket` and `rest`. The command value for REST calls is the value after 'api/', e.g. 'api/template' has a type of `.rest(.post, "template")`.
 - Changed: `HAData` now includes a `primitive` case to express non-array/dictionary values that aren't `null`.
+- Changed: WebSocket connection will now enable compression.
 - Fixed: Calling `HAConnection.connect()` and `HAConnection.disconnect()` off the main thread no longer occasionally crashes.
 
 ## [0.3] - 2021-07-08

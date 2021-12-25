@@ -107,7 +107,7 @@ public struct HAConnectionInfo: Equatable {
         if let engine = engine {
             webSocket = WebSocket(request: request, engine: engine)
         } else {
-            webSocket = WebSocket(request: request)
+            webSocket = WebSocket(request: request, compressionHandler: WSCompression())
         }
 
         return webSocket
