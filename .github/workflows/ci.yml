@@ -7,12 +7,12 @@ on:
       - main
 
 env:
-  DEVELOPER_DIR: /Applications/Xcode_12.4.app/Contents/Developer
+  DEVELOPER_DIR: /Applications/Xcode_13.3.1.app/Contents/Developer
   HOMEBREW_NO_INSTALL_CLEANUP: TRUE
 
 jobs:
   lint:
-    runs-on: macos-latest
+    runs-on: macos-12
     steps:
       - uses: actions/checkout@v2
       - name: Install Dependencies
@@ -21,7 +21,7 @@ jobs:
         run: make lint
 
   test:
-    runs-on: macos-latest
+    runs-on: macos-12
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v2

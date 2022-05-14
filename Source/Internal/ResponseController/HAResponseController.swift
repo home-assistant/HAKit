@@ -100,7 +100,7 @@ internal class HAResponseControllerImpl: HAResponseController {
                     }
                 }
 
-                DispatchQueue.main.async {
+                DispatchQueue.main.async { [self] in
                     if case let .auth(.ok(version)) = response {
                         phase = .command(version: version)
                     }

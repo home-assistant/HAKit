@@ -11,19 +11,23 @@ public struct HAConnectionInfo: Equatable {
         case invalidPort
     }
 
+    /// Certificate validation handler
+    public typealias EvaluateCertificate = (SecTrust, (Result<Void, Error>) -> Void) -> Void
+
     /// Create a connection info
     ///
     /// URLs are in the form of: https://url-to-hass:8123 and /api/websocket will be appended.
     ///
     /// - Parameter url: The url to connect to
     /// - Parameter userAgent: Optionally change the User-Agent to this
+    /// - Parameter evaluateCertificate: Optionally override default SecTrust validation
     /// - Throws: If the URL provided is invalid in some way, see `CreationError`
-    public init(url: URL, userAgent: String? = nil) throws {
-        try self.init(url: url, userAgent: userAgent, engine: nil)
+    public init(url: URL, userAgent: String? = nil, evaluateCertificate: EvaluateCertificate? = nil) throws {
+        try self.init(url: url, userAgent: userAgent, evaluateCertificate: evaluateCertificate, engine: nil)
     }
 
     /// Internally create a connection info with engine
-    internal init(url: URL, userAgent: String?, engine: Engine?) throws {
+    internal init(url: URL, userAgent: String?, evaluateCertificate: EvaluateCertificate?, engine: Engine?) throws {
         guard let host = url.host, !host.isEmpty else {
             throw CreationError.emptyHostname
         }
@@ -35,6 +39,7 @@ public struct HAConnectionInfo: Equatable {
         self.url = Self.sanitize(url)
         self.userAgent = userAgent
         self.engine = engine
+        self.evaluateCertificate = evaluateCertificate
     }
 
     /// The base URL for the WebSocket connection
@@ -49,6 +54,9 @@ public struct HAConnectionInfo: Equatable {
 
     /// Used for dependency injection in tests
     internal var engine: Engine?
+
+    /// Used to validate certificate, if provided
+    internal var evaluateCertificate: EvaluateCertificate?
 
     /// Should this connection info take over an existing connection?
     ///
@@ -107,7 +115,8 @@ public struct HAConnectionInfo: Equatable {
         if let engine = engine {
             webSocket = WebSocket(request: request, engine: engine)
         } else {
-            webSocket = WebSocket(request: request, compressionHandler: WSCompression())
+            let pinning = evaluateCertificate.flatMap { HAStarscreamCertificatePinningImpl(evaluateCertificate: $0) }
+            webSocket = WebSocket(request: request, certPinner: pinning, compressionHandler: WSCompression())
         }
 
         return webSocket

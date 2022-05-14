@@ -362,7 +362,7 @@ extension HAConnectionImpl {
                     httpRequest.httpBody = Self.data(from: request.data)
                 }
 
-                let task = urlSession.dataTask(with: httpRequest) { data, response, error in
+                let task = urlSession.dataTask(with: httpRequest) { [self] data, response, error in
                     if let response = response {
                         responseController.didReceive(
                             for: identifier,
