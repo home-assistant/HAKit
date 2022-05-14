@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 - Added: REST API calls can now be issued.
+* Added: `HAConnectionInfo` can now provide a closure to handle SecTrust (TLS certificate) validation other than the default.
 - Changed: `HARequestType` is now an enum of `webSocket` and `rest`. The command value for REST calls is the value after 'api/', e.g. 'api/template' has a type of `.rest(.post, "template")`.
 - Changed: `HAData` now includes a `primitive` case to express non-array/dictionary values that aren't `null`.
 - Changed: WebSocket connection will now enable compression.
