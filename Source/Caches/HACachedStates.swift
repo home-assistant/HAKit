@@ -46,7 +46,7 @@ private struct HACacheKeyStates: HACacheKey {
 
         if let changes = info.incoming.change {
             changes.forEach { entityId, diff in
-                guard var entityState = states[entityId] else { return }
+                guard let entityState = states[entityId] else { return }
 
                 if let toAdd = diff.additions {
                     if let updateEntity = entityState.updatedEntity(adding: toAdd) {

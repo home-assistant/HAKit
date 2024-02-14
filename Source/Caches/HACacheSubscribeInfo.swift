@@ -65,8 +65,8 @@ public struct HACacheSubscribeInfo<OutgoingType> {
     ///   - current: The current value part of the transform info
     /// - Throws: If the type of incoming does not match the original IncomingType
     /// - Returns: The response from the transform block
-    public func transform<IncomingType>(incoming: IncomingType, current: OutgoingType) throws -> Response {
-        try anyTransform(HACacheTransformInfo<IncomingType, OutgoingType>(incoming: incoming, current: current))
+    public func transform<IncomingType>(incoming: IncomingType, current: OutgoingType?) throws -> Response {
+        try anyTransform(HACacheTransformInfo<IncomingType, OutgoingType?>(incoming: incoming, current: current))
     }
 
     /// The start handler
