@@ -9,13 +9,9 @@ public extension HATypedSubscription {
             "event_type": HAEventType.stateChanged.rawValue!,
         ]))
     }
-}
 
-public extension HATypedRequest {
-    /// Get the state of all entities
-    /// - Returns: A typed request that can be sent via `HAConnection`
-    static func getStates() -> HATypedRequest<[HAEntity]> {
-        .init(request: .init(type: .getStates, data: [:]))
+    static func subscribeEntities() -> HATypedSubscription<CompressedStatesUpdates> {
+        .init(request: .init(type: .subscribeEntities, data: [:]))
     }
 }
 
