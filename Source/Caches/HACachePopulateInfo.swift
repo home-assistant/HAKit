@@ -32,7 +32,7 @@ public struct HACachePopulateInfo<OutgoingType> {
             }, start: { connection, perform in
                 connection.send(retryRequest, completion: { result in
                     perform { current in
-                        transform(.init(incoming: try result.get(), current: current))
+                        try transform(.init(incoming: result.get(), current: current))
                     }
                 })
             }

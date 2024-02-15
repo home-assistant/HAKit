@@ -24,7 +24,7 @@ extension HAEntity {
             state: compressedEntityState.state,
             lastChanged: compressedEntityState.lastChangedDate ?? lastChanged,
             lastUpdated: compressedEntityState.lastUpdatedDate ?? lastUpdated,
-            attributes:newAttributes,
+            attributes: newAttributes,
             context: .init(id: compressedEntityState.context ?? "", userId: nil, parentId: nil)
         )
     }
@@ -36,7 +36,8 @@ extension HAEntity {
             state: state,
             lastChanged: lastChanged,
             lastUpdated: lastUpdated,
-            attributes: attributes.dictionary.filter({  !(compressedEntityStateRemove.attributes?.contains($0.key) ?? false)  }),
+            attributes: attributes.dictionary
+                .filter { !(compressedEntityStateRemove.attributes?.contains($0.key) ?? false) },
             context: context
         )
     }

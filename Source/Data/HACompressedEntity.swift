@@ -6,9 +6,9 @@ public struct CompressedStatesUpdates: HADataDecodable {
     public let change: [String: CompressedEntityDiff]?
 
     public init(data: HAData) throws {
-        add = try? data.decode("a")
-        remove = try? data.decode("r")
-        change = try? data.decode("c")
+        self.add = try? data.decode("a")
+        self.remove = try? data.decode("r")
+        self.change = try? data.decode("c")
     }
 }
 
@@ -20,11 +20,11 @@ public struct CompressedEntityState: HADataDecodable {
     public let lastUpdated: Double?
 
     public init(data: HAData) throws {
-        state = try data.decode("s")
-        attributes = try? data.decode("a")
-        context = try? data.decode("c")
-        lastChanged = try? data.decode("lc")
-        lastUpdated = try? data.decode("lu")
+        self.state = try data.decode("s")
+        self.attributes = try? data.decode("a")
+        self.context = try? data.decode("c")
+        self.lastChanged = try? data.decode("lc")
+        self.lastUpdated = try? data.decode("lu")
     }
 
     public var lastChangedDate: Date? {
@@ -50,7 +50,7 @@ public struct CompressedEntityState: HADataDecodable {
             "last_changed": lastChangedDate ?? Date(),
             "last_updated": lastUpdatedDate ?? Date(),
             "attributes": attributes as? [String: Any] ?? [:],
-            "context": ["id": entityId]
+            "context": ["id": entityId],
         ])
         return try HAEntity(data: data)
     }
@@ -58,9 +58,9 @@ public struct CompressedEntityState: HADataDecodable {
 
 public struct CompressedEntityStateRemove: HADataDecodable {
     public let attributes: [String]?
-    
+
     public init(data: HAData) throws {
-        attributes = try? data.decode("a")
+        self.attributes = try? data.decode("a")
     }
 }
 
@@ -69,7 +69,7 @@ public struct CompressedEntityDiff: HADataDecodable {
     public let subtractions: CompressedEntityStateRemove?
 
     public init(data: HAData) throws {
-        additions = try? data.decode("+")
-        subtractions = try? data.decode("-")
+        self.additions = try? data.decode("+")
+        self.subtractions = try? data.decode("-")
     }
 }
