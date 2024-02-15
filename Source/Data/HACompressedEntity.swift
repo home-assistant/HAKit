@@ -1,10 +1,3 @@
-//
-//  HACompressedEntity.swift
-//  Pods
-//
-//  Created by Bruno Pantaleão on 16/01/2024.
-//
-
 import Foundation
 
 public struct CompressedStatesUpdates: HADataDecodable {
@@ -21,7 +14,7 @@ public struct CompressedStatesUpdates: HADataDecodable {
 
 public struct CompressedEntityState: HADataDecodable {
     public let state: String
-    public let attributes: DynamicDictionary?
+    public let attributes: NSDictionary?
     public let context: String?
     public let lastChanged: Double?
     public let lastUpdated: Double?
@@ -56,7 +49,7 @@ public struct CompressedEntityState: HADataDecodable {
             "state": state,
             "last_changed": lastChangedDate ?? Date(),
             "last_updated": lastUpdatedDate ?? Date(),
-            "attributes": attributes?.dictionary ?? [:],
+            "attributes": attributes as? [String: Any] ?? [:],
             "context": ["id": entityId]
         ])
         return try HAEntity(data: data)
@@ -78,24 +71,5 @@ public struct CompressedEntityDiff: HADataDecodable {
     public init(data: HAData) throws {
         additions = try? data.decode("+")
         subtractions = try? data.decode("-")
-    }
-}
-
-public struct DynamicDictionary: Decodable {
-    public var dictionary: [String: Any]
-
-    public init(from decoder: Decoder) throws {
-        let container = try decoder.singleValueContainer()
-        let data = try container.decode(Data.self)
-
-        if let decodedDictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments) as? [String: Any] {
-            dictionary = decodedDictionary
-        } else {
-            throw DecodingError.dataCorruptedError(in: container, debugDescription: "Failed to decode dictionary")
-        }
-    }
-
-    subscript<T>(key: String) -> T? {
-        return dictionary[key] as? T
     }
 }
