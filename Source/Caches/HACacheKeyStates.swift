@@ -33,7 +33,7 @@ internal struct HACacheKeyStates: HACacheKey {
                     do {
                         states[entityId] = try updates.toEntity(entityId: entityId)
                     } catch {
-                        print(error)
+                        HAGlobal.log(.error, "Failed adding new entity: \(error)")
                     }
                 }
             }

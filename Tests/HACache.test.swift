@@ -673,6 +673,15 @@ internal class HACacheTests: XCTestCase {
 
         XCTAssertEqual(populateCount, 1)
     }
+
+    func testInitSubscribingWithoutPopulate() {
+        let cache = HACache(connection: connection, subscribe: subscribeInfo)
+        let result = cache.subscribe { _, _ in }
+        XCTAssertEqual(cache.subscribeInfo?.count, 1)
+        XCTAssertNil(cache.populateInfo)
+        XCTAssertNotNil(cache.connection)
+        XCTAssertNotNil(result)
+    }
 }
 
 private struct CacheItem: Equatable {

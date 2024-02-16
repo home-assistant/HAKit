@@ -2,7 +2,7 @@
 import XCTest
 
 internal final class HAEntity_CompressedEntity_test: XCTestCase {
-    func test_updatedEntity_compressedEntityState_updatesEntity() throws {
+    func testUpdatedEntityCompressedEntityStateUpdatesEntity() throws {
         let entity = try XCTUnwrap(HAEntity(
             entityId: "light.kitchen",
             domain: "light",
@@ -40,7 +40,7 @@ internal final class HAEntity_CompressedEntity_test: XCTestCase {
         XCTAssertEqual(updatedEntity?.lastChanged, expectedDate)
     }
 
-    func test_updatedEntity_adding_compressedEntityState_addsToEntity() throws {
+    func testUpdatedEntityAddingCompressedEntityStateAddsToEntity() throws {
         let entity = try XCTUnwrap(HAEntity(
             entityId: "light.kitchen",
             domain: "light",
@@ -78,7 +78,7 @@ internal final class HAEntity_CompressedEntity_test: XCTestCase {
         XCTAssertEqual(updatedEntity?.lastChanged, expectedDate)
     }
 
-    func test_updatedEntity_subtracting_compressedEntityState_subtractFromEntity() throws {
+    func testUpdatedEntitySubtractingCompressedEntityStateSubtractFromEntity() throws {
         let entity = try XCTUnwrap(HAEntity(
             entityId: "light.kitchen",
             domain: "light",
@@ -90,7 +90,7 @@ internal final class HAEntity_CompressedEntity_test: XCTestCase {
         ))
         let expectedDate = Date(timeIntervalSince1970: 1_707_933_377.952297)
         let updatedEntity = try entity.updatedEntity(
-            adding: .init(
+            subtracting: .init(
                 data:
                 .init(
                     testJsonString:
@@ -99,20 +99,14 @@ internal final class HAEntity_CompressedEntity_test: XCTestCase {
                         "s": "off",
                         "a": {
                             "abc": "def"
-                        },
-                        "c": "01HPMC69D08CHCWQ76GC69BD3G",
-                        "lc": 1707933377.952297,
-                        "lu": 1707933377.952297
+                        }
                     }
                     """
                 )
             )
         )
 
-        XCTAssertEqual(updatedEntity?.state, "off")
+        XCTAssertEqual(updatedEntity?.state, "on")
         XCTAssertEqual(updatedEntity?.attributes.dictionary as? [String: String], ["hello": "world", "abc": "def"])
-        XCTAssertEqual(updatedEntity?.context.id, "01HPMC69D08CHCWQ76GC69BD3G")
-        XCTAssertEqual(updatedEntity?.lastUpdated, expectedDate)
-        XCTAssertEqual(updatedEntity?.lastChanged, expectedDate)
     }
 }

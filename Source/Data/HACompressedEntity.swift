@@ -50,7 +50,7 @@ public struct CompressedEntityState: HADataDecodable {
             "last_changed": lastChangedDate ?? Date(),
             "last_updated": lastUpdatedDate ?? Date(),
             "attributes": attributes as? [String: Any] ?? [:],
-            "context": ["id": entityId],
+            "context": ["id": context ?? ""],
         ])
         return try HAEntity(data: data)
     }
