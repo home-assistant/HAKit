@@ -39,7 +39,7 @@ jobs:
               f="$(basename $XCTEST_PATH .xctest)"
               COV_BIN="${COV_BIN}/Contents/MacOS/$f"
           fi
-          /usr/local/opt/llvm/bin/llvm-cov export -format="lcov" \
+          xcrun llvm-cov export -format="lcov" \
             "${COV_BIN}" \
             -instr-profile=.build/debug/codecov/default.profdata \
             -ignore-filename-regex=".build|Tests"\ > info.lcov
