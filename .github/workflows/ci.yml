@@ -43,7 +43,9 @@ jobs:
             "${COV_BIN}" \
             -instr-profile=.build/debug/codecov/default.profdata \
             -ignore-filename-regex=".build|Tests"\ > info.lcov
-      - uses: codecov/codecov-action@v1
+      - uses: codecov/codecov-action@v4
         name: Upload Code Coverage
         with:
           file: ./info.lcov
+          token: ${{ secrets.CODECOV_TOKEN }}
+
