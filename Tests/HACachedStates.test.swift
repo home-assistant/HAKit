@@ -28,35 +28,35 @@ internal class HACachedStatesTests: XCTestCase {
             incoming: CompressedStatesUpdates(
                 data: .init(
                     testJsonString: """
-{
-    "a": {
-        "person.bruno": {
-            "s": "not_home",
-            "a": {
-                "editable": true,
-                "id": "bruno",
-                "latitude": 51.8,
-                "longitude": 4.5,
-                "gps_accuracy": 14.1,
-                "source": "device_tracker.iphone",
-                "user_id": "12345",
-                "device_trackers": [
-                    "device_tracker.iphone_15_pro"
-                ],
-                "friendly_name": "Bruno"
-            },
-            "c": "01HPKH5TE4HVR88WW6TN43H31X",
-            "lc": 1707884643.671705,
-            "lu": 1707905051.076724
-        }
-    }
-}
-"""
+                    {
+                        "a": {
+                            "person.bruno": {
+                                "s": "not_home",
+                                "a": {
+                                    "editable": true,
+                                    "id": "bruno",
+                                    "latitude": 51.8,
+                                    "longitude": 4.5,
+                                    "gps_accuracy": 14.1,
+                                    "source": "device_tracker.iphone",
+                                    "user_id": "12345",
+                                    "device_trackers": [
+                                        "device_tracker.iphone_15_pro"
+                                    ],
+                                    "friendly_name": "Bruno"
+                                },
+                                "c": "01HPKH5TE4HVR88WW6TN43H31X",
+                                "lc": 1707884643.671705,
+                                "lu": 1707905051.076724
+                            }
+                        }
+                    }
+                    """
                 )
             ),
             current: nil
         )
-        guard case .replace(let outgoingType) = result1 else {
+        guard case let .replace(outgoingType) = result1 else {
             XCTFail("Did not replace when expected")
             return
         }
@@ -70,24 +70,24 @@ internal class HACachedStatesTests: XCTestCase {
             incoming: CompressedStatesUpdates(
                 data: .init(
                     testJsonString:
-"""
-{
+                    """
+                    {
 
-        "c": {
-            "person.bruno": {
-                "+": {
-                    "s": "home",
-                }
-            }
-        }
-}
-"""
+                            "c": {
+                                "person.bruno": {
+                                    "+": {
+                                        "s": "home",
+                                    }
+                                }
+                            }
+                    }
+                    """
                 )
             ),
             current: .init(entities: Array(outgoingType.all))
         )
 
-        guard case .replace(let updatedOutgoingType) = updateEventResult else {
+        guard case let .replace(updatedOutgoingType) = updateEventResult else {
             XCTFail("Did not replace updated entity")
             return
         }
@@ -101,20 +101,20 @@ internal class HACachedStatesTests: XCTestCase {
             incoming: CompressedStatesUpdates(
                 data: .init(
                     testJsonString:
-"""
-{
+                    """
+                    {
 
-        "r": [
-            "person.bruno"
-        ]
-}
-"""
+                            "r": [
+                                "person.bruno"
+                            ]
+                    }
+                    """
                 )
             ),
             current: .init(entities: Array(updatedOutgoingType.all))
         )
 
-        guard case .replace(let entityRemovedOutgoingType) = entityRemovalEventResult else {
+        guard case let .replace(entityRemovedOutgoingType) = entityRemovalEventResult else {
             XCTFail("Did not remo entity correctly")
             return
         }

@@ -127,13 +127,13 @@ internal class HAConnectionInfoTests: XCTestCase {
         XCTAssertEqual(connectionInfo.url, url)
 
         // not easy to test WebSocket, so we test our wrapper for it
-        let pinning = HAStarscreamCertificatePinningImpl(
-            evaluateCertificate: try XCTUnwrap(connectionInfo.evaluateCertificate)
+        let pinning = try HAStarscreamCertificatePinningImpl(
+            evaluateCertificate: XCTUnwrap(connectionInfo.evaluateCertificate)
         )
 
         var secTrust: SecTrust?
-        SecTrustCreateWithCertificates([
-            try XCTUnwrap(SecCertificateCreateWithData(nil, XCTUnwrap(Data(base64Encoded: """
+        try SecTrustCreateWithCertificates([
+            XCTUnwrap(SecCertificateCreateWithData(nil, XCTUnwrap(Data(base64Encoded: """
                 MIIFljCCA36gAwIBAgINAgO8U1lrNMcY9QFQZjANBgkqhkiG9w0BAQsFADBHMQswCQYDVQQGEwJVUzEiMCAGA1UEChMZR29vZ2xlIFRy
                 dXN0IFNlcnZpY2VzIExMQzEUMBIGA1UEAxMLR1RTIFJvb3QgUjEwHhcNMjAwODEzMDAwMDQyWhcNMjcwOTMwMDAwMDQyWjBGMQswCQYD
                 VQQGEwJVUzEiMCAGA1UEChMZR29vZ2xlIFRydXN0IFNlcnZpY2VzIExMQzETMBEGA1UEAxMKR1RTIENBIDFDMzCCASIwDQYJKoZIhvcN

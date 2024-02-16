@@ -19,11 +19,12 @@ internal struct HACacheKeyStates: HACacheKey {
     /// - Parameter info: The compressed state update and the current cached states
     /// - Returns: HAEntity cached states
     /// Logic from: https://github.com/home-assistant/home-assistant-js-websocket/blob/master/lib/entities.ts
+    // swiftlint:disable cyclomatic_complexity
     static func processUpdates(info: HACacheTransformInfo<CompressedStatesUpdates, HACachedStates?>) -> HACachedStates {
         var states = info.current ?? .init(entities: [])
 
         if let additions = info.incoming.add {
-            additions.forEach { entityId, updates in
+            for (entityId, updates) in additions {
                 if let currentState = states[entityId] {
                     if let updatedEntity = currentState.updatedEntity(compressedEntityState: updates) {
                         states[entityId] = updatedEntity
@@ -39,7 +40,7 @@ internal struct HACacheKeyStates: HACacheKey {
         }
 
         if let subtractions = info.incoming.remove {
-            subtractions.forEach { entityId in
+            for entityId in subtractions {
                 states[entityId] = nil
             }
         }
