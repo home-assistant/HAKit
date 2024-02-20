@@ -28,6 +28,22 @@ let connection = HAKit.connection(configuration: .init(
   }
 ))
 ```
+You can add your own headers if needed. To do so you need to add a second argument `customHeaders` to the `init` function.
+```swift
+let connection = HAKit.connection(configuration: .init(
+  connectionInfo: {
+    let customHeaders = [HAHeader(key: "key1", value: "value1"), HAHeader(key: "key2", value: "value2")]
+    // Connection is required to be returned synchronously.
+    // In a real implementation, handle both URL/connection info without crashing.
+    try! .init(url: URL(string: "http://homeassistant.local:8123")!, customHeaders: customHeaders)
+  },
+  fetchAuthToken: { completion in
+    // Access tokens are retrieved asynchronously, but be aware that Home Assistant
+    // has a timeout of 10 seconds for sending your access token.
+    completion(.success("API_Token_Here"))
+  }
+))
+```
 
 You may further configure other attributes of this connection, such as `callbackQueue` (where your handlers are invoked), as well as triggering manual connection attempts. See the protocol for more information.
 
