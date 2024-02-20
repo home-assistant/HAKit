@@ -25,7 +25,7 @@ internal class HACachedStatesTests: XCTestCase {
         XCTAssertEqual(subscribe1.request.type, .subscribeEntities)
 
         let result1 = try subscribe1.transform(
-            incoming: CompressedStatesUpdates(
+            incoming: HACompressedStatesUpdates(
                 data: .init(
                     testJsonString: """
                     {
@@ -67,7 +67,7 @@ internal class HACachedStatesTests: XCTestCase {
         XCTAssertEqual(outgoingType.all.first?.domain, "person")
 
         let updateEventResult = try subscribe1.transform(
-            incoming: CompressedStatesUpdates(
+            incoming: HACompressedStatesUpdates(
                 data: .init(
                     testJsonString:
                     """
@@ -98,7 +98,7 @@ internal class HACachedStatesTests: XCTestCase {
         XCTAssertEqual(updatedOutgoingType.all.first?.domain, "person")
 
         let entityRemovalEventResult = try subscribe1.transform(
-            incoming: CompressedStatesUpdates(
+            incoming: HACompressedStatesUpdates(
                 data: .init(
                     testJsonString:
                     """

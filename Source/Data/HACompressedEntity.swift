@@ -1,9 +1,9 @@
 import Foundation
 
-public struct CompressedStatesUpdates: HADataDecodable {
-    public let add: [String: CompressedEntityState]?
-    public let remove: [String]?
-    public let change: [String: CompressedEntityDiff]?
+public struct HACompressedStatesUpdates: HADataDecodable {
+    public var add: [String: HACompressedEntityState]?
+    public var remove: [String]?
+    public var change: [String: CompressedEntityDiff]?
 
     public init(data: HAData) throws {
         self.add = try? data.decode("a")
@@ -12,12 +12,12 @@ public struct CompressedStatesUpdates: HADataDecodable {
     }
 }
 
-public struct CompressedEntityState: HADataDecodable {
-    public let state: String
-    public let attributes: NSDictionary?
-    public let context: String?
-    public let lastChanged: Double?
-    public let lastUpdated: Double?
+public struct HACompressedEntityState: HADataDecodable {
+    public var state: String
+    public var attributes: [String: Any]?
+    public var context: String?
+    public var lastChanged: Double?
+    public var lastUpdated: Double?
 
     public init(data: HAData) throws {
         self.state = try data.decode("s")
@@ -43,21 +43,20 @@ public struct CompressedEntityState: HADataDecodable {
         }
     }
 
-    func toEntity(entityId: String) throws -> HAEntity {
-        let data = HAData(value: [
-            "entity_id": entityId,
-            "state": state,
-            "last_changed": lastChangedDate ?? Date(),
-            "last_updated": lastUpdatedDate ?? Date(),
-            "attributes": attributes as? [String: Any] ?? [:],
-            "context": ["id": context ?? ""],
-        ])
-        return try HAEntity(data: data)
+    func asEntity(entityId: String) throws -> HAEntity {
+        try HAEntity(
+            entityId: entityId,
+            state: state,
+            lastChanged: lastChangedDate ?? Date(),
+            lastUpdated: lastUpdatedDate ?? Date(),
+            attributes: attributes ?? [:],
+            context: .init(id: context ?? "", userId: nil, parentId: nil)
+        )
     }
 }
 
-public struct CompressedEntityStateRemove: HADataDecodable {
-    public let attributes: [String]?
+public struct HACompressedEntityStateRemove: HADataDecodable {
+    public var attributes: [String]?
 
     public init(data: HAData) throws {
         self.attributes = try? data.decode("a")
@@ -65,8 +64,8 @@ public struct CompressedEntityStateRemove: HADataDecodable {
 }
 
 public struct CompressedEntityDiff: HADataDecodable {
-    public let additions: CompressedEntityState?
-    public let subtractions: CompressedEntityStateRemove?
+    public var additions: HACompressedEntityState?
+    public var subtractions: HACompressedEntityStateRemove?
 
     public init(data: HAData) throws {
         self.additions = try? data.decode("+")

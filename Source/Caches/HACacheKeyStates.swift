@@ -19,19 +19,18 @@ internal struct HACacheKeyStates: HACacheKey {
     /// - Parameter info: The compressed state update and the current cached states
     /// - Returns: HAEntity cached states
     /// Logic from: https://github.com/home-assistant/home-assistant-js-websocket/blob/master/lib/entities.ts
-    // swiftlint:disable cyclomatic_complexity
-    static func processUpdates(info: HACacheTransformInfo<CompressedStatesUpdates, HACachedStates?>) -> HACachedStates {
+    static func processUpdates(info: HACacheTransformInfo<HACompressedStatesUpdates, HACachedStates?>)
+        -> HACachedStates {
         var states = info.current ?? .init(entities: [])
 
         if let additions = info.incoming.add {
             for (entityId, updates) in additions {
-                if let currentState = states[entityId] {
-                    if let updatedEntity = currentState.updatedEntity(compressedEntityState: updates) {
-                        states[entityId] = updatedEntity
-                    }
+                if var currentState = states[entityId] {
+                    currentState.update(from: updates)
+                    states[entityId] = currentState
                 } else {
                     do {
-                        states[entityId] = try updates.toEntity(entityId: entityId)
+                        states[entityId] = try updates.asEntity(entityId: entityId)
                     } catch {
                         HAGlobal.log(.error, "Failed adding new entity: \(error)")
                     }
@@ -47,18 +46,16 @@ internal struct HACacheKeyStates: HACacheKey {
 
         if let changes = info.incoming.change {
             changes.forEach { entityId, diff in
-                guard let entityState = states[entityId] else { return }
+                guard var entityState = states[entityId] else { return }
 
                 if let toAdd = diff.additions {
-                    if let updateEntity = entityState.updatedEntity(adding: toAdd) {
-                        states[entityId] = updateEntity
-                    }
+                    entityState.add(toAdd)
+                    states[entityId] = entityState
                 }
 
                 if let toRemove = diff.subtractions {
-                    if let updateEntity = entityState.updatedEntity(subtracting: toRemove) {
-                        states[entityId] = updateEntity
-                    }
+                    entityState.subtract(toRemove)
+                    states[entityId] = entityState
                 }
             }
         }

@@ -3,7 +3,7 @@ import XCTest
 
 internal final class HAEntity_CompressedEntity_test: XCTestCase {
     func testUpdatedEntityCompressedEntityStateUpdatesEntity() throws {
-        let entity = try XCTUnwrap(HAEntity(
+        var entity = try XCTUnwrap(HAEntity(
             entityId: "light.kitchen",
             domain: "light",
             state: "on",
@@ -13,8 +13,8 @@ internal final class HAEntity_CompressedEntity_test: XCTestCase {
             context: .init(id: "", userId: "", parentId: "")
         ))
         let expectedDate = Date(timeIntervalSince1970: 1_707_933_377.952297)
-        let updatedEntity = try entity.updatedEntity(
-            compressedEntityState: .init(
+        try entity.update(
+            from: .init(
                 data:
                 .init(
                     testJsonString:
@@ -33,15 +33,15 @@ internal final class HAEntity_CompressedEntity_test: XCTestCase {
             )
         )
 
-        XCTAssertEqual(updatedEntity?.state, "off")
-        XCTAssertEqual(updatedEntity?.attributes.dictionary as? [String: String], ["abc": "def"])
-        XCTAssertEqual(updatedEntity?.context.id, "01HPMC69D08CHCWQ76GC69BD3G")
-        XCTAssertEqual(updatedEntity?.lastUpdated, expectedDate)
-        XCTAssertEqual(updatedEntity?.lastChanged, expectedDate)
+        XCTAssertEqual(entity.state, "off")
+        XCTAssertEqual(entity.attributes.dictionary as? [String: String], ["abc": "def"])
+        XCTAssertEqual(entity.context.id, "01HPMC69D08CHCWQ76GC69BD3G")
+        XCTAssertEqual(entity.lastUpdated, expectedDate)
+        XCTAssertEqual(entity.lastChanged, expectedDate)
     }
 
     func testUpdatedEntityAddingCompressedEntityStateAddsToEntity() throws {
-        let entity = try XCTUnwrap(HAEntity(
+        var entity = try XCTUnwrap(HAEntity(
             entityId: "light.kitchen",
             domain: "light",
             state: "on",
@@ -51,8 +51,8 @@ internal final class HAEntity_CompressedEntity_test: XCTestCase {
             context: .init(id: "", userId: "", parentId: "")
         ))
         let expectedDate = Date(timeIntervalSince1970: 1_707_933_377.952297)
-        let updatedEntity = try entity.updatedEntity(
-            adding: .init(
+        try entity.add(
+            .init(
                 data:
                 .init(
                     testJsonString:
@@ -71,15 +71,15 @@ internal final class HAEntity_CompressedEntity_test: XCTestCase {
             )
         )
 
-        XCTAssertEqual(updatedEntity?.state, "off")
-        XCTAssertEqual(updatedEntity?.attributes.dictionary as? [String: String], ["hello": "world", "abc": "def"])
-        XCTAssertEqual(updatedEntity?.context.id, "01HPMC69D08CHCWQ76GC69BD3G")
-        XCTAssertEqual(updatedEntity?.lastUpdated, expectedDate)
-        XCTAssertEqual(updatedEntity?.lastChanged, expectedDate)
+        XCTAssertEqual(entity.state, "off")
+        XCTAssertEqual(entity.attributes.dictionary as? [String: String], ["hello": "world", "abc": "def"])
+        XCTAssertEqual(entity.context.id, "01HPMC69D08CHCWQ76GC69BD3G")
+        XCTAssertEqual(entity.lastUpdated, expectedDate)
+        XCTAssertEqual(entity.lastChanged, expectedDate)
     }
 
     func testUpdatedEntitySubtractingCompressedEntityStateSubtractFromEntity() throws {
-        let entity = try XCTUnwrap(HAEntity(
+        var entity = try XCTUnwrap(HAEntity(
             entityId: "light.kitchen",
             domain: "light",
             state: "on",
@@ -88,9 +88,8 @@ internal final class HAEntity_CompressedEntity_test: XCTestCase {
             attributes: ["hello": "world", "abc": "def"],
             context: .init(id: "", userId: "", parentId: "")
         ))
-        let expectedDate = Date(timeIntervalSince1970: 1_707_933_377.952297)
-        let updatedEntity = try entity.updatedEntity(
-            subtracting: .init(
+        try entity.subtract(
+            .init(
                 data:
                 .init(
                     testJsonString:
@@ -106,7 +105,7 @@ internal final class HAEntity_CompressedEntity_test: XCTestCase {
             )
         )
 
-        XCTAssertEqual(updatedEntity?.state, "on")
-        XCTAssertEqual(updatedEntity?.attributes.dictionary as? [String: String], ["hello": "world", "abc": "def"])
+        XCTAssertEqual(entity.state, "on")
+        XCTAssertEqual(entity.attributes.dictionary as? [String: String], ["hello": "world", "abc": "def"])
     }
 }

@@ -12,7 +12,7 @@ public extension HATypedSubscription {
 
     /// Listen for compressed state changes of all entities
     /// - Returns: A typed subscriptions that can be sent via `HAConnection`
-    static func subscribeEntities() -> HATypedSubscription<CompressedStatesUpdates> {
+    static func subscribeEntities() -> HATypedSubscription<HACompressedStatesUpdates> {
         .init(request: .init(type: .subscribeEntities, data: [:]))
     }
 }

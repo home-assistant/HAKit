@@ -164,7 +164,6 @@ internal final class HACacheKeyStates_test: XCTestCase {
     }
 
     func testProcessUpdatesSubtractChanges() throws {
-        let expectedDate = Date(timeIntervalSince1970: 1_707_884_643.671705)
         let existentEntity = try HAEntity(data: .init(
             testJsonString:
             """
