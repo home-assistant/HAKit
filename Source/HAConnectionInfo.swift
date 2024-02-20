@@ -22,12 +22,29 @@ public struct HAConnectionInfo: Equatable {
     /// - Parameter userAgent: Optionally change the User-Agent to this
     /// - Parameter evaluateCertificate: Optionally override default SecTrust validation
     /// - Throws: If the URL provided is invalid in some way, see `CreationError`
-    public init(url: URL, userAgent: String? = nil, evaluateCertificate: EvaluateCertificate? = nil) throws {
-        try self.init(url: url, userAgent: userAgent, evaluateCertificate: evaluateCertificate, engine: nil)
+    public init(
+        url: URL,
+        userAgent: String? = nil,
+        evaluateCertificate: EvaluateCertificate? = nil,
+        customHeaders: [HAHeader]? = nil
+    ) throws {
+        try self.init(
+            url: url,
+            userAgent: userAgent,
+            evaluateCertificate: evaluateCertificate,
+            engine: nil,
+            customHeaders: customHeaders
+        )
     }
 
     /// Internally create a connection info with engine
-    internal init(url: URL, userAgent: String?, evaluateCertificate: EvaluateCertificate?, engine: Engine?) throws {
+    internal init(
+        url: URL,
+        userAgent: String?,
+        evaluateCertificate: EvaluateCertificate?,
+        engine: Engine?,
+        customHeaders: [HAHeader]?
+    ) throws {
         guard let host = url.host, !host.isEmpty else {
             throw CreationError.emptyHostname
         }
@@ -40,6 +57,9 @@ public struct HAConnectionInfo: Equatable {
         self.userAgent = userAgent
         self.engine = engine
         self.evaluateCertificate = evaluateCertificate
+        if let customHeaders = customHeaders {
+            self.customHeaders = customHeaders
+        }
     }
 
     /// The base URL for the WebSocket connection
@@ -54,6 +74,9 @@ public struct HAConnectionInfo: Equatable {
 
     /// Used for dependency injection in tests
     internal var engine: Engine?
+
+    /// Used for additional headers to inject
+    public var customHeaders: [HAHeader] = []
 
     /// Used to validate certificate, if provided
     internal var evaluateCertificate: EvaluateCertificate?
@@ -81,6 +104,10 @@ public struct HAConnectionInfo: Equatable {
             } else {
                 request.setValue(host, forHTTPHeaderField: "Host")
             }
+        }
+
+        for header in customHeaders {
+            request.setValue(header.value, forHTTPHeaderField: header.key)
         }
 
         return request
@@ -150,5 +177,22 @@ public struct HAConnectionInfo: Equatable {
 
     public static func == (lhs: HAConnectionInfo, rhs: HAConnectionInfo) -> Bool {
         lhs.url == rhs.url
+    }
+}
+
+/// Used to store custom headers
+public struct HAHeader: Equatable {
+    /// Key of the header
+    public var key: String
+    /// Value of the header
+    public var value: String
+
+    /// Create a header
+    /// - Parameters:
+    ///   - key: The key of the header
+    ///   - value: The value of the header
+    public init(key: String, value: String) {
+        self.key = key
+        self.value = value
     }
 }
