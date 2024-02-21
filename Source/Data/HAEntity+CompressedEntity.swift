@@ -10,14 +10,10 @@ extension HAEntity {
     }
 
     mutating func add(_ state: HACompressedEntityState) {
-        var newAttributes = attributes.dictionary
-        state.attributes?.forEach({ key, value in
-            newAttributes[key] = value
-        })
         self.state = state.state
         lastChanged = state.lastChanged ?? lastChanged
         lastUpdated = state.lastUpdated ?? lastUpdated
-        attributes.dictionary = newAttributes
+        attributes.dictionary.merge(state.attributes ?? [:]) { current, _ in current }
         context = .init(id: state.context ?? "", userId: nil, parentId: nil)
     }
 

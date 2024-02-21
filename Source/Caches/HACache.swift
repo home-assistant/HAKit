@@ -408,6 +408,8 @@ public class HACache<ValueType> {
                 // No subscribers, do not connect.
                 return
             }
+
+            // In case initial populate is not needed, populate will be nil
             guard !state.isWaitingForPopulate || populateInfo == nil else {
                 // Currently waiting on a populate, which will be retried by the connection for us.
                 return
