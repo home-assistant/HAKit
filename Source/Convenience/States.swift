@@ -39,9 +39,9 @@ public struct HAResponseEventStateChanged: HADataDecodable {
         let event = try HAResponseEvent(data: data)
         let eventData = HAData.dictionary(event.data)
 
-        self.init(
+        try self.init(
             event: event,
-            entityId: try eventData.decode("entity_id"),
+            entityId: eventData.decode("entity_id"),
             oldState: try? eventData.decode("old_state"),
             newState: try? eventData.decode("new_state")
         )

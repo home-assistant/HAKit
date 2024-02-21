@@ -16,7 +16,7 @@ internal class HACachesContainerTests: XCTestCase {
 
     func testCreate() throws {
         let cache1 = container[Key1.self]
-        XCTAssertEqual(ObjectIdentifier(try XCTUnwrap(cache1.connection)), ObjectIdentifier(connection))
+        XCTAssertEqual(try ObjectIdentifier(XCTUnwrap(cache1.connection)), ObjectIdentifier(connection))
 
         XCTAssertEqual(cache1.populateInfo?.request.type, "key1_pop")
         XCTAssertEqual(cache1.subscribeInfo?.count, 1)

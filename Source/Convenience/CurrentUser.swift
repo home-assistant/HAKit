@@ -36,8 +36,8 @@ public struct HAResponseCurrentUser: HADataDecodable {
         /// - Parameter data: The data from the server
         /// - Throws: If any required keys are missing
         public init(data: HAData) throws {
-            self.init(
-                type: try data.decode("auth_provider_type"),
+            try self.init(
+                type: data.decode("auth_provider_type"),
                 id: data.decode("auth_provider_id", fallback: nil)
             )
         }
@@ -65,10 +65,10 @@ public struct HAResponseCurrentUser: HADataDecodable {
         /// - Parameter data: The data from the server
         /// - Throws: If any required keys are missing
         public init(data: HAData) throws {
-            self.init(
-                id: try data.decode("id"),
-                name: try data.decode("name"),
-                isEnabled: try data.decode("enabled")
+            try self.init(
+                id: data.decode("id"),
+                name: data.decode("name"),
+                isEnabled: data.decode("enabled")
             )
         }
 
@@ -88,8 +88,8 @@ public struct HAResponseCurrentUser: HADataDecodable {
     /// - Parameter data: The data from the server
     /// - Throws: If any required keys are missing
     public init(data: HAData) throws {
-        self.init(
-            id: try data.decode("id"),
+        try self.init(
+            id: data.decode("id"),
             name: data.decode("name", fallback: nil),
             isOwner: data.decode("is_owner", fallback: false),
             isAdmin: data.decode("is_admin", fallback: false),

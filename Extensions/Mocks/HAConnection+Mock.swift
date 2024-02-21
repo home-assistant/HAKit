@@ -154,7 +154,7 @@ public class HAMockConnection: HAConnection {
             switch dataResult {
             case let .success(data):
                 do {
-                    completion(.success(try T(data: data)))
+                    try completion(.success(T(data: data)))
                 } catch {
                     completion(.failure(.underlying(error as NSError)))
                 }
@@ -198,7 +198,7 @@ public class HAMockConnection: HAConnection {
     ) -> HACancellable {
         subscribe(to: request.request, initiated: initiated, handler: { cancellable, data in
             do {
-                handler(cancellable, try T(data: data))
+                try handler(cancellable, T(data: data))
             } catch {}
         })
     }

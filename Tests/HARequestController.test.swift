@@ -33,9 +33,9 @@ internal class HARequestControllerTests: XCTestCase {
         controller.add(.init(request: .init(type: "test2", data: [:])))
         XCTAssertEqual(delegate.didPrepare.count, 2)
 
-        let allEvents = [
-            try delegate.didPrepare.get(throwing: 0),
-            try delegate.didPrepare.get(throwing: 1),
+        let allEvents = try [
+            delegate.didPrepare.get(throwing: 0),
+            delegate.didPrepare.get(throwing: 1),
         ].sorted(by: { lhs, rhs in
             lhs.request.type < rhs.request.type
         })
@@ -78,14 +78,14 @@ internal class HARequestControllerTests: XCTestCase {
         XCTAssertEqual(delegate.didPrepare.count, 3)
         delegate.didPrepare.removeAll()
 
-        let invocation = controller.single(for: try XCTUnwrap(invoc1.identifier))
+        let invocation = try controller.single(for: XCTUnwrap(invoc1.identifier))
         XCTAssertEqual(invocation, invoc1)
         invocation?.resolve(.success(.empty))
 
         controller.resetActive()
 
         // should still be available even after reset
-        XCTAssertNotNil(controller.single(for: try XCTUnwrap(invoc2.identifier)))
+        XCTAssertNotNil(try controller.single(for: XCTUnwrap(invoc2.identifier)))
 
         XCTAssertFalse(invoc1.needsAssignment)
         XCTAssertFalse(invoc2.needsAssignment)
@@ -119,7 +119,7 @@ internal class HARequestControllerTests: XCTestCase {
         controller.resetActive()
 
         // should still be available even after reset
-        XCTAssertNotNil(controller.single(for: try XCTUnwrap(invoc1.identifier)))
+        XCTAssertNotNil(try controller.single(for: XCTUnwrap(invoc1.identifier)))
 
         XCTAssertFalse(invoc1.needsAssignment)
         XCTAssertTrue(invoc2.needsAssignment)
@@ -170,7 +170,7 @@ internal class HARequestControllerTests: XCTestCase {
         XCTAssertEqual(delegate.didPrepare.count, 4)
         delegate.didPrepare.removeAll()
 
-        let invocation = controller.single(for: try XCTUnwrap(invoc1.identifier))
+        let invocation = try controller.single(for: XCTUnwrap(invoc1.identifier))
         XCTAssertEqual(invocation, invoc1)
         invocation?.resolve(.success(.empty))
 
@@ -287,7 +287,7 @@ internal class HARequestControllerTests: XCTestCase {
 
         controller.clear(invocation: invocation)
 
-        XCTAssertNil(controller.single(for: try XCTUnwrap(invocation.identifier)))
+        XCTAssertNil(try controller.single(for: XCTUnwrap(invocation.identifier)))
     }
 
     func testRetrySubscriptions() throws {

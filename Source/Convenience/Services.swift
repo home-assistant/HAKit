@@ -50,12 +50,12 @@ public struct HAServiceDefinition {
     ///   - data: The data for the definition
     /// - Throws: If any required keys are missing in the data
     public init(domain: HAServicesDomain, service: HAServicesService, data: HAData) throws {
-        self.init(
+        try self.init(
             domain: domain,
             service: service,
-            name: try data.decode("name", fallback: data.decode("description")),
-            description: try data.decode("description"),
-            fields: try data.decode("fields")
+            name: data.decode("name", fallback: data.decode("description")),
+            description: data.decode("description"),
+            fields: data.decode("fields")
         )
     }
 
