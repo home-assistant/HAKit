@@ -20,10 +20,10 @@ internal class HACacheTests: XCTestCase {
 
     private var subscribeInfo: HACacheSubscribeInfo<CacheItem>!
     private var subscribeCancellableInvoked: Bool = false
-    private var subscribePerform: (((CacheItem) -> HACacheSubscribeInfo<CacheItem>.Response) -> Void)?
+    private var subscribePerform: (((CacheItem?) -> HACacheSubscribeInfo<CacheItem>.Response) -> Void)?
     private var subscribeInfo2: HACacheSubscribeInfo<CacheItem>!
     private var subscribeCancellableInvoked2: Bool = false
-    private var subscribePerform2: (((CacheItem) -> HACacheSubscribeInfo<CacheItem>.Response) -> Void)?
+    private var subscribePerform2: (((CacheItem?) -> HACacheSubscribeInfo<CacheItem>.Response) -> Void)?
 
     private func waitForCallback() {
         let expectation = self.expectation(description: "waiting for queue")
@@ -41,7 +41,7 @@ internal class HACacheTests: XCTestCase {
         value(block)
     }
 
-    private func subscribe(_ block: (CacheItem) -> HACacheSubscribeInfo<CacheItem>.Response) throws {
+    private func subscribe(_ block: (CacheItem?) -> HACacheSubscribeInfo<CacheItem>.Response) throws {
         if subscribePerform == nil {
             waitForCallback()
         }
@@ -49,7 +49,7 @@ internal class HACacheTests: XCTestCase {
         value(block)
     }
 
-    private func subscribe2(_ block: (CacheItem) -> HACacheSubscribeInfo<CacheItem>.Response) throws {
+    private func subscribe2(_ block: (CacheItem?) -> HACacheSubscribeInfo<CacheItem>.Response) throws {
         if subscribePerform2 == nil {
             waitForCallback()
         }
@@ -672,6 +672,15 @@ internal class HACacheTests: XCTestCase {
         _ = cache.subscribe { _, _ in }
 
         XCTAssertEqual(populateCount, 1)
+    }
+
+    func testInitSubscribingWithoutPopulate() {
+        let cache = HACache(connection: connection, subscribe: subscribeInfo)
+        let result = cache.subscribe { _, _ in }
+        XCTAssertEqual(cache.subscribeInfo?.count, 1)
+        XCTAssertNil(cache.populateInfo)
+        XCTAssertNotNil(cache.connection)
+        XCTAssertNotNil(result)
     }
 }
 

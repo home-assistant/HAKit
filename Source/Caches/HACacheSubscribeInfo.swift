@@ -16,7 +16,7 @@ public struct HACacheSubscribeInfo<OutgoingType> {
     ///   - transform: The handler to convert the subscription's handler type into the cache's value
     public init<IncomingType: HADataDecodable>(
         subscription: HATypedSubscription<IncomingType>,
-        transform: @escaping (HACacheTransformInfo<IncomingType, OutgoingType>) -> Response
+        transform: @escaping (HACacheTransformInfo<IncomingType, OutgoingType?>) -> Response
     ) {
         let nonRetrySubscription: HATypedSubscription<IncomingType> = {
             var updated = subscription
@@ -27,7 +27,7 @@ public struct HACacheSubscribeInfo<OutgoingType> {
         self.init(
             request: subscription.request,
             anyTransform: { possibleValue in
-                guard let value = possibleValue as? HACacheTransformInfo<IncomingType, OutgoingType> else {
+                guard let value = possibleValue as? HACacheTransformInfo<IncomingType, OutgoingType?> else {
                     throw TransformError.incorrectType(
                         have: String(describing: possibleValue),
                         expected: String(describing: IncomingType.self)
@@ -65,12 +65,12 @@ public struct HACacheSubscribeInfo<OutgoingType> {
     ///   - current: The current value part of the transform info
     /// - Throws: If the type of incoming does not match the original IncomingType
     /// - Returns: The response from the transform block
-    public func transform<IncomingType>(incoming: IncomingType, current: OutgoingType) throws -> Response {
-        try anyTransform(HACacheTransformInfo<IncomingType, OutgoingType>(incoming: incoming, current: current))
+    public func transform<IncomingType>(incoming: IncomingType, current: OutgoingType?) throws -> Response {
+        try anyTransform(HACacheTransformInfo<IncomingType, OutgoingType?>(incoming: incoming, current: current))
     }
 
     /// The start handler
-    typealias StartHandler = (HAConnection, @escaping ((OutgoingType) -> Response) -> Void) -> HACancellable
+    typealias StartHandler = (HAConnection, @escaping ((OutgoingType?) -> Response) -> Void) -> HACancellable
 
     /// Type-erasing block to perform the subscription and its transform
     internal let start: StartHandler

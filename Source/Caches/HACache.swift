@@ -70,6 +70,31 @@ public class HACache<ValueType> {
         )
     }
 
+    /// Create a cache that relies on subscription updates without initial population.
+    ///
+    /// - Parameters:
+    ///   - connection: The connection to use and watch
+    ///   - subscribe: The info (one or more) for what subscriptions to start for updates or triggers for populating
+    public init(
+        connection: HAConnection,
+        subscribe: HACacheSubscribeInfo<ValueType>
+    ) {
+        self.connection = connection
+        self.populateInfo = nil
+        self.subscribeInfo = [subscribe]
+
+        self.start = { connection, cache in
+            Self.startSubscribe(to: subscribe, on: connection, populate: nil, cache: cache)
+        }
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(checkStateAndStart),
+            name: HAConnectionState.didTransitionToStateNotification,
+            object: connection
+        )
+    }
+
     /// Create a cache by mapping an existing cache's value
     /// - Parameters:
     ///   - incomingCache: The cache to map values from; this is kept as a strong reference
@@ -336,17 +361,19 @@ public class HACache<ValueType> {
     private static func startSubscribe<ValueType>(
         to subscription: HACacheSubscribeInfo<ValueType>,
         on connection: HAConnection,
-        populate: HACachePopulateInfo<ValueType>,
+        populate: HACachePopulateInfo<ValueType>?,
         cache: HACache<ValueType>
     ) -> HACancellable {
         subscription.start(connection, { [weak cache, weak connection] handler in
-            guard let cache = cache, let connection = connection else { return }
+            guard let cache, let connection else { return }
             cache.state.mutate { state in
-                switch handler(state.current!) {
+                switch handler(state.current) {
                 case .ignore: break
                 case .reissuePopulate:
-                    let populateToken = startPopulate(for: populate, on: connection, cache: cache)
-                    state.appendRequestToken(populateToken)
+                    if let populate {
+                        let populateToken = startPopulate(for: populate, on: connection, cache: cache)
+                        state.appendRequestToken(populateToken)
+                    }
                 case let .replace(value):
                     state.current = value
                     cache.notify(subscribers: state.subscribers, for: value)
@@ -381,7 +408,9 @@ public class HACache<ValueType> {
                 // No subscribers, do not connect.
                 return
             }
-            guard !state.isWaitingForPopulate else {
+
+            // In case initial populate is not needed, populate will be nil
+            guard !state.isWaitingForPopulate || populateInfo == nil else {
                 // Currently waiting on a populate, which will be retried by the connection for us.
                 return
             }
