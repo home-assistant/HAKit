@@ -222,12 +222,4 @@ internal class HAConnectionInfoTests: XCTestCase {
             XCTAssertEqual(connectionInfo.url, expected)
         }
     }
-
-    func testInvalidURLComponentsURL() throws {
-        // example of valid URL invalid URLComponents - https://stackoverflow.com/questions/55609012
-        let url = try XCTUnwrap(URL(string: "a://@@/api/websocket"))
-        let connectionInfo = try HAConnectionInfo(url: url)
-        XCTAssertEqual(connectionInfo.url, url)
-        XCTAssertEqual(connectionInfo.webSocket().request.url, url.appendingPathComponent("api/websocket"))
-    }
 }

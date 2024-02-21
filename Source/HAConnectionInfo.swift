@@ -126,9 +126,7 @@ public struct HAConnectionInfo: Equatable {
     /// - Parameter url: The raw URL
     /// - Returns: A URL with common issues removed
     private static func sanitize(_ url: URL) -> URL {
-        guard var components = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
-            return url
-        }
+        var components = URLComponents(url: url, resolvingAgainstBaseURL: false)!
 
         for substring in [
             "/api/websocket",
