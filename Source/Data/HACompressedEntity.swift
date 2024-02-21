@@ -16,8 +16,8 @@ public struct HACompressedEntityState: HADataDecodable {
     public var state: String
     public var attributes: [String: Any]?
     public var context: String?
-    public var lastChanged: Double?
-    public var lastUpdated: Double?
+    public var lastChanged: Date?
+    public var lastUpdated: Date?
 
     public init(data: HAData) throws {
         self.state = try data.decode("s")
@@ -27,28 +27,12 @@ public struct HACompressedEntityState: HADataDecodable {
         self.lastUpdated = try? data.decode("lu")
     }
 
-    public var lastChangedDate: Date? {
-        if let lastChanged {
-            return Date(timeIntervalSince1970: lastChanged)
-        } else {
-            return nil
-        }
-    }
-
-    public var lastUpdatedDate: Date? {
-        if let lastUpdated {
-            return Date(timeIntervalSince1970: lastUpdated)
-        } else {
-            return lastChangedDate
-        }
-    }
-
     func asEntity(entityId: String) throws -> HAEntity {
         try HAEntity(
             entityId: entityId,
             state: state,
-            lastChanged: lastChangedDate ?? Date(),
-            lastUpdated: lastUpdatedDate ?? Date(),
+            lastChanged: lastChanged ?? Date(),
+            lastUpdated: lastUpdated ?? Date(),
             attributes: attributes ?? [:],
             context: .init(id: context ?? "", userId: nil, parentId: nil)
         )

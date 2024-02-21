@@ -76,12 +76,18 @@ extension Date: HADecodeTransformable {
     /// - Parameter value: A string value to convert
     /// - Returns: The value converted to a Date, or nil if not possible
     public static func decode(unknown value: Any) -> Self? {
-        guard let value = value as? String else { return nil }
-        for formatter in Self.formatters {
-            if let string = formatter.date(from: value) {
-                return string
+        if let timestamp = value as? Double {
+            return Date(timeIntervalSince1970: timestamp)
+        }
+
+        if let value = value as? String {
+            for formatter in Self.formatters {
+                if let string = formatter.date(from: value) {
+                    return string
+                }
             }
         }
+
         return nil
     }
 }

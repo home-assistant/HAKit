@@ -3,8 +3,8 @@ import Foundation
 extension HAEntity {
     mutating func update(from state: HACompressedEntityState) {
         self.state = state.state
-        lastChanged = state.lastChangedDate ?? lastChanged
-        lastUpdated = state.lastUpdatedDate ?? lastUpdated
+        lastChanged = state.lastChanged ?? lastChanged
+        lastUpdated = state.lastUpdated ?? lastUpdated
         attributes.dictionary = state.attributes ?? attributes.dictionary
         context = .init(id: state.context ?? "", userId: nil, parentId: nil)
     }
@@ -15,8 +15,8 @@ extension HAEntity {
             newAttributes[key] = value
         })
         self.state = state.state
-        lastChanged = state.lastChangedDate ?? lastChanged
-        lastUpdated = state.lastUpdatedDate ?? lastUpdated
+        lastChanged = state.lastChanged ?? lastChanged
+        lastUpdated = state.lastUpdated ?? lastUpdated
         attributes.dictionary = newAttributes
         context = .init(id: state.context ?? "", userId: nil, parentId: nil)
     }
