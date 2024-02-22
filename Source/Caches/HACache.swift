@@ -77,11 +77,11 @@ public class HACache<ValueType> {
     ///   - subscribe: The info (one or more) for what subscriptions to start for updates or triggers for populating
     public init(
         connection: HAConnection,
-        subscribe: HACacheSubscribeInfo<ValueType>
+        subscribe: HACacheSubscribeInfo<ValueType?>
     ) {
         self.connection = connection
         self.populateInfo = nil
-        self.subscribeInfo = [subscribe]
+        self.subscribeInfo = nil
 
         self.start = { connection, cache, state in
             state.isWaitingForPopulate = false
@@ -368,7 +368,7 @@ public class HACache<ValueType> {
         subscription.start(connection, { [weak cache, weak connection] handler in
             guard let cache, let connection else { return }
             cache.state.mutate { state in
-                switch handler(state.current) {
+                switch handler(state.current!) {
                 case .ignore: break
                 case .reissuePopulate:
                     if let populate {
@@ -378,6 +378,33 @@ public class HACache<ValueType> {
                 case let .replace(value):
                     state.current = value
                     cache.notify(subscribers: state.subscribers, for: value)
+                }
+            }
+        })
+    }
+
+    private static func startSubscribe<ValueType>(
+        to subscription: HACacheSubscribeInfo<ValueType?>,
+        on connection: HAConnection,
+        populate: HACachePopulateInfo<ValueType>?,
+        cache: HACache<ValueType>
+    ) -> HACancellable {
+        subscription.start(connection, { [weak cache, weak connection] handler in
+            guard let cache, let connection else { return }
+            cache.state.mutate { state in
+                switch handler(state.current) {
+                case .ignore: break
+                case .reissuePopulate:
+                    if let populate {
+                        let populateToken = startPopulate(for: populate, on: connection, cache: cache)
+                        state.appendRequestToken(populateToken)
+                    }
+                case let .replace(value):
+                    state.current = value
+
+                    if let value {
+                        cache.notify(subscribers: state.subscribers, for: value)
+                    }
                 }
             }
         })

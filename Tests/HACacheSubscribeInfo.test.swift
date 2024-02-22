@@ -57,7 +57,7 @@ internal class HACacheSubscribeInfoTests: XCTestCase {
 
         let subscribeInfo = HACacheSubscribeInfo<SubscribeWrapper>(subscription: subscription, transform: { info in
             XCTAssertEqual(info.incoming, updated)
-            XCTAssertEqual(info.current?.subscribeItem, existing)
+            XCTAssertEqual(info.current.subscribeItem, existing)
             return result
         })
 

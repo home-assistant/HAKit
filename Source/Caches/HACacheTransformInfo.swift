@@ -7,6 +7,6 @@ public struct HACacheTransformInfo<IncomingType, OutgoingType> {
 
     /// The current value of the cache
     /// For populate transforms, this is nil if an initial request hasn't been sent yet and the cache not reset.
-    /// For subscribe transforms, this is non-optional.
+    /// For subscribe transforms, this is nil if the populate did not produce results (or does not exist).
     public var current: OutgoingType
 }

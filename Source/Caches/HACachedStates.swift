@@ -9,14 +9,11 @@ private struct HACacheKeyStates: HACacheKey {
         .init(
             connection: connection,
             populate: .init(request: .getStates(), transform: { .init(entities: $0.incoming) }),
-            subscribe: .init(
-                subscription: .stateChanged(),
-                transform: { (info: HACacheTransformInfo<HAResponseEventStateChanged, HACachedStates?>) in
-                    guard var updated = info.current else { return .ignore }
-                    updated[info.incoming.entityId] = info.incoming.newState
-                    return .replace(updated)
-                }
-            )
+            subscribe: .init(subscription: .stateChanged(), transform: { info in
+                var updated = info.current
+                updated[info.incoming.entityId] = info.incoming.newState
+                return .replace(updated)
+            })
         )
     }
 }
