@@ -45,7 +45,7 @@ public class HACache<ValueType> {
         self.populateInfo = populate
         self.subscribeInfo = subscribe
 
-        self.start = { connection, cache in
+        self.start = { connection, cache, _ in
             Self.startPopulate(for: populate, on: connection, cache: cache) { cacheResult in
                 switch cacheResult {
                 case let .success(cache):
@@ -83,8 +83,9 @@ public class HACache<ValueType> {
         self.populateInfo = nil
         self.subscribeInfo = [subscribe]
 
-        self.start = { connection, cache in
-            Self.startSubscribe(to: subscribe, on: connection, populate: nil, cache: cache)
+        self.start = { connection, cache, state in
+            state.isWaitingForPopulate = false
+            return Self.startSubscribe(to: subscribe, on: connection, populate: nil, cache: cache)
         }
 
         NotificationCenter.default.addObserver(
@@ -106,7 +107,7 @@ public class HACache<ValueType> {
         self.connection = incomingCache.connection
         self.populateInfo = nil
         self.subscribeInfo = nil
-        self.start = { _, someCache in
+        self.start = { _, someCache, _ in
             // unfortunately, using this value directly crashes the swift compiler, so we call into it with this
             let cache: HACache<ValueType> = someCache
             return incomingCache.subscribe { [weak cache] _, value in
@@ -129,7 +130,7 @@ public class HACache<ValueType> {
     /// - Parameter constantValue: The value to keep for state
     public init(constantValue: ValueType) {
         self.connection = nil
-        self.start = { _, _ in
+        self.start = { _, _, _ in
             fatalError("connection is never non-nil; this cannot be called")
         }
         self.populateInfo = nil
@@ -306,7 +307,7 @@ public class HACache<ValueType> {
     internal weak var connection: HAConnection?
     /// Block to begin the prepare -> subscribe lifecycle
     /// This is a block to erase all the intermediate types for prepare/subscribe
-    private let start: (HAConnection, HACache<ValueType>) -> HACancellable
+    private let start: (HAConnection, HACache<ValueType>, inout State) -> HACancellable
     /// The callback queue to perform subscription handlers on.
     private var callbackQueue: DispatchQueue {
         connection?.callbackQueue ?? .main
@@ -408,14 +409,12 @@ public class HACache<ValueType> {
                 // No subscribers, do not connect.
                 return
             }
-
-            // In case initial populate is not needed, populate will be nil
-            guard !state.isWaitingForPopulate || populateInfo == nil else {
+            guard !state.isWaitingForPopulate else {
                 // Currently waiting on a populate, which will be retried by the connection for us.
                 return
             }
             state.isWaitingForPopulate = true
-            let token = start(connection, self)
+            let token = start(connection, self, &state)
             state.setRequestTokens([token], cancellingPrevious: true)
         }
     }
