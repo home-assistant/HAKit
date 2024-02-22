@@ -25,18 +25,18 @@ public struct HAEntity: HADataDecodable, Hashable {
 
         try self.init(
             entityId: entityId,
-            domain: try {
+            domain: {
                 guard let dot = entityId.firstIndex(of: ".") else {
                     throw HADataError.couldntTransform(key: "entity_id")
                 }
 
                 return String(entityId[..<dot])
             }(),
-            state: try data.decode("state"),
-            lastChanged: try data.decode("last_changed"),
-            lastUpdated: try data.decode("last_updated"),
-            attributes: try data.decode("attributes"),
-            context: try data.decode("context")
+            state: data.decode("state"),
+            lastChanged: data.decode("last_changed"),
+            lastUpdated: data.decode("last_updated"),
+            attributes: data.decode("attributes"),
+            context: data.decode("context")
         )
     }
 
@@ -129,11 +129,11 @@ public struct HAEntityAttributesZone: HADataDecodable {
     /// - Parameter data: The data to create from
     /// - Throws: When the data is missing any required fields
     public init(data: HAData) throws {
-        self.init(
-            latitude: try data.decode("latitude"),
-            longitude: try data.decode("longitude"),
-            radius: try data.decode("radius", transform: { Measurement<UnitLength>(value: $0, unit: .meters) }),
-            isPassive: try data.decode("passive")
+        try self.init(
+            latitude: data.decode("latitude"),
+            longitude: data.decode("longitude"),
+            radius: data.decode("radius", transform: { Measurement<UnitLength>(value: $0, unit: .meters) }),
+            isPassive: data.decode("passive")
         )
     }
 

@@ -126,8 +126,8 @@ internal class HAConnectionImplTests: XCTestCase {
             } else {
                 XCTAssertEqual(
                     String(data: sentRequest.httpBodyStreamAsData, encoding: .utf8),
-                    String(
-                        data: try JSONSerialization
+                    try String(
+                        data: JSONSerialization
                             .data(withJSONObject: request.data, options: [.sortedKeys, .fragmentsAllowed]),
                         encoding: .utf8
                     )
@@ -168,7 +168,7 @@ internal class HAConnectionImplTests: XCTestCase {
 
     func testConnectionConnect() throws {
         connection.connect()
-        let expectedURL = try HAConnectionInfo(url: try XCTUnwrap(url)).webSocketURL
+        let expectedURL = try HAConnectionInfo(url: XCTUnwrap(url)).webSocketURL
         XCTAssertTrue(engine.events.contains(where: { event in
             if case let .start(request) = event {
                 return request.url == expectedURL
@@ -204,7 +204,7 @@ internal class HAConnectionImplTests: XCTestCase {
         let oldEngine = try XCTUnwrap(engine)
         engine = FakeEngine()
         url = try XCTUnwrap(url).appendingPathComponent("hi")
-        let newExpectedURL = try HAConnectionInfo(url: try XCTUnwrap(url)).webSocketURL
+        let newExpectedURL = try HAConnectionInfo(url: XCTUnwrap(url)).webSocketURL
 
         connection.connect()
         XCTAssertTrue(oldEngine.events.contains(.stop(CloseCode.goingAway.rawValue)))
@@ -636,8 +636,8 @@ internal class HAConnectionImplTests: XCTestCase {
 
         let requestURL = try XCTUnwrap(URL(string: XCTUnwrap(url).absoluteString + "/api/some_path?key=value"))
 
-        let expectedResult = Swift.Result<(HTTPURLResponse, Data?), Error>.success((
-            try XCTUnwrap(HTTPURLResponse(url: requestURL, statusCode: 204, httpVersion: nil, headerFields: nil)),
+        let expectedResult = try Swift.Result<(HTTPURLResponse, Data?), Error>.success((
+            XCTUnwrap(HTTPURLResponse(url: requestURL, statusCode: 204, httpVersion: nil, headerFields: nil)),
             "response data".data(using: .utf8)
         ))
         StubbingURLProtocol.register(requestURL, result: expectedResult)
@@ -664,8 +664,8 @@ internal class HAConnectionImplTests: XCTestCase {
 
         let requestURL = try XCTUnwrap(URL(string: XCTUnwrap(url).absoluteString + "/api/some_path?key=value"))
 
-        let expectedResult = Swift.Result<(HTTPURLResponse, Data?), Error>.success((
-            try XCTUnwrap(HTTPURLResponse(url: requestURL, statusCode: 204, httpVersion: nil, headerFields: nil)),
+        let expectedResult = try Swift.Result<(HTTPURLResponse, Data?), Error>.success((
+            XCTUnwrap(HTTPURLResponse(url: requestURL, statusCode: 204, httpVersion: nil, headerFields: nil)),
             "response data".data(using: .utf8)
         ))
         StubbingURLProtocol.register(requestURL, result: expectedResult)
@@ -827,7 +827,7 @@ internal class HAConnectionImplTests: XCTestCase {
             .viabilityChanged(true),
         ] {
             responseController.received.removeAll()
-            connection.didReceive(event: event, client: try XCTUnwrap(connection.connection))
+            try connection.didReceive(event: event, client: XCTUnwrap(connection.connection))
             XCTAssertEqual(try XCTUnwrap(responseController.received.last), event)
         }
     }

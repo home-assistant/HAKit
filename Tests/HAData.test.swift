@@ -215,8 +215,8 @@ internal class HADataTests: XCTestCase {
         let value = HAData(value: ["some_key": "2021-02-20T05:14:52+00:00"])
         let date: Date = try XCTUnwrap(value.decode("some_key") as Date?)
 
-        let components = Calendar.current.dateComponents(
-            in: try XCTUnwrap(TimeZone(identifier: "GMT+0600")),
+        let components = try Calendar.current.dateComponents(
+            in: XCTUnwrap(TimeZone(identifier: "GMT+0600")),
             from: date
         )
         XCTAssertEqual(components.year, 2021)
@@ -232,8 +232,8 @@ internal class HADataTests: XCTestCase {
         let value = HAData(value: ["some_key": "2021-02-20T05:14:52.647932+00:00"])
         let date: Date = try XCTUnwrap(value.decode("some_key") as Date?)
 
-        let components = Calendar.current.dateComponents(
-            in: try XCTUnwrap(TimeZone(identifier: "GMT+0600")),
+        let components = try Calendar.current.dateComponents(
+            in: XCTUnwrap(TimeZone(identifier: "GMT+0600")),
             from: date
         )
         XCTAssertEqual(components.year, 2021)
@@ -249,8 +249,8 @@ internal class HADataTests: XCTestCase {
         let value = HAData(value: ["some_key": "2021-02-20T05:14:52.647932+00:00"])
         let date: Date = try value.decode("some_key")
 
-        let components = Calendar.current.dateComponents(
-            in: try XCTUnwrap(TimeZone(identifier: "GMT+0600")),
+        let components = try Calendar.current.dateComponents(
+            in: XCTUnwrap(TimeZone(identifier: "GMT+0600")),
             from: date
         )
         XCTAssertEqual(components.year, 2021)

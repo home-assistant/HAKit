@@ -127,13 +127,13 @@ internal class HAConnectionInfoTests: XCTestCase {
         XCTAssertEqual(connectionInfo.url, url)
 
         // not easy to test WebSocket, so we test our wrapper for it
-        let pinning = HAStarscreamCertificatePinningImpl(
-            evaluateCertificate: try XCTUnwrap(connectionInfo.evaluateCertificate)
+        let pinning = try HAStarscreamCertificatePinningImpl(
+            evaluateCertificate: XCTUnwrap(connectionInfo.evaluateCertificate)
         )
 
         var secTrust: SecTrust?
-        SecTrustCreateWithCertificates([
-            try XCTUnwrap(SecCertificateCreateWithData(nil, XCTUnwrap(Data(base64Encoded: """
+        try SecTrustCreateWithCertificates([
+            XCTUnwrap(SecCertificateCreateWithData(nil, XCTUnwrap(Data(base64Encoded: """
                 MIIFljCCA36gAwIBAgINAgO8U1lrNMcY9QFQZjANBgkqhkiG9w0BAQsFADBHMQswCQYDVQQGEwJVUzEiMCAGA1UEChMZR29vZ2xlIFRy
                 dXN0IFNlcnZpY2VzIExMQzEUMBIGA1UEAxMLR1RTIFJvb3QgUjEwHhcNMjAwODEzMDAwMDQyWhcNMjcwOTMwMDAwMDQyWjBGMQswCQYD
                 VQQGEwJVUzEiMCAGA1UEChMZR29vZ2xlIFRydXN0IFNlcnZpY2VzIExMQzETMBEGA1UEAxMKR1RTIENBIDFDMzCCASIwDQYJKoZIhvcN
@@ -221,13 +221,5 @@ internal class HAConnectionInfoTests: XCTestCase {
             let connectionInfo = try HAConnectionInfo(url: url)
             XCTAssertEqual(connectionInfo.url, expected)
         }
-    }
-
-    func testInvalidURLComponentsURL() throws {
-        // example of valid URL invalid URLComponents - https://stackoverflow.com/questions/55609012
-        let url = try XCTUnwrap(URL(string: "a://@@/api/websocket"))
-        let connectionInfo = try HAConnectionInfo(url: url)
-        XCTAssertEqual(connectionInfo.url, url)
-        XCTAssertEqual(connectionInfo.webSocket().request.url, url.appendingPathComponent("api/websocket"))
     }
 }

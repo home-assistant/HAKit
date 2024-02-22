@@ -85,9 +85,9 @@ public struct HAResponseRenderTemplate: HADataDecodable {
     /// - Parameter data: The data from the server
     /// - Throws: If any required keys are missing
     public init(data: HAData) throws {
-        self.init(
-            result: try data.decode("result"),
-            listeners: try data.decode("listeners")
+        try self.init(
+            result: data.decode("result"),
+            listeners: data.decode("listeners")
         )
     }
 

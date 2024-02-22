@@ -125,8 +125,8 @@ public struct HAResponseEvent: HADataDecodable {
         /// - Parameter data: The data from the server
         /// - Throws: If any required keys are missing
         public init(data: HAData) throws {
-            self.init(
-                id: try data.decode("id"),
+            try self.init(
+                id: data.decode("id"),
                 userId: data.decode("user_id", fallback: nil),
                 parentId: data.decode("parent_id", fallback: nil)
             )
@@ -152,12 +152,12 @@ public struct HAResponseEvent: HADataDecodable {
     /// - Parameter data: The data from the server
     /// - Throws: If any required keys are missing
     public init(data: HAData) throws {
-        self.init(
-            type: .init(rawValue: try data.decode("event_type")),
-            timeFired: try data.decode("time_fired"),
+        try self.init(
+            type: .init(rawValue: data.decode("event_type")),
+            timeFired: data.decode("time_fired"),
             data: data.decode("data", fallback: [:]),
-            origin: try data.decode("origin"),
-            context: try data.decode("context")
+            origin: data.decode("origin"),
+            context: data.decode("context")
         )
     }
 

@@ -32,7 +32,7 @@ extension Array: HADataDecodable where Element: HADataDecodable {
             throw HADataError.couldntTransform(key: "root")
         }
 
-        self.init(try array.map { try Element(data: $0) })
+        try self.init(array.map { try Element(data: $0) })
     }
 }
 

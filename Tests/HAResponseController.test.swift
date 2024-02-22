@@ -199,11 +199,11 @@ internal class HAResponseControllerTests: XCTestCase {
         delegate.lastReceived = nil
 
         let resultDictionary = ["test": true]
-        controller.didReceive(
+        try controller.didReceive(
             for: 2,
             response: .success((
                 responseJSON,
-                try JSONSerialization.data(withJSONObject: resultDictionary, options: [])
+                JSONSerialization.data(withJSONObject: resultDictionary, options: [])
             ))
         )
         waitForCallback()
@@ -231,11 +231,11 @@ internal class HAResponseControllerTests: XCTestCase {
 
         delegate.lastReceived = nil
 
-        controller.didReceive(
+        try controller.didReceive(
             for: 2,
             response: .success((
                 responseNoHeader,
-                try JSONSerialization.data(withJSONObject: resultDictionary, options: [])
+                JSONSerialization.data(withJSONObject: resultDictionary, options: [])
             ))
         )
         waitForCallback()
