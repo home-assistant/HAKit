@@ -761,6 +761,17 @@ internal class HACacheTests: XCTestCase {
 
         XCTAssertNotNil(receivedUpdates.first, "Should have received an update after connection state changes")
     }
+
+    func testSubscriptionWithNoPopulateWhenReissuePopulate() {
+        let cache = HACache(connection: connection, subscribe: subscribeInfoNoPopulate)
+        _ = cache.subscribe { _, _ in }
+
+        try? subscribeNoPopulate { _ in
+            .reissuePopulate
+        }
+
+        XCTAssertEqual(populateCount, 0)
+    }
 }
 
 private struct CacheItem: Equatable {

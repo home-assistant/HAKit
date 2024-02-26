@@ -123,6 +123,7 @@ public class HACache<ValueType> {
         }
     }
 
+    #if DEBUG
     /// Create a cache with a constant value
     ///
     /// This is largely intended for tests or other situations where you want a cache you can control more strongly.
@@ -139,6 +140,7 @@ public class HACache<ValueType> {
             state.current = constantValue
         }
     }
+    #endif
 
     deinit {
         state.read { state in
@@ -383,6 +385,13 @@ public class HACache<ValueType> {
         })
     }
 
+    /// Do the underlying subscribe with optional population
+    /// - Parameters:
+    ///   - subscription: The subscription info
+    ///   - connection: The connection to subscribe on
+    ///   - populate: The populate request, for re-issuing when needed (optional)
+    ///   - cache: The cache whose state should be updated
+    /// - Returns: The cancellable token for the subscription
     private static func startSubscribe<ValueType>(
         to subscription: HACacheSubscribeInfo<ValueType?>,
         on connection: HAConnection,
