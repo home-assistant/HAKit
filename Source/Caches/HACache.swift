@@ -85,7 +85,7 @@ public class HACache<ValueType> {
 
         self.start = { connection, cache, state in
             state.isWaitingForPopulate = false
-            return Self.startSubscribe(to: subscribe, on: connection, populate: nil, cache: cache)
+            return Self.startSubscribe(to: subscribe, on: connection, cache: cache)
         }
 
         NotificationCenter.default.addObserver(
@@ -389,25 +389,21 @@ public class HACache<ValueType> {
     /// - Parameters:
     ///   - subscription: The subscription info
     ///   - connection: The connection to subscribe on
-    ///   - populate: The populate request, for re-issuing when needed (optional)
     ///   - cache: The cache whose state should be updated
     /// - Returns: The cancellable token for the subscription
     private static func startSubscribe<ValueType>(
         to subscription: HACacheSubscribeInfo<ValueType?>,
         on connection: HAConnection,
-        populate: HACachePopulateInfo<ValueType>?,
         cache: HACache<ValueType>
     ) -> HACancellable {
-        subscription.start(connection, { [weak cache, weak connection] handler in
-            guard let cache, let connection else { return }
+        subscription.start(connection, { [weak cache] handler in
+            guard let cache else { return }
             cache.state.mutate { state in
                 switch handler(state.current) {
                 case .ignore: break
                 case .reissuePopulate:
-                    if let populate {
-                        let populateToken = startPopulate(for: populate, on: connection, cache: cache)
-                        state.appendRequestToken(populateToken)
-                    }
+                    /* no-op */
+                    break
                 case let .replace(value):
                     state.current = value
 
