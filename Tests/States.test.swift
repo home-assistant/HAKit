@@ -140,8 +140,8 @@ internal class StatesTests: XCTestCase {
         XCTAssertNil(response.newState)
     }
 
-    func testGetStatesRequest() throws {
-        let request = HATypedRequest<[HAEntity]>.getStates()
-        XCTAssertEqual(request.request.type, .getStates)
+    func testSubscribeEntitiesRequest() throws {
+        let request = HATypedSubscription<HACompressedStatesUpdates>.subscribeEntities()
+        XCTAssertEqual(request.request.type, .subscribeEntities)
     }
 }

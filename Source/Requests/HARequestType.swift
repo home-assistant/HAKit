@@ -61,6 +61,8 @@ public enum HARequestType: Hashable, Comparable, ExpressibleByStringLiteral {
     public static var subscribeEvents: Self = "subscribe_events"
     /// `unsubscribe_events`
     public static var unsubscribeEvents: Self = "unsubscribe_events"
+    /// `subscribe_entities`
+    public static var subscribeEntities: Self = "subscribe_entities"
 
     // MARK: - Subscriptions
 

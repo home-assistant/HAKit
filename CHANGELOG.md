@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Changed: `HAData` now includes a `primitive` case to express non-array/dictionary values that aren't `null`.
 - Changed: WebSocket connection will now enable compression.
 - Fixed: Calling `HAConnection.connect()` and `HAConnection.disconnect()` off the main thread no longer occasionally crashes.
+- Removed: Usage of "get_states"
+- Added: More efficient API "subscribe_entities" replacing "get_states"
 
 ## [0.3] - 2021-07-08
 - Added: Subscriptions will now retry (when their request `shouldRetry`) when the HA config changes or components are loaded.

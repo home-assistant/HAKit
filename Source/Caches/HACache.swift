@@ -44,6 +44,7 @@ public class HACache<ValueType> {
         self.connection = connection
         self.populateInfo = populate
         self.subscribeInfo = subscribe
+        self.subscribeOnlyInfo = nil
 
         self.start = { connection, cache, _ in
             Self.startPopulate(for: populate, on: connection, cache: cache) { cacheResult in
@@ -82,6 +83,7 @@ public class HACache<ValueType> {
         self.connection = connection
         self.populateInfo = nil
         self.subscribeInfo = nil
+        self.subscribeOnlyInfo = subscribe
 
         self.start = { connection, cache, state in
             state.isWaitingForPopulate = false
@@ -107,6 +109,7 @@ public class HACache<ValueType> {
         self.connection = incomingCache.connection
         self.populateInfo = nil
         self.subscribeInfo = nil
+        self.subscribeOnlyInfo = nil
         self.start = { _, someCache, _ in
             // unfortunately, using this value directly crashes the swift compiler, so we call into it with this
             let cache: HACache<ValueType> = someCache
@@ -136,6 +139,7 @@ public class HACache<ValueType> {
         }
         self.populateInfo = nil
         self.subscribeInfo = nil
+        self.subscribeOnlyInfo = nil
         state.mutate { state in
             state.current = constantValue
         }
@@ -321,6 +325,9 @@ public class HACache<ValueType> {
     /// If this cache was created with subscribe info, this contains that info
     /// This is largely intended for tests and is not used internally.
     public let subscribeInfo: [HACacheSubscribeInfo<ValueType>]?
+    /// If this cache was created with subscribe info, this contains that info
+    /// This is largely intended for tests and is not used internally.
+    public let subscribeOnlyInfo: HACacheSubscribeInfo<ValueType?>?
 
     /// Do the underlying populate send
     /// - Parameters:
