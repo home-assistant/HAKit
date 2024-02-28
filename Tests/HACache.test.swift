@@ -14,16 +14,18 @@ internal class HACacheTests: XCTestCase {
     private var connection: HAMockConnection!
 
     private var populateInfo: HACachePopulateInfo<CacheItem>!
+    private var subscribeInfoNoPopulate: HACacheSubscribeInfo<CacheItem?>!
     private var populateCount: Int!
     private var populateCancellableInvoked: Bool = false
     private var populatePerform: (((CacheItem?) throws -> CacheItem) -> Void)?
 
     private var subscribeInfo: HACacheSubscribeInfo<CacheItem>!
     private var subscribeCancellableInvoked: Bool = false
-    private var subscribePerform: (((CacheItem) -> HACacheSubscribeInfo<CacheItem>.Response) -> Void)?
+    private var subscribePerform: (((CacheItem?) -> HACacheSubscribeInfo<CacheItem>.Response) -> Void)?
+    private var subscribePerformNoPopulate: (((CacheItem?) -> HACacheSubscribeInfo<CacheItem?>.Response) -> Void)?
     private var subscribeInfo2: HACacheSubscribeInfo<CacheItem>!
     private var subscribeCancellableInvoked2: Bool = false
-    private var subscribePerform2: (((CacheItem) -> HACacheSubscribeInfo<CacheItem>.Response) -> Void)?
+    private var subscribePerform2: (((CacheItem?) -> HACacheSubscribeInfo<CacheItem>.Response) -> Void)?
 
     private func waitForCallback() {
         let expectation = self.expectation(description: "waiting for queue")
@@ -41,7 +43,7 @@ internal class HACacheTests: XCTestCase {
         value(block)
     }
 
-    private func subscribe(_ block: (CacheItem) -> HACacheSubscribeInfo<CacheItem>.Response) throws {
+    private func subscribe(_ block: (CacheItem?) -> HACacheSubscribeInfo<CacheItem>.Response) throws {
         if subscribePerform == nil {
             waitForCallback()
         }
@@ -49,7 +51,15 @@ internal class HACacheTests: XCTestCase {
         value(block)
     }
 
-    private func subscribe2(_ block: (CacheItem) -> HACacheSubscribeInfo<CacheItem>.Response) throws {
+    private func subscribeNoPopulate(_ block: (CacheItem?) -> HACacheSubscribeInfo<CacheItem?>.Response) throws {
+        if subscribePerform == nil {
+            waitForCallback()
+        }
+        let value = try XCTUnwrap(subscribePerformNoPopulate)
+        value(block)
+    }
+
+    private func subscribe2(_ block: (CacheItem?) -> HACacheSubscribeInfo<CacheItem>.Response) throws {
         if subscribePerform2 == nil {
             waitForCallback()
         }
@@ -86,6 +96,17 @@ internal class HACacheTests: XCTestCase {
                 fatalError()
             }, start: { [weak self] _, subscribe in
                 self?.subscribePerform = subscribe
+                return HAMockCancellable { [weak self] in
+                    self?.subscribeCancellableInvoked = true
+                }
+            }
+        )
+        subscribeInfoNoPopulate = HACacheSubscribeInfo<CacheItem?>(
+            request: .init(type: "none", data: [:]),
+            anyTransform: { _ in
+                fatalError()
+            }, start: { [weak self] _, subscribe in
+                self?.subscribePerformNoPopulate = subscribe
                 return HAMockCancellable { [weak self] in
                     self?.subscribeCancellableInvoked = true
                 }
@@ -672,6 +693,84 @@ internal class HACacheTests: XCTestCase {
         _ = cache.subscribe { _, _ in }
 
         XCTAssertEqual(populateCount, 1)
+    }
+
+    func testInitSubscribingWithoutPopulate() throws {
+        let cache = HACache(connection: connection, subscribe: subscribeInfoNoPopulate)
+        let result = cache.subscribe { _, _ in }
+        let expectedValue = CacheItem()
+
+        try subscribeNoPopulate { current in
+            XCTAssertNil(current)
+            return .replace(expectedValue)
+        }
+
+        XCTAssertNil(cache.subscribeInfo)
+        XCTAssertNil(cache.populateInfo)
+        XCTAssertNotNil(subscribePerformNoPopulate)
+        XCTAssertNotNil(result)
+    }
+
+    func testSubscriptionWithNilPopulateInfo() {
+        let cache = HACache(connection: connection, subscribe: subscribeInfoNoPopulate)
+
+        var receivedUpdates = [CacheItem?]()
+        let expectation = self.expectation(description: "SubscriptionUpdate")
+        expectation.expectedFulfillmentCount = 2
+
+        let token = cache.subscribe { _, item in
+            receivedUpdates.append(item)
+            expectation.fulfill()
+        }
+
+        try? subscribeNoPopulate { _ in
+            .replace(CacheItem())
+        }
+
+        try? subscribeNoPopulate { _ in
+            .replace(CacheItem())
+        }
+
+        waitForExpectations(timeout: 10.0)
+        token.cancel()
+
+        XCTAssertNotNil(receivedUpdates[0], "First update should not be nil")
+        XCTAssertNotNil(receivedUpdates[1], "Second update should not be nil")
+    }
+
+    func testSubscriptionWithConnectionStateChanges() {
+        let cache = HACache(connection: connection, subscribe: subscribeInfoNoPopulate)
+
+        var receivedUpdates = [CacheItem?]()
+        let expectation = self.expectation(description: "ConnectionStateChange")
+        expectation.expectedFulfillmentCount = 1
+
+        _ = cache.subscribe { _, item in
+            receivedUpdates.append(item)
+            expectation.fulfill()
+        }
+
+        connection.setState(.disconnected(reason: .disconnected))
+        connection.setState(.ready(version: "testVersion"))
+
+        try? subscribeNoPopulate { _ in
+            .replace(CacheItem())
+        }
+
+        waitForExpectations(timeout: 10.0)
+
+        XCTAssertNotNil(receivedUpdates.first, "Should have received an update after connection state changes")
+    }
+
+    func testSubscriptionWithNoPopulateWhenReissuePopulate() {
+        let cache = HACache(connection: connection, subscribe: subscribeInfoNoPopulate)
+        _ = cache.subscribe { _, _ in }
+
+        try? subscribeNoPopulate { _ in
+            .reissuePopulate
+        }
+
+        XCTAssertEqual(populateCount, 0)
     }
 }
 
