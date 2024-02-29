@@ -55,7 +55,8 @@ internal class HACachedStatesTests: XCTestCase {
                     """
                 )
             ),
-            current: nil
+            current: nil,
+            subscriptionPhase: .initial
         )
         guard case let .replace(outgoingType) = result1 else {
             XCTFail("Did not replace when expected")
@@ -85,7 +86,8 @@ internal class HACachedStatesTests: XCTestCase {
                     """
                 )
             ),
-            current: .init(entities: Array(outgoingType!.all))
+            current: .init(entities: Array(outgoingType!.all)),
+            subscriptionPhase: .iteration
         )
 
         guard case let .replace(updatedOutgoingType) = updateEventResult else {
@@ -112,7 +114,8 @@ internal class HACachedStatesTests: XCTestCase {
                     """
                 )
             ),
-            current: .init(entities: Array(updatedOutgoingType!.all))
+            current: .init(entities: Array(outgoingType!.all)),
+            subscriptionPhase: .iteration
         )
 
         guard case let .replace(entityRemovedOutgoingType) = entityRemovalEventResult else {

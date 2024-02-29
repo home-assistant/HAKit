@@ -57,7 +57,7 @@ internal final class HACacheKeyStates_test: XCTestCase {
                 current: .init(
                     entities: []
                 )
-            )
+            ), shouldResetEntities: false
         )
 
         XCTAssertEqual(result.all.count, 2)
@@ -137,7 +137,7 @@ internal final class HACacheKeyStates_test: XCTestCase {
                         existentEntity,
                     ]
                 )
-            )
+            ), shouldResetEntities: false
         )
 
         XCTAssertEqual(result.all.count, 1)
@@ -206,7 +206,7 @@ internal final class HACacheKeyStates_test: XCTestCase {
                         existentEntity,
                     ]
                 )
-            )
+            ), shouldResetEntities: false
         )
 
         XCTAssertEqual(result.all.count, 1)
@@ -254,7 +254,7 @@ internal final class HACacheKeyStates_test: XCTestCase {
                 current: .init(
                     entities: []
                 )
-            )
+            ), shouldResetEntities: false
         )
 
         XCTAssertEqual(result.all.count, 0)

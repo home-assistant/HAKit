@@ -9,20 +9,32 @@ internal struct HACacheKeyStates: HACacheKey {
             .init(
                 subscription: .subscribeEntities(),
                 transform: { info in
-                    .replace(processUpdates(info: info))
+                    .replace(processUpdates(
+                        info: info,
+                        shouldResetEntities: info.subscriptionPhase == .initial
+                    ))
                 }
             )
         )
     }
 
     /// Process updates from the compressed state to HAEntity
-    /// - Parameter info: The compressed state update and the current cached states
+    /// - Parameters:
+    ///   - info: The compressed state update and the current cached states
+    ///   - shouldResetEntities: True if current state needs to be ignored (e.g. re-connection)
     /// - Returns: HAEntity cached states
     /// Logic from: https://github.com/home-assistant/home-assistant-js-websocket/blob/master/lib/entities.ts
-    static func processUpdates(info: HACacheTransformInfo<HACompressedStatesUpdates, HACachedStates?>)
+    static func processUpdates(
+        info: HACacheTransformInfo<HACompressedStatesUpdates, HACachedStates?>,
+        shouldResetEntities: Bool
+    )
         -> HACachedStates {
-        var states: HACachedStates = info.current ?? .init(entities: [])
-
+        var states: HACachedStates
+        if shouldResetEntities {
+            states = .init(entities: [])
+        } else {
+            states = info.current ?? .init(entities: [])
+        }
         if let additions = info.incoming.add {
             for (entityId, updates) in additions {
                 if var currentState = states[entityId] {
