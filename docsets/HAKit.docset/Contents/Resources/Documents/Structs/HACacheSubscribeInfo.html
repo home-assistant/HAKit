@@ -17,7 +17,7 @@
     <a title="HACacheSubscribeInfo Structure Reference"></a>
     <header>
       <div class="content-wrapper">
-        <p><a href="../index.html">HAKit 0.3 Docs</a> (97% documented)</p>
+        <p><a href="../index.html">HAKit 0.4 Docs</a> (93% documented)</p>
         <p class="header-right"><a href="https://www.github.com/home-assistant/ha-swift-api"><img src="../img/gh.png" alt="GitHub"/>View on GitHub</a></p>
         <div class="header-right">
           <form role="search" action="../search.json">
@@ -53,6 +53,9 @@
           <li class="nav-group-name">
             <a href="../Enums.html">Enumerations</a>
             <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Enums/HACacheSubscriptionPhase.html">HACacheSubscriptionPhase</a>
+              </li>
               <li class="nav-group-task">
                 <a href="../Enums/HAConnectionState.html">HAConnectionState</a>
               </li>
@@ -148,6 +151,18 @@
               </li>
               <li class="nav-group-task">
                 <a href="../Structs/HACachedStates.html">HACachedStates</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/HACompressedEntityDiff.html">HACompressedEntityDiff</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/HACompressedEntityState.html">HACompressedEntityState</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/HACompressedEntityStateRemove.html">HACompressedEntityStateRemove</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/HACompressedStatesUpdates.html">HACompressedStatesUpdates</a>
               </li>
               <li class="nav-group-task">
                 <a href="../Structs/HAConnectionConfiguration.html">HAConnectionConfiguration</a>
@@ -395,9 +410,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:5HAKit20HACacheSubscribeInfoV9transform8incoming7currentAC8ResponseOyx_Gqd___xtKlF"></a>
-                    <a name="//apple_ref/swift/Method/transform(incoming:current:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:5HAKit20HACacheSubscribeInfoV9transform8incoming7currentAC8ResponseOyx_Gqd___xtKlF">transform(incoming:<wbr>current:<wbr>)</a>
+                    <a name="/s:5HAKit20HACacheSubscribeInfoV9transform8incoming7current17subscriptionPhaseAC8ResponseOyx_Gqd___xAA0b12SubscriptionI0OtKlF"></a>
+                    <a name="//apple_ref/swift/Method/transform(incoming:current:subscriptionPhase:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:5HAKit20HACacheSubscribeInfoV9transform8incoming7current17subscriptionPhaseAC8ResponseOyx_Gqd___xAA0b12SubscriptionI0OtKlF">transform(incoming:<wbr>current:<wbr>subscriptionPhase:<wbr>)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -423,7 +438,11 @@
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">func</span> <span class="n">transform</span><span class="o">&lt;</span><span class="kt">IncomingType</span><span class="o">&gt;</span><span class="p">(</span><span class="nv">incoming</span><span class="p">:</span> <span class="kt">IncomingType</span><span class="p">,</span> <span class="nv">current</span><span class="p">:</span> <span class="kt">OutgoingType</span><span class="p">)</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt"><a href="../Structs/HACacheSubscribeInfo/Response.html">Response</a></span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">func</span> <span class="n">transform</span><span class="o">&lt;</span><span class="kt">IncomingType</span><span class="o">&gt;</span><span class="p">(</span>
+    <span class="nv">incoming</span><span class="p">:</span> <span class="kt">IncomingType</span><span class="p">,</span>
+    <span class="nv">current</span><span class="p">:</span> <span class="kt">OutgoingType</span><span class="p">,</span>
+    <span class="nv">subscriptionPhase</span><span class="p">:</span> <span class="kt"><a href="../Enums/HACacheSubscriptionPhase.html">HACacheSubscriptionPhase</a></span>
+<span class="p">)</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt"><a href="../Structs/HACacheSubscribeInfo/Response.html">Response</a></span></code></pre>
 
                         </div>
                       </div>
@@ -455,6 +474,18 @@
                                 </div>
                               </td>
                             </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>subscriptionPhase</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The phase in which the subscription is, initial iteration or subsequent</p>
+                                </div>
+                              </td>
+                            </tr>
                           </tbody>
                         </table>
                       </div>
@@ -470,7 +501,7 @@
           </section>
         </section>
         <section id="footer">
-          <p>&copy; 2024 <a class="link" href="https://github.com/home-assistant/HAKit" target="_blank" rel="external noopener">Home Assistant</a>. All rights reserved. (Last updated: 2024-02-29)</p>
+          <p>&copy; 2024 <a class="link" href="https://github.com/home-assistant/HAKit" target="_blank" rel="external noopener">Home Assistant</a>. All rights reserved. (Last updated: 2024-03-06)</p>
           <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external noopener">jazzy ♪♫ v0.14.4</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external noopener">Realm</a> project.</p>
         </section>
       </article>

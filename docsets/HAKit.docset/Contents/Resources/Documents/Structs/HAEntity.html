@@ -17,7 +17,7 @@
     <a title="HAEntity Structure Reference"></a>
     <header>
       <div class="content-wrapper">
-        <p><a href="../index.html">HAKit 0.3 Docs</a> (97% documented)</p>
+        <p><a href="../index.html">HAKit 0.4 Docs</a> (93% documented)</p>
         <p class="header-right"><a href="https://www.github.com/home-assistant/ha-swift-api"><img src="../img/gh.png" alt="GitHub"/>View on GitHub</a></p>
         <div class="header-right">
           <form role="search" action="../search.json">
@@ -53,6 +53,9 @@
           <li class="nav-group-name">
             <a href="../Enums.html">Enumerations</a>
             <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Enums/HACacheSubscriptionPhase.html">HACacheSubscriptionPhase</a>
+              </li>
               <li class="nav-group-task">
                 <a href="../Enums/HAConnectionState.html">HAConnectionState</a>
               </li>
@@ -148,6 +151,18 @@
               </li>
               <li class="nav-group-task">
                 <a href="../Structs/HACachedStates.html">HACachedStates</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/HACompressedEntityDiff.html">HACompressedEntityDiff</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/HACompressedEntityState.html">HACompressedEntityState</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/HACompressedEntityStateRemove.html">HACompressedEntityStateRemove</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/HACompressedStatesUpdates.html">HACompressedStatesUpdates</a>
               </li>
               <li class="nav-group-task">
                 <a href="../Structs/HAConnectionConfiguration.html">HAConnectionConfiguration</a>
@@ -485,9 +500,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:5HAKit8HAEntityV8entityId6domain5state11lastChanged0G7Updated10attributes7contextACSS_S2S10Foundation4DateVAMSDySSypGAA15HAResponseEventV7ContextVtKcfc"></a>
+                    <a name="/s:5HAKit8HAEntityV8entityId6domain5state11lastChanged0G7Updated10attributes7contextACSS_SSSgSS10Foundation4DateVANSDySSypGAA15HAResponseEventV7ContextVtKcfc"></a>
                     <a name="//apple_ref/swift/Method/init(entityId:domain:state:lastChanged:lastUpdated:attributes:context:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:5HAKit8HAEntityV8entityId6domain5state11lastChanged0G7Updated10attributes7contextACSS_S2S10Foundation4DateVAMSDySSypGAA15HAResponseEventV7ContextVtKcfc">init(entityId:<wbr>domain:<wbr>state:<wbr>lastChanged:<wbr>lastUpdated:<wbr>attributes:<wbr>context:<wbr>)</a>
+                    <a class="token" href="#/s:5HAKit8HAEntityV8entityId6domain5state11lastChanged0G7Updated10attributes7contextACSS_SSSgSS10Foundation4DateVANSDySSypGAA15HAResponseEventV7ContextVtKcfc">init(entityId:<wbr>domain:<wbr>state:<wbr>lastChanged:<wbr>lastUpdated:<wbr>attributes:<wbr>context:<wbr>)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -509,7 +524,7 @@
                           <p class="aside-title">Swift</p>
                           <pre class="highlight swift"><code><span class="kd">public</span> <span class="nf">init</span><span class="p">(</span>
     <span class="nv">entityId</span><span class="p">:</span> <span class="kt">String</span><span class="p">,</span>
-    <span class="nv">domain</span><span class="p">:</span> <span class="kt">String</span><span class="p">,</span>
+    <span class="nv">domain</span><span class="p">:</span> <span class="kt">String</span><span class="p">?</span> <span class="o">=</span> <span class="kc">nil</span><span class="p">,</span>
     <span class="nv">state</span><span class="p">:</span> <span class="kt">String</span><span class="p">,</span>
     <span class="nv">lastChanged</span><span class="p">:</span> <span class="kt">Date</span><span class="p">,</span>
     <span class="nv">lastUpdated</span><span class="p">:</span> <span class="kt">Date</span><span class="p">,</span>
@@ -543,7 +558,7 @@
                               </td>
                               <td>
                                 <div>
-                                  <p>The domain of the entity ID</p>
+                                  <p>The domain of the entity ID (optional), when nil domain will be extracted from entityId</p>
                                 </div>
                               </td>
                             </tr>
@@ -670,7 +685,7 @@
           </section>
         </section>
         <section id="footer">
-          <p>&copy; 2024 <a class="link" href="https://github.com/home-assistant/HAKit" target="_blank" rel="external noopener">Home Assistant</a>. All rights reserved. (Last updated: 2024-02-29)</p>
+          <p>&copy; 2024 <a class="link" href="https://github.com/home-assistant/HAKit" target="_blank" rel="external noopener">Home Assistant</a>. All rights reserved. (Last updated: 2024-03-06)</p>
           <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external noopener">jazzy ♪♫ v0.14.4</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external noopener">Realm</a> project.</p>
         </section>
       </article>

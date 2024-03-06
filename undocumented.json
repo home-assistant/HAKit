@@ -1,6 +1,111 @@
 {
   "warnings": [
     {
+      "file": "/Users/runner/work/HAKit/HAKit/Source/Data/HACompressedEntity.swift",
+      "line": 3,
+      "symbol": "HACompressedStatesUpdates",
+      "symbol_kind": "source.lang.swift.decl.struct",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/HAKit/HAKit/Source/Data/HACompressedEntity.swift",
+      "line": 4,
+      "symbol": "HACompressedStatesUpdates.add",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/HAKit/HAKit/Source/Data/HACompressedEntity.swift",
+      "line": 5,
+      "symbol": "HACompressedStatesUpdates.remove",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/HAKit/HAKit/Source/Data/HACompressedEntity.swift",
+      "line": 6,
+      "symbol": "HACompressedStatesUpdates.change",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/HAKit/HAKit/Source/Data/HACompressedEntity.swift",
+      "line": 15,
+      "symbol": "HACompressedEntityState",
+      "symbol_kind": "source.lang.swift.decl.struct",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/HAKit/HAKit/Source/Data/HACompressedEntity.swift",
+      "line": 16,
+      "symbol": "HACompressedEntityState.state",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/HAKit/HAKit/Source/Data/HACompressedEntity.swift",
+      "line": 17,
+      "symbol": "HACompressedEntityState.attributes",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/HAKit/HAKit/Source/Data/HACompressedEntity.swift",
+      "line": 18,
+      "symbol": "HACompressedEntityState.context",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/HAKit/HAKit/Source/Data/HACompressedEntity.swift",
+      "line": 19,
+      "symbol": "HACompressedEntityState.lastChanged",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/HAKit/HAKit/Source/Data/HACompressedEntity.swift",
+      "line": 20,
+      "symbol": "HACompressedEntityState.lastUpdated",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/HAKit/HAKit/Source/Data/HACompressedEntity.swift",
+      "line": 42,
+      "symbol": "HACompressedEntityStateRemove",
+      "symbol_kind": "source.lang.swift.decl.struct",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/HAKit/HAKit/Source/Data/HACompressedEntity.swift",
+      "line": 43,
+      "symbol": "HACompressedEntityStateRemove.attributes",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/HAKit/HAKit/Source/Data/HACompressedEntity.swift",
+      "line": 50,
+      "symbol": "HACompressedEntityDiff",
+      "symbol_kind": "source.lang.swift.decl.struct",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/HAKit/HAKit/Source/Data/HACompressedEntity.swift",
+      "line": 51,
+      "symbol": "HACompressedEntityDiff.additions",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/HAKit/HAKit/Source/Data/HACompressedEntity.swift",
+      "line": 52,
+      "symbol": "HACompressedEntityDiff.subtractions",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
       "file": "/Users/runner/work/HAKit/HAKit/Source/Requests/HAHTTPMethod.swift",
       "line": 1,
       "symbol": "HAHTTPMethod",
