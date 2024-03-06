@@ -11,7 +11,7 @@ env:
 
 jobs:
   generate:
-    runs-on: macos-latest
+    runs-on: macos-14
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@master
