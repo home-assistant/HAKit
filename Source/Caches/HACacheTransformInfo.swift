@@ -9,4 +9,15 @@ public struct HACacheTransformInfo<IncomingType, OutgoingType> {
     /// For populate transforms, this is nil if an initial request hasn't been sent yet and the cache not reset.
     /// For subscribe transforms, this is nil if the populate did not produce results (or does not exist).
     public var current: OutgoingType
+
+    /// The current phase of the subscription
+    public var subscriptionPhase: HACacheSubscriptionPhase = .initial
+}
+
+/// The subscription phases
+public enum HACacheSubscriptionPhase {
+    /// `Initial` means it's the first time a value is returned
+    case initial
+    /// `Iteration` means subsequent iterations
+    case iteration
 }

@@ -36,9 +36,16 @@ public struct HACacheSubscribeInfo<OutgoingType> {
 
                 return transform(value)
             }, start: { connection, perform in
-                connection.subscribe(to: nonRetrySubscription, handler: { _, incoming in
+                var operationType: HACacheSubscriptionPhase = .initial
+                return connection.subscribe(to: nonRetrySubscription, handler: { _, incoming in
                     perform { current in
-                        transform(.init(incoming: incoming, current: current))
+                        let transform = transform(.init(
+                            incoming: incoming,
+                            current: current,
+                            subscriptionPhase: operationType
+                        ))
+                        operationType = .iteration
+                        return transform
                     }
                 })
             }
@@ -63,10 +70,19 @@ public struct HACacheSubscribeInfo<OutgoingType> {
     /// - Parameters:
     ///   - incoming: The incoming value, of some given type -- intended to be the IncomingType that created this
     ///   - current: The current value part of the transform info
+    ///   - subscriptionPhase: The phase in which the subscription is, initial iteration or subsequent
     /// - Throws: If the type of incoming does not match the original IncomingType
     /// - Returns: The response from the transform block
-    public func transform<IncomingType>(incoming: IncomingType, current: OutgoingType) throws -> Response {
-        try anyTransform(HACacheTransformInfo<IncomingType, OutgoingType>(incoming: incoming, current: current))
+    public func transform<IncomingType>(
+        incoming: IncomingType,
+        current: OutgoingType,
+        subscriptionPhase: HACacheSubscriptionPhase
+    ) throws -> Response {
+        try anyTransform(HACacheTransformInfo<IncomingType, OutgoingType>(
+            incoming: incoming,
+            current: current,
+            subscriptionPhase: subscriptionPhase
+        ))
     }
 
     /// The start handler

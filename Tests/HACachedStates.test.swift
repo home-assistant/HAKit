@@ -20,110 +20,109 @@ internal class HACachedStatesTests: XCTestCase {
 
     func testPopulateAndSubscribeInfo() throws {
         let cache = container.states
-        let populate = try XCTUnwrap(cache.populateInfo)
-        let subscribe1 = try XCTUnwrap(cache.subscribeInfo?.get(throwing: 0))
+        XCTAssertNil(cache.populateInfo)
+        XCTAssertNil(cache.subscribeInfo)
+        let subscribeOnlyInfo = try XCTUnwrap(cache.subscribeOnlyInfo)
 
-        XCTAssertEqual(populate.request.type, .getStates)
-        XCTAssertEqual(subscribe1.request.type, .subscribeEvents)
-        XCTAssertEqual(subscribe1.request.data["event_type"] as? String, HAEventType.stateChanged.rawValue)
-
-        let entities = try [HAEntity.fake(id: "1"), HAEntity.fake(id: "2"), HAEntity.fake(id: "3")]
-
-        let result1 = try populate.transform(incoming: entities, current: nil)
-        XCTAssertEqual(result1.all, Set(entities))
-
-        for entity in entities {
-            XCTAssertEqual(result1[entity.entityId], entity)
-        }
-
-        // remove one
-        let result2 = try subscribe1.transform(
-            incoming: HAResponseEventStateChanged(
-                event: HAResponseEvent(
-                    type: .stateChanged,
-                    timeFired: Date(),
-                    data: [:],
-                    origin: .local,
-                    context: .init(id: "id", userId: nil, parentId: nil)
-                ),
-                entityId: entities[1].entityId,
-                oldState: entities[1],
-                newState: nil
+        XCTAssertEqual(subscribeOnlyInfo.request.type, .subscribeEntities)
+        let result1 = try subscribeOnlyInfo.transform(
+            incoming: HACompressedStatesUpdates(
+                data: .init(
+                    testJsonString: """
+                    {
+                        "a": {
+                            "person.bruno": {
+                                "s": "not_home",
+                                "a": {
+                                    "editable": true,
+                                    "id": "bruno",
+                                    "latitude": 51.8,
+                                    "longitude": 4.5,
+                                    "gps_accuracy": 14.1,
+                                    "source": "device_tracker.iphone",
+                                    "user_id": "12345",
+                                    "device_trackers": [
+                                        "device_tracker.iphone_15_pro"
+                                    ],
+                                    "friendly_name": "Bruno"
+                                },
+                                "c": "01HPKH5TE4HVR88WW6TN43H31X",
+                                "lc": 1707884643.671705,
+                                "lu": 1707905051.076724
+                            }
+                        }
+                    }
+                    """
+                )
             ),
-            current: result1
+            current: nil,
+            subscriptionPhase: .initial
         )
-
-        guard case let .replace(updated1) = result2 else {
-            XCTFail("did not replace when expected")
+        guard case let .replace(outgoingType) = result1 else {
+            XCTFail("Did not replace when expected")
             return
         }
 
-        XCTAssertFalse(updated1.all.contains(entities[1]))
-        XCTAssertTrue(updated1.all.contains(entities[0]))
-        XCTAssertTrue(updated1.all.contains(entities[2]))
-        XCTAssertNil(updated1[entities[1].entityId])
-        XCTAssertEqual(updated1[entities[0].entityId], entities[0])
-        XCTAssertEqual(updated1[entities[2].entityId], entities[2])
+        XCTAssertEqual(outgoingType?.all.count, 1)
+        XCTAssertEqual(outgoingType?.all.first?.entityId, "person.bruno")
+        XCTAssertEqual(outgoingType?.all.first?.state, "not_home")
+        XCTAssertEqual(outgoingType?.all.first?.domain, "person")
 
-        let addedEntity = try HAEntity.fake(id: "4")
-        let result3 = try subscribe1.transform(
-            incoming: HAResponseEventStateChanged(
-                event: HAResponseEvent(
-                    type: .stateChanged,
-                    timeFired: Date(),
-                    data: [:],
-                    origin: .local,
-                    context: .init(id: "id", userId: nil, parentId: nil)
-                ),
-                entityId: addedEntity.entityId,
-                oldState: nil,
-                newState: addedEntity
+        let updateEventResult = try subscribeOnlyInfo.transform(
+            incoming: HACompressedStatesUpdates(
+                data: .init(
+                    testJsonString:
+                    """
+                    {
+
+                            "c": {
+                                "person.bruno": {
+                                    "+": {
+                                        "s": "home",
+                                    }
+                                }
+                            }
+                    }
+                    """
+                )
             ),
-            current: updated1
+            current: .init(entities: Array(outgoingType!.all)),
+            subscriptionPhase: .iteration
         )
 
-        guard case let .replace(updated2) = result3 else {
-            XCTFail("did not replace when expected")
+        guard case let .replace(updatedOutgoingType) = updateEventResult else {
+            XCTFail("Did not replace updated entity")
             return
         }
 
-        XCTAssertTrue(updated2.all.contains(addedEntity))
-        XCTAssertTrue(updated2.all.contains(entities[0]))
-        XCTAssertTrue(updated2.all.contains(entities[2]))
-        XCTAssertEqual(updated2[addedEntity.entityId], addedEntity)
-        XCTAssertEqual(updated2[entities[0].entityId], entities[0])
-        XCTAssertEqual(updated2[entities[2].entityId], entities[2])
+        XCTAssertEqual(updatedOutgoingType?.all.count, 1)
+        XCTAssertEqual(updatedOutgoingType?.all.first?.entityId, "person.bruno")
+        XCTAssertEqual(updatedOutgoingType?.all.first?.state, "home")
+        XCTAssertEqual(updatedOutgoingType?.all.first?.domain, "person")
 
-        // update one
-        var updatedEntity = try HAEntity.fake(id: "2")
-        updatedEntity.state = "updated2"
+        let entityRemovalEventResult = try subscribeOnlyInfo.transform(
+            incoming: HACompressedStatesUpdates(
+                data: .init(
+                    testJsonString:
+                    """
+                    {
 
-        let result4 = try subscribe1.transform(
-            incoming: HAResponseEventStateChanged(
-                event: HAResponseEvent(
-                    type: .stateChanged,
-                    timeFired: Date(),
-                    data: [:],
-                    origin: .local,
-                    context: .init(id: "id", userId: nil, parentId: nil)
-                ),
-                entityId: entities[2].entityId,
-                oldState: entities[2],
-                newState: updatedEntity
+                            "r": [
+                                "person.bruno"
+                            ]
+                    }
+                    """
+                )
             ),
-            current: updated2
+            current: .init(entities: Array(outgoingType!.all)),
+            subscriptionPhase: .iteration
         )
 
-        guard case let .replace(updated3) = result4 else {
-            XCTFail("did not replace when expected")
+        guard case let .replace(entityRemovedOutgoingType) = entityRemovalEventResult else {
+            XCTFail("Did not remo entity correctly")
             return
         }
 
-        XCTAssertTrue(updated3.all.contains(addedEntity))
-        XCTAssertTrue(updated3.all.contains(entities[0]))
-        XCTAssertTrue(updated3.all.contains(updatedEntity))
-        XCTAssertEqual(updated3[addedEntity.entityId], addedEntity)
-        XCTAssertEqual(updated3[entities[0].entityId], entities[0])
-        XCTAssertEqual(updated3[entities[2].entityId], updatedEntity)
+        XCTAssertEqual(entityRemovedOutgoingType?.all.count, 0)
     }
 }

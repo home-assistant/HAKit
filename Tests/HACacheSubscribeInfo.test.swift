@@ -27,14 +27,18 @@ internal class HACacheSubscribeInfoTests: XCTestCase {
         XCTAssertEqual(info.request.type, "test")
         XCTAssertEqual(info.request.data["in_data"] as? Bool, true)
 
-        XCTAssertThrowsError(try info.transform(incoming: "hello", current: item))
-        XCTAssertThrowsError(try info.transform(incoming: SubscribeItem?.none, current: item))
+        XCTAssertThrowsError(try info.transform(incoming: "hello", current: item, subscriptionPhase: .initial))
+        XCTAssertThrowsError(try info.transform(
+            incoming: SubscribeItem?.none,
+            current: item,
+            subscriptionPhase: .iteration
+        ))
 
         result = .reissuePopulate
-        XCTAssertEqual(try info.transform(incoming: item, current: item), result)
+        XCTAssertEqual(try info.transform(incoming: item, current: item, subscriptionPhase: .iteration), result)
 
         result = .replace(SubscribeItem())
-        XCTAssertEqual(try info.transform(incoming: item, current: item), result)
+        XCTAssertEqual(try info.transform(incoming: item, current: item, subscriptionPhase: .iteration), result)
     }
 
     func testNotRetryRequest() throws {

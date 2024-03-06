@@ -25,13 +25,7 @@ public struct HAEntity: HADataDecodable, Hashable {
 
         try self.init(
             entityId: entityId,
-            domain: {
-                guard let dot = entityId.firstIndex(of: ".") else {
-                    throw HADataError.couldntTransform(key: "entity_id")
-                }
-
-                return String(entityId[..<dot])
-            }(),
+            domain: HAEntity.domain(from: entityId),
             state: data.decode("state"),
             lastChanged: data.decode("last_changed"),
             lastUpdated: data.decode("last_updated"),
@@ -43,7 +37,7 @@ public struct HAEntity: HADataDecodable, Hashable {
     /// Create an entity from individual items
     /// - Parameters:
     ///   - entityId: The entity ID
-    ///   - domain: The domain of the entity ID
+    ///   - domain: The domain of the entity ID (optional), when nil domain will be extracted from entityId
     ///   - state: The state
     ///   - lastChanged: The date last changed
     ///   - lastUpdated: The date last updated
@@ -52,13 +46,20 @@ public struct HAEntity: HADataDecodable, Hashable {
     /// - Throws: When the attributes are missing any required fields
     public init(
         entityId: String,
-        domain: String,
+        domain: String? = nil,
         state: String,
         lastChanged: Date,
         lastUpdated: Date,
         attributes: [String: Any],
         context: HAResponseEvent.Context
     ) throws {
+        var domain: String = try {
+            if let domain {
+                domain
+            } else {
+                try HAEntity.domain(from: entityId)
+            }
+        }()
         precondition(entityId.starts(with: domain))
         self.entityId = entityId
         self.domain = domain
@@ -75,6 +76,14 @@ public struct HAEntity: HADataDecodable, Hashable {
 
     public static func == (lhs: HAEntity, rhs: HAEntity) -> Bool {
         lhs.lastUpdated == rhs.lastUpdated && lhs.entityId == rhs.entityId && lhs.state == rhs.state
+    }
+
+    internal static func domain(from entityId: String) throws -> String {
+        guard let dot = entityId.firstIndex(of: ".") else {
+            throw HADataError.couldntTransform(key: "entity_id")
+        }
+
+        return String(entityId[..<dot])
     }
 }
 
