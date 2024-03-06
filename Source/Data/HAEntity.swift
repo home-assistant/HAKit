@@ -37,7 +37,7 @@ public struct HAEntity: HADataDecodable, Hashable {
     /// Create an entity from individual items
     /// - Parameters:
     ///   - entityId: The entity ID
-    ///   - domain: The domain of the entity ID
+    ///   - domain: The domain of the entity ID (optional), when nil domain will be extracted from entityId
     ///   - state: The state
     ///   - lastChanged: The date last changed
     ///   - lastUpdated: The date last updated
@@ -78,7 +78,7 @@ public struct HAEntity: HADataDecodable, Hashable {
         lhs.lastUpdated == rhs.lastUpdated && lhs.entityId == rhs.entityId && lhs.state == rhs.state
     }
 
-    public static func domain(from entityId: String) throws -> String {
+    internal static func domain(from entityId: String) throws -> String {
         guard let dot = entityId.firstIndex(of: ".") else {
             throw HADataError.couldntTransform(key: "entity_id")
         }

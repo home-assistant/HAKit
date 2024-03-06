@@ -219,7 +219,6 @@ internal final class HACacheKeyStates_test: XCTestCase {
 
     func testProcessUpdatesAddNewEntitiesWhenEntityCantBeConvertedFromUpdate() throws {
         let expectation = expectation(description: "Wait for error log")
-        let expectedDate = Date(timeIntervalSince1970: 1_707_884_643.671705)
 
         HAGlobal.log = { level, message in
             XCTAssertEqual(level, .error)
