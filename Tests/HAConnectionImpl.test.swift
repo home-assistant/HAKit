@@ -1465,8 +1465,13 @@ internal class HAConnectionImplTests: XCTestCase {
     func testWriteDataWritesData() {
         let expectedData = "Fake data".data(using: .utf8)!
         connection.connect()
-        connection.write(expectedData) {}
-        XCTAssertTrue(engine.events.contains(.writeData(expectedData, opcode: .binaryFrame)))
+        connection.write(.init(type: .data(expectedData)))
+        XCTAssertNotNil(requestController.added.first(where: { invocation in
+            if case let .data(data) = invocation.request.type {
+                return data == expectedData
+            }
+            return false
+        }))
     }
 }
 

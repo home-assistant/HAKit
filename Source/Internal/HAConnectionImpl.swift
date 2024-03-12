@@ -305,8 +305,14 @@ internal class HAConnectionImpl: HAConnection {
 
     // MARK: - Write
 
-    public func write(_ data: Data, completion: @escaping () -> Void) {
-        connection?.write(data: data, completion: completion)
+    public func write(_ dataRequest: HARequest) {
+        if case .data = dataRequest.type {
+            defer { connectAutomaticallyIfNeeded() }
+            let invocation = HARequestInvocationSingle(request: dataRequest) { _ in }
+            requestController.add(invocation)
+        } else {
+            HAGlobal.log(.error, "Write operation can only be executed by data HARequest")
+        }
     }
 }
 
@@ -398,6 +404,12 @@ extension HAConnectionImpl {
         }
     }
 
+    private func sendWrite(_ data: Data) {
+        workQueue.async { [connection] in
+            connection?.write(data: data)
+        }
+    }
+
     func sendRaw(
         identifier: HARequestIdentifier?,
         request: HARequest
@@ -407,6 +419,8 @@ extension HAConnectionImpl {
             sendWebSocket(identifier: identifier, request: request, command: command)
         case let .rest(method, command):
             sendRest(identifier: identifier!, request: request, method: method, command: command)
+        case let .data(data):
+            sendWrite(data)
         }
     }
 }

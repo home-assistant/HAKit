@@ -77,10 +77,8 @@ public class HAMockConnection: HAConnection {
     /// Whether to turn to 'connecting' when a 'send' or 'subscribe' occurs when 'disconnected'
     public var automaticallyTransitionToConnecting = true
 
-    /// Write data called
-    public var writeDataCalled: Bool = false
-    /// Data received to be written
-    public var writeDataArgument: Data?
+    /// Data request received to be written
+    public var writeDataRequest: HARequest?
 
     // MARK: - Mock Implementation
 
@@ -232,9 +230,7 @@ public class HAMockConnection: HAConnection {
         }
     }
 
-    public func write(_ data: Data, completion: @escaping () -> Void) {
-        writeDataCalled = true
-        writeDataArgument = data
-        completion()
+    public func write(_ dataRequest: HARequest) {
+        writeDataRequest = dataRequest
     }
 }

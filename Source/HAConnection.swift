@@ -182,5 +182,7 @@ public protocol HAConnection: AnyObject {
     ) -> HACancellable
 
     /// Write data to websocket connection
-    func write(_ data: Data, completion: @escaping () -> Void)
+    /// - Parameters:
+    ///   - request: The data request containing data to be written
+    func write(_ dataRequest: HARequest)
 }
