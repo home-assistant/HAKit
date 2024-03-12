@@ -77,6 +77,11 @@ public class HAMockConnection: HAConnection {
     /// Whether to turn to 'connecting' when a 'send' or 'subscribe' occurs when 'disconnected'
     public var automaticallyTransitionToConnecting = true
 
+    /// Write data called
+    public var writeDataCalled: Bool = false
+    /// Data received to be written
+    public var writeDataArgument: Data?
+
     // MARK: - Mock Implementation
 
     public weak var delegate: HAConnectionDelegate?
@@ -225,5 +230,11 @@ public class HAMockConnection: HAConnection {
         while hasCalled == 0 {
             CFRunLoopRunInMode(runLoopMode, 1.0, false)
         }
+    }
+
+    public func write(_ data: Data, completion: @escaping () -> Void) {
+        writeDataCalled = true
+        writeDataArgument = data
+        completion()
     }
 }

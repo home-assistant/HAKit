@@ -180,4 +180,7 @@ public protocol HAConnection: AnyObject {
         initiated: @escaping SubscriptionInitiatedHandler,
         handler: @escaping (HACancellable, T) -> Void
     ) -> HACancellable
+
+    /// Write data to websocket connection
+    func write(_ data: Data, completion: @escaping () -> Void)
 }

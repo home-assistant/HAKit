@@ -1461,6 +1461,13 @@ internal class HAConnectionImplTests: XCTestCase {
         let container = connection.caches
         XCTAssertEqual(ObjectIdentifier(container.connection), ObjectIdentifier(connection))
     }
+
+    func testWriteDataWritesData() {
+        let expectedData = "Fake data".data(using: .utf8)!
+        connection.connect()
+        connection.write(expectedData) {}
+        XCTAssertTrue(engine.events.contains(.writeData(expectedData, opcode: .binaryFrame)))
+    }
 }
 
 extension WebSocketEvent: Equatable {

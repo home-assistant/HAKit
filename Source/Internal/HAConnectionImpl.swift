@@ -302,6 +302,12 @@ internal class HAConnectionImpl: HAConnection {
     ) -> HACancellable {
         commonSubscribe(to: request, initiated: initiated, handler: handler)
     }
+
+    // MARK: - Write
+
+    public func write(_ data: Data, completion: @escaping () -> Void) {
+        connection?.write(data: data, completion: completion)
+    }
 }
 
 // MARK: -
