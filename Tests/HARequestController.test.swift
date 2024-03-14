@@ -188,6 +188,12 @@ internal class HARequestControllerTests: XCTestCase {
         XCTAssertEqual(types, Set(["test3", "test4"]))
     }
 
+    func testAddingWriteRequestAllowed() {
+        delegate.allowedSendKinds = .all
+        controller.add(.init(request: .init(type: .sttData(1))))
+        XCTAssertEqual(delegate.didPrepare.count, 1)
+    }
+
     func testCancelSingleBeforeSent() {
         let invocation = HARequestInvocationSingle(
             request: .init(type: "test1", data: [:]),

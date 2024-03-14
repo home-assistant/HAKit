@@ -78,7 +78,7 @@ public class HAMockConnection: HAConnection {
     public var automaticallyTransitionToConnecting = true
 
     /// Data request received to be written
-    public var writeDataRequest: HARequest?
+    public var sttDataRequestReceived: HARequest?
 
     // MARK: - Mock Implementation
 
@@ -230,7 +230,7 @@ public class HAMockConnection: HAConnection {
         }
     }
 
-    public func write(_ dataRequest: HARequest) {
-        writeDataRequest = dataRequest
+    public func sendSttAudio(_ request: HARequest) {
+        sttDataRequestReceived = request
     }
 }

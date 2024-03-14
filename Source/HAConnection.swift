@@ -181,8 +181,8 @@ public protocol HAConnection: AnyObject {
         handler: @escaping (HACancellable, T) -> Void
     ) -> HACancellable
 
-    /// Write data to websocket connection
+    /// Send audio to Assist
     /// - Parameters:
-    ///   - request: The data request containing data to be written
-    func write(_ dataRequest: HARequest)
+    ///   - request: The data request containing sttBinaryHandlerId and data (as base64 string) to be written
+    func sendSttAudio(_ request: HARequest)
 }

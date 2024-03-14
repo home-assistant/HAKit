@@ -305,14 +305,10 @@ internal class HAConnectionImpl: HAConnection {
 
     // MARK: - Write
 
-    public func write(_ dataRequest: HARequest) {
-        if case .data = dataRequest.type {
-            defer { connectAutomaticallyIfNeeded() }
-            let invocation = HARequestInvocationSingle(request: dataRequest) { _ in }
-            requestController.add(invocation)
-        } else {
-            HAGlobal.log(.error, "Write operation can only be executed by data HARequest")
-        }
+    public func sendSttAudio(_ request: HARequest) {
+        defer { connectAutomaticallyIfNeeded() }
+        let invocation = HARequestInvocationSingle(request: request) { _ in }
+        requestController.add(invocation)
     }
 }
 
@@ -404,9 +400,14 @@ extension HAConnectionImpl {
         }
     }
 
-    private func sendWrite(_ data: Data) {
+    private func sendWrite(_ sttBinaryHandlerId: UInt8, audioDataString: String?) {
+        // If there is no audioData, handlerID will be the payload alone indicating end of audio
+        var audioData = Data(base64Encoded: audioDataString ?? "") ?? Data()
+
+        // Prefix audioData with handler ID so the API can map the binary data
+        audioData.insert(sttBinaryHandlerId, at: 0)
         workQueue.async { [connection] in
-            connection?.write(data: data)
+            connection?.write(data: audioData)
         }
     }
 
@@ -419,8 +420,8 @@ extension HAConnectionImpl {
             sendWebSocket(identifier: identifier, request: request, command: command)
         case let .rest(method, command):
             sendRest(identifier: identifier!, request: request, method: method, command: command)
-        case let .data(data):
-            sendWrite(data)
+        case let .sttData(sttBinaryHandlerId):
+            sendWrite(sttBinaryHandlerId, audioDataString: request.data["audioData"] as? String)
         }
     }
 }

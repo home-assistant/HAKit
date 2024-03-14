@@ -1462,16 +1462,61 @@ internal class HAConnectionImplTests: XCTestCase {
         XCTAssertEqual(ObjectIdentifier(container.connection), ObjectIdentifier(connection))
     }
 
-    func testWriteDataWritesData() {
+    func testWriteDataRequestAddsToRequestController() {
         let expectedData = "Fake data".data(using: .utf8)!
+        let request = HARequest(
+            type: .sttData(1),
+            data: [
+                "audioData": expectedData.base64EncodedString(),
+            ]
+        )
         connection.connect()
-        connection.write(.init(type: .data(expectedData)))
+        connection.sendSttAudio(request)
         XCTAssertNotNil(requestController.added.first(where: { invocation in
-            if case let .data(data) = invocation.request.type {
-                return data == expectedData
+            if case let .sttData(sttBinaryHandlerId) = invocation.request.type {
+                return sttBinaryHandlerId == 1 && invocation.request.data["audioData"] as? String == expectedData
+                    .base64EncodedString()
             }
             return false
         }))
+    }
+
+    func testSendRawWithSttRequest() {
+        connection.connect()
+        let expectedData = "Fake data".data(using: .utf8)!
+        let request = HARequest(
+            type: .sttData(1),
+            data: [
+                "audioData": expectedData.base64EncodedString(),
+            ]
+        )
+        var expectedAudioData = expectedData
+        expectedAudioData.insert(1, at: 0)
+
+        connection.sendRaw(identifier: nil, request: request)
+        waitForWorkQueue()
+        XCTAssertNotNil(engine.events.first { event in
+            event == .writeData(expectedAudioData, opcode: .binaryFrame)
+        })
+    }
+
+    func testWriteSttRequestCommand() {
+        let expectedData = "Fake data".data(using: .utf8)!
+        let request = HARequest(
+            type: .sttData(1),
+            data: [
+                "audioData": expectedData.base64EncodedString(),
+            ]
+        )
+        let request2 = HARequest(
+            type: .sttData(2),
+            data: [
+                "audioData": expectedData.base64EncodedString(),
+            ]
+        )
+
+        XCTAssertEqual(request.type.command, "")
+        XCTAssertEqual(request.type < request2.type, false)
     }
 }
 

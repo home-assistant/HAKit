@@ -6,8 +6,8 @@ public enum HARequestType: Hashable, Comparable, ExpressibleByStringLiteral {
     case webSocket(String)
     /// Sent over REST, the HTTP method to use and the post-`api/` path
     case rest(HAHTTPMethod, String)
-    /// Sent over WebSocket, the binary data to write
-    case data(Data)
+    /// Sent over WebSocket, the stt binary handler id
+    case sttData(UInt8)
 
     /// Create a WebSocket request type by string literal
     /// - Parameter value: The name of the WebSocket command
@@ -20,7 +20,7 @@ public enum HARequestType: Hashable, Comparable, ExpressibleByStringLiteral {
         switch self {
         case let .webSocket(command), let .rest(_, command):
             return command
-        case .data:
+        case .sttData:
             return ""
         }
     }
@@ -28,7 +28,7 @@ public enum HARequestType: Hashable, Comparable, ExpressibleByStringLiteral {
     /// The request is issued outside of the lifecycle of a connection
     public var isPerpetual: Bool {
         switch self {
-        case .webSocket, .data: return false
+        case .webSocket, .sttData: return false
         case .rest: return true
         }
     }
@@ -45,7 +45,7 @@ public enum HARequestType: Hashable, Comparable, ExpressibleByStringLiteral {
         case let (.webSocket(lhsCommand), .webSocket(rhsCommand)),
              let (.rest(_, lhsCommand), .rest(_, rhsCommand)):
             return lhsCommand < rhsCommand
-        case (.data, _), (_, .data):
+        case (.sttData, _), (_, .sttData):
             return false
         }
     }
