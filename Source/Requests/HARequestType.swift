@@ -7,7 +7,7 @@ public enum HARequestType: Hashable, Comparable, ExpressibleByStringLiteral {
     /// Sent over REST, the HTTP method to use and the post-`api/` path
     case rest(HAHTTPMethod, String)
     /// Sent over WebSocket, the stt binary handler id
-    case sttData(UInt8)
+    case sttData(HASttData)
 
     /// Create a WebSocket request type by string literal
     /// - Parameter value: The name of the WebSocket command

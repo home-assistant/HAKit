@@ -77,9 +77,6 @@ public class HAMockConnection: HAConnection {
     /// Whether to turn to 'connecting' when a 'send' or 'subscribe' occurs when 'disconnected'
     public var automaticallyTransitionToConnecting = true
 
-    /// Data request received to be written
-    public var sttDataRequestReceived: HARequest?
-
     // MARK: - Mock Implementation
 
     public weak var delegate: HAConnectionDelegate?
@@ -228,9 +225,5 @@ public class HAMockConnection: HAConnection {
         while hasCalled == 0 {
             CFRunLoopRunInMode(runLoopMode, 1.0, false)
         }
-    }
-
-    public func sendSttAudio(_ request: HARequest) {
-        sttDataRequestReceived = request
     }
 }

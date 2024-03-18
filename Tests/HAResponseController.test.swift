@@ -241,6 +241,18 @@ internal class HAResponseControllerTests: XCTestCase {
         waitForCallback()
         XCTAssertEqual(delegate.lastReceived, .result(identifier: 2, result: .success(.dictionary(resultDictionary))))
     }
+
+    func testDidWriteEventLogs() {
+        let expectation = expectation(description: "Receive log")
+        HAGlobal.log = { level, message in
+            XCTAssertEqual(level, .info)
+            XCTAssertEqual(message, "Data written")
+            HAGlobal.log = { _, _ in }
+            expectation.fulfill()
+        }
+        controller.didWrite()
+        wait(for: [expectation], timeout: 2)
+    }
 }
 
 private extension HAResponseControllerTests {

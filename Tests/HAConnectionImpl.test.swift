@@ -1463,29 +1463,47 @@ internal class HAConnectionImplTests: XCTestCase {
     }
 
     func testWriteDataRequestAddsToRequestController() {
+        connection.connectAutomatically = true
         let expectedData = "Fake data".data(using: .utf8)!
         let request = HARequest(
-            type: .sttData(1),
+            type: .sttData(.init(sttBinaryHandlerId: 1)),
             data: [
                 "audioData": expectedData.base64EncodedString(),
             ]
         )
         connection.connect()
-        connection.sendSttAudio(request)
+        connection.send(request) { _ in }
         XCTAssertNotNil(requestController.added.first(where: { invocation in
             if case let .sttData(sttBinaryHandlerId) = invocation.request.type {
-                return sttBinaryHandlerId == 1 && invocation.request.data["audioData"] as? String == expectedData
+                return sttBinaryHandlerId == .init(sttBinaryHandlerId: 1) && invocation.request
+                    .data["audioData"] as? String == expectedData
                     .base64EncodedString()
             }
             return false
         }))
     }
 
+    func testWriteDataRequestsCallCompletion() {
+        let expectation = expectation(description: "Waiting for completion")
+        let expectedData = "Fake data".data(using: .utf8)!
+        let request = HARequest(
+            type: .sttData(.init(sttBinaryHandlerId: 1)),
+            data: [
+                "audioData": expectedData.base64EncodedString(),
+            ]
+        )
+        connection.connect()
+        responseController.receivedWaitExpectation = expectation
+        connection.requestController(requestController, didPrepareRequest: request, with: .init(integerLiteral: 1))
+
+        wait(for: [expectation], timeout: 5.0)
+    }
+
     func testSendRawWithSttRequest() {
         connection.connect()
         let expectedData = "Fake data".data(using: .utf8)!
         let request = HARequest(
-            type: .sttData(1),
+            type: .sttData(.init(sttBinaryHandlerId: 1)),
             data: [
                 "audioData": expectedData.base64EncodedString(),
             ]
@@ -1503,13 +1521,13 @@ internal class HAConnectionImplTests: XCTestCase {
     func testWriteSttRequestCommand() {
         let expectedData = "Fake data".data(using: .utf8)!
         let request = HARequest(
-            type: .sttData(1),
+            type: .sttData(.init(sttBinaryHandlerId: 1)),
             data: [
                 "audioData": expectedData.base64EncodedString(),
             ]
         )
         let request2 = HARequest(
-            type: .sttData(2),
+            type: .sttData(.init(sttBinaryHandlerId: 1)),
             data: [
                 "audioData": expectedData.base64EncodedString(),
             ]
@@ -1668,6 +1686,10 @@ private class FakeHAResponseController: HAResponseController {
     var received: [WebSocketEvent] = []
     func didReceive(event: WebSocketEvent) {
         received.append(event)
+        receivedWaitExpectation?.fulfill()
+    }
+
+    func didWrite() {
         receivedWaitExpectation?.fulfill()
     }
 

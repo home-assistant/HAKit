@@ -5,7 +5,7 @@ internal struct HARequestControllerAllowedSendKind: OptionSet {
 
     static let webSocket: Self = .init(rawValue: 0b1)
     static let rest: Self = .init(rawValue: 0b10)
-    static let sttData: Self = .init(rawValue: 0b10)
+    static let sttData: Self = .init(rawValue: 0b11)
     static let all: Self = [.webSocket, .rest, .sttData]
 
     func allows(requestType: HARequestType) -> Bool {

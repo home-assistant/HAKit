@@ -302,14 +302,6 @@ internal class HAConnectionImpl: HAConnection {
     ) -> HACancellable {
         commonSubscribe(to: request, initiated: initiated, handler: handler)
     }
-
-    // MARK: - Write
-
-    public func sendSttAudio(_ request: HARequest) {
-        defer { connectAutomaticallyIfNeeded() }
-        let invocation = HARequestInvocationSingle(request: request) { _ in }
-        requestController.add(invocation)
-    }
 }
 
 // MARK: -
@@ -407,7 +399,9 @@ extension HAConnectionImpl {
         // Prefix audioData with handler ID so the API can map the binary data
         audioData.insert(sttBinaryHandlerId, at: 0)
         workQueue.async { [connection] in
-            connection?.write(data: audioData)
+            connection?.write(data: audioData) { [weak self] in
+                self?.responseController.didWrite()
+            }
         }
     }
 
@@ -420,8 +414,8 @@ extension HAConnectionImpl {
             sendWebSocket(identifier: identifier, request: request, command: command)
         case let .rest(method, command):
             sendRest(identifier: identifier!, request: request, method: method, command: command)
-        case let .sttData(sttBinaryHandlerId):
-            sendWrite(sttBinaryHandlerId, audioDataString: request.data["audioData"] as? String)
+        case let .sttData(data):
+            sendWrite(data.sttBinaryHandlerId, audioDataString: request.data["audioData"] as? String)
         }
     }
 }

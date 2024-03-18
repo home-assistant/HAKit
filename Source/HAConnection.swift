@@ -180,9 +180,4 @@ public protocol HAConnection: AnyObject {
         initiated: @escaping SubscriptionInitiatedHandler,
         handler: @escaping (HACancellable, T) -> Void
     ) -> HACancellable
-
-    /// Send audio to Assist
-    /// - Parameters:
-    ///   - request: The data request containing sttBinaryHandlerId and data (as base64 string) to be written
-    func sendSttAudio(_ request: HARequest)
 }
