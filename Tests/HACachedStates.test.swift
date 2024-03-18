@@ -86,7 +86,10 @@ internal class HACachedStatesTests: XCTestCase {
                     """
                 )
             ),
-            current: .init(entities: Array(outgoingType!.all)),
+            current: .init(HACachedStates(entitiesDictionary: Dictionary(uniqueKeysWithValues: outgoingType!.all.map { (
+                $0.entityId,
+                $0
+            ) }))),
             subscriptionPhase: .iteration
         )
 
@@ -114,7 +117,10 @@ internal class HACachedStatesTests: XCTestCase {
                     """
                 )
             ),
-            current: .init(entities: Array(outgoingType!.all)),
+            current: .init(entitiesDictionary: Dictionary(
+                uniqueKeysWithValues: outgoingType!.all
+                    .map { ($0.entityId, $0) }
+            )),
             subscriptionPhase: .iteration
         )
 

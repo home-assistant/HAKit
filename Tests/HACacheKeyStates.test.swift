@@ -55,7 +55,7 @@ internal final class HACacheKeyStates_test: XCTestCase {
                     )
                 ),
                 current: .init(
-                    entities: []
+                    entitiesDictionary: [:]
                 )
             ), shouldResetEntities: false
         )
@@ -133,8 +133,8 @@ internal final class HACacheKeyStates_test: XCTestCase {
                     )
                 ),
                 current: .init(
-                    entities: [
-                        existentEntity,
+                    entitiesDictionary: [
+                        "person.bruno": existentEntity,
                     ]
                 )
             ), shouldResetEntities: false
@@ -202,8 +202,8 @@ internal final class HACacheKeyStates_test: XCTestCase {
                     )
                 ),
                 current: .init(
-                    entities: [
-                        existentEntity,
+                    entitiesDictionary: [
+                        "person.bruno": existentEntity,
                     ]
                 )
             ), shouldResetEntities: false
@@ -251,7 +251,7 @@ internal final class HACacheKeyStates_test: XCTestCase {
                     )
                 ),
                 current: .init(
-                    entities: []
+                    entitiesDictionary: [:]
                 )
             ), shouldResetEntities: false
         )

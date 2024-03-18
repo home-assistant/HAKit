@@ -53,7 +53,7 @@ public struct HAEntity: HADataDecodable, Hashable {
         attributes: [String: Any],
         context: HAResponseEvent.Context
     ) throws {
-        var domain: String = try {
+        let domain: String = try {
             if let domain {
                 domain
             } else {
