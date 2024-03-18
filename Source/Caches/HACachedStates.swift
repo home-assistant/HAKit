@@ -14,7 +14,7 @@ public struct HACachedStates {
     }
 
     /// Backing dictionary, whose mutation updates the set
-    public var allByEntityId: [String: HAEntity] {
+    internal var allByEntityId: [String: HAEntity] {
         didSet {
             all = Set(allByEntityId.values)
         }
@@ -25,5 +25,15 @@ public struct HACachedStates {
     public init(entitiesDictionary: [String: HAEntity]) {
         self.all = Set(entitiesDictionary.values)
         self.allByEntityId = entitiesDictionary
+    }
+
+    /// Create a cached state
+    /// Mainly for tests
+    /// - Parameter entities: The entities to start with
+    internal init(entities: [HAEntity]) {
+        self.all = Set(entities)
+        self.allByEntityId = entities.reduce(into: [:]) { dictionary, entity in
+            dictionary[entity.entityId] = entity
+        }
     }
 }
