@@ -6,7 +6,7 @@ public extension HACachesContainer {
 /// Cached version of all entity states
 public struct HACachedStates {
     /// All entities
-    public var all: Set<HAEntity>
+    public var all: Set<HAEntity> = []
     /// All entities, keyed by their entityId
     public subscript(entityID: String) -> HAEntity? {
         get { allByEntityId[entityID] }
@@ -14,15 +14,23 @@ public struct HACachedStates {
     }
 
     /// Backing dictionary, whose mutation updates the set
-    private var allByEntityId: [String: HAEntity] {
+    internal var allByEntityId: [String: HAEntity] {
         didSet {
             all = Set(allByEntityId.values)
         }
     }
 
     /// Create a cached state
+    /// - Parameter entitiesDictionary: The entities to start with, key is the entity ID
+    public init(entitiesDictionary: [String: HAEntity]) {
+        self.all = Set(entitiesDictionary.values)
+        self.allByEntityId = entitiesDictionary
+    }
+
+    /// Create a cached state
+    /// Mainly for tests
     /// - Parameter entities: The entities to start with
-    public init(entities: [HAEntity]) {
+    internal init(entities: [HAEntity]) {
         self.all = Set(entities)
         self.allByEntityId = entities.reduce(into: [:]) { dictionary, entity in
             dictionary[entity.entityId] = entity

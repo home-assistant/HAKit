@@ -125,4 +125,27 @@ internal class HACachedStatesTests: XCTestCase {
 
         XCTAssertEqual(entityRemovedOutgoingType?.all.count, 0)
     }
+
+    func testSubscriptByEntityIdReturnsCorrectly() throws {
+        let expectedEntity: HAEntity = try .fake(id: "person.bruno")
+        let cache = HACachedStates(entitiesDictionary: [expectedEntity.entityId: expectedEntity])
+        XCTAssertEqual(cache["fake.person.bruno"], expectedEntity)
+    }
+
+    func testSubscriptSetByEntityIdSetsCorrectly() throws {
+        let expectedEntity: HAEntity = try .fake(id: "person.bruno")
+        let expectedEntity2: HAEntity = try .fake(id: "person.bruno2")
+        var cache = HACachedStates(entitiesDictionary: [expectedEntity.entityId: expectedEntity])
+        cache[expectedEntity2.entityId] = expectedEntity2
+        XCTAssertEqual(cache["fake.person.bruno2"], expectedEntity2)
+    }
+
+    func testSetAllByEntityIdSetsAllToo() throws {
+        let expectedEntity: HAEntity = try .fake(id: "person.bruno")
+        let expectedEntity2: HAEntity = try .fake(id: "person.bruno2")
+        var cache = HACachedStates(entitiesDictionary: [expectedEntity.entityId: expectedEntity])
+
+        cache.allByEntityId = [expectedEntity2.entityId: expectedEntity2]
+        XCTAssertEqual(cache.allByEntityId, [expectedEntity2.entityId: expectedEntity2])
+    }
 }

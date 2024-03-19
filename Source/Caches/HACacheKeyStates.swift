@@ -24,25 +24,26 @@ internal struct HACacheKeyStates: HACacheKey {
     ///   - shouldResetEntities: True if current state needs to be ignored (e.g. re-connection)
     /// - Returns: HAEntity cached states
     /// Logic from: https://github.com/home-assistant/home-assistant-js-websocket/blob/master/lib/entities.ts
+    // swiftlint: disable cyclomatic_complexity
     static func processUpdates(
         info: HACacheTransformInfo<HACompressedStatesUpdates, HACachedStates?>,
         shouldResetEntities: Bool
-    )
-        -> HACachedStates {
-        var states: HACachedStates
-        if shouldResetEntities {
-            states = .init(entities: [])
-        } else {
-            states = info.current ?? .init(entities: [])
+    ) -> HACachedStates {
+        var updatedEntities: [String: HAEntity] = [:]
+
+        if !shouldResetEntities, let currentEntities = info.current {
+            updatedEntities = currentEntities.allByEntityId
         }
+
         if let additions = info.incoming.add {
             for (entityId, updates) in additions {
-                if var currentState = states[entityId] {
+                if var currentState = updatedEntities[entityId] {
                     currentState.update(from: updates)
-                    states[entityId] = currentState
+                    updatedEntities[entityId] = currentState
                 } else {
                     do {
-                        states[entityId] = try updates.asEntity(entityId: entityId)
+                        let newEntity = try updates.asEntity(entityId: entityId)
+                        updatedEntities[entityId] = newEntity
                     } catch {
                         HAGlobal.log(.error, "[Update-To-Entity-Error] Failed adding new entity: \(error)")
                     }
@@ -52,26 +53,26 @@ internal struct HACacheKeyStates: HACacheKey {
 
         if let subtractions = info.incoming.remove {
             for entityId in subtractions {
-                states[entityId] = nil
+                updatedEntities.removeValue(forKey: entityId)
             }
         }
 
         if let changes = info.incoming.change {
-            changes.forEach { entityId, diff in
-                guard var entityState = states[entityId] else { return }
+            for (entityId, diff) in changes {
+                guard var entityState = updatedEntities[entityId] else { continue }
 
                 if let toAdd = diff.additions {
                     entityState.add(toAdd)
-                    states[entityId] = entityState
                 }
 
                 if let toRemove = diff.subtractions {
                     entityState.subtract(toRemove)
-                    states[entityId] = entityState
                 }
+
+                updatedEntities[entityId] = entityState
             }
         }
 
-        return states
+        return .init(entitiesDictionary: updatedEntities)
     }
 }
