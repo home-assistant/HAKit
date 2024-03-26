@@ -190,7 +190,7 @@ internal class HARequestControllerTests: XCTestCase {
 
     func testAddingWriteRequestAllowed() {
         delegate.allowedSendKinds = .all
-        controller.add(.init(request: .init(type: .sttData(.init(sttBinaryHandlerId: 1)))))
+        controller.add(.init(request: .init(type: .sttData(.init(rawValue: 1)))))
         XCTAssertEqual(delegate.didPrepare.count, 1)
     }
 

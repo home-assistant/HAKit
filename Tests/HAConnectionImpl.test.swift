@@ -1466,7 +1466,7 @@ internal class HAConnectionImplTests: XCTestCase {
         connection.connectAutomatically = true
         let expectedData = "Fake data".data(using: .utf8)!
         let request = HARequest(
-            type: .sttData(.init(sttBinaryHandlerId: 1)),
+            type: .sttData(.init(rawValue: 1)),
             data: [
                 "audioData": expectedData.base64EncodedString(),
             ]
@@ -1475,7 +1475,7 @@ internal class HAConnectionImplTests: XCTestCase {
         connection.send(request) { _ in }
         XCTAssertNotNil(requestController.added.first(where: { invocation in
             if case let .sttData(sttBinaryHandlerId) = invocation.request.type {
-                return sttBinaryHandlerId == .init(sttBinaryHandlerId: 1) && invocation.request
+                return sttBinaryHandlerId == .init(rawValue: 1) && invocation.request
                     .data["audioData"] as? String == expectedData
                     .base64EncodedString()
             }
@@ -1487,7 +1487,7 @@ internal class HAConnectionImplTests: XCTestCase {
         let expectation = expectation(description: "Waiting for completion")
         let expectedData = "Fake data".data(using: .utf8)!
         let request = HARequest(
-            type: .sttData(.init(sttBinaryHandlerId: 1)),
+            type: .sttData(.init(rawValue: 1)),
             data: [
                 "audioData": expectedData.base64EncodedString(),
             ]
@@ -1503,7 +1503,7 @@ internal class HAConnectionImplTests: XCTestCase {
         connection.connect()
         let expectedData = "Fake data".data(using: .utf8)!
         let request = HARequest(
-            type: .sttData(.init(sttBinaryHandlerId: 1)),
+            type: .sttData(.init(rawValue: 1)),
             data: [
                 "audioData": expectedData.base64EncodedString(),
             ]
@@ -1521,13 +1521,13 @@ internal class HAConnectionImplTests: XCTestCase {
     func testWriteSttRequestCommand() {
         let expectedData = "Fake data".data(using: .utf8)!
         let request = HARequest(
-            type: .sttData(.init(sttBinaryHandlerId: 1)),
+            type: .sttData(.init(rawValue: 1)),
             data: [
                 "audioData": expectedData.base64EncodedString(),
             ]
         )
         let request2 = HARequest(
-            type: .sttData(.init(sttBinaryHandlerId: 1)),
+            type: .sttData(.init(rawValue: 1)),
             data: [
                 "audioData": expectedData.base64EncodedString(),
             ]

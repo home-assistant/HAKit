@@ -415,7 +415,7 @@ extension HAConnectionImpl {
         case let .rest(method, command):
             sendRest(identifier: identifier!, request: request, method: method, command: command)
         case let .sttData(data):
-            sendWrite(data.sttBinaryHandlerId, audioDataString: request.data["audioData"] as? String)
+            sendWrite(data.rawValue, audioDataString: request.data["audioData"] as? String)
         }
     }
 }
