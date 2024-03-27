@@ -1518,7 +1518,7 @@ internal class HAConnectionImplTests: XCTestCase {
         })
     }
 
-    func testWriteSttRequestCommand() {
+    func testSendSttRequestCommand() {
         let expectedData = "Fake data".data(using: .utf8)!
         let request = HARequest(
             type: .sttData(.init(rawValue: 1)),
@@ -1535,6 +1535,24 @@ internal class HAConnectionImplTests: XCTestCase {
 
         XCTAssertEqual(request.type.command, "")
         XCTAssertEqual(request.type < request2.type, false)
+    }
+
+    func testSendSttRequestSentSuccessful() throws {
+        let expectation = self.expectation(description: "completion")
+        responseController.phase = .command(version: "2024.4")
+        _ = connection.send(.sendSttData(sttHandlerId: 1, audioDataBase64Encoded: ""), completion: { _ in
+            expectation.fulfill()
+        })
+        let added = try XCTUnwrap(requestController.added.first as? HARequestInvocationSingle)
+        added.resolve(.success(.empty))
+        waitForExpectations(timeout: 10.0)
+    }
+
+    func testSendSttDataTypedRequest() {
+        let request: HATypedRequest<HAResponseVoid> = .sendSttData(sttHandlerId: 1, audioDataBase64Encoded: "a")
+
+        XCTAssertEqual(request.request.data as? [String: String], ["audioData": "a"])
+        XCTAssertEqual(request.request.type, .sttData(.init(rawValue: 1)))
     }
 }
 
