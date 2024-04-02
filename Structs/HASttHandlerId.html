@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>HACompressedEntityState Structure Reference</title>
+    <title>HASttHandlerId Structure Reference</title>
     <link rel="stylesheet" type="text/css" href="../css/jazzy.css" />
     <link rel="stylesheet" type="text/css" href="../css/highlight.css" />
     <meta charset='utf-8'>
@@ -13,8 +13,8 @@
     <script src="../js/jazzy.search.js" defer></script>
   </head>
   <body>
-    <a name="//apple_ref/swift/Struct/HACompressedEntityState" class="dashAnchor"></a>
-    <a title="HACompressedEntityState Structure Reference"></a>
+    <a name="//apple_ref/swift/Struct/HASttHandlerId" class="dashAnchor"></a>
+    <a title="HASttHandlerId Structure Reference"></a>
     <header>
       <div class="content-wrapper">
         <p><a href="../index.html">HAKit 0.4 Docs</a> (93% documented)</p>
@@ -30,7 +30,7 @@
       <p id="breadcrumbs">
         <a href="../index.html">HAKit Reference</a>
         <img id="carat" src="../img/carat.png" alt=""/>
-        HACompressedEntityState Structure Reference
+        HASttHandlerId Structure Reference
       </p>
     </div>
     <div class="content-wrapper">
@@ -246,15 +246,15 @@
       <article class="main-content">
         <section>
           <section class="section">
-            <h1>HACompressedEntityState</h1>
+            <h1>HASttHandlerId</h1>
               <div class="declaration">
                 <div class="language">
                   
-                  <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">struct</span> <span class="kt">HACompressedEntityState</span> <span class="p">:</span> <span class="kt"><a href="../Protocols/HADataDecodable.html">HADataDecodable</a></span></code></pre>
+                  <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">struct</span> <span class="kt">HASttHandlerId</span> <span class="p">:</span> <span class="kt">Hashable</span></code></pre>
 
                 </div>
               </div>
-            <p>Undocumented</p>
+            <p>Write audio data to websocket, sttBinaryHandlerId is provided by run-start in Assist pipeline</p>
 
           </section>
           <section class="section task-group-section">
@@ -263,9 +263,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:5HAKit23HACompressedEntityStateV5stateSSvp"></a>
-                    <a name="//apple_ref/swift/Property/state" class="dashAnchor"></a>
-                    <a class="token" href="#/s:5HAKit23HACompressedEntityStateV5stateSSvp">state</a>
+                    <a name="/s:5HAKit14HASttHandlerIdV8rawValueACs5UInt8V_tcfc"></a>
+                    <a name="//apple_ref/swift/Method/init(rawValue:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:5HAKit14HASttHandlerIdV8rawValueACs5UInt8V_tcfc">init(rawValue:<wbr>)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -280,141 +280,7 @@
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">state</span><span class="p">:</span> <span class="kt">String</span></code></pre>
-
-                        </div>
-                      </div>
-                    </section>
-                  </div>
-                </li>
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/s:5HAKit23HACompressedEntityStateV10attributesSDySSypGSgvp"></a>
-                    <a name="//apple_ref/swift/Property/attributes" class="dashAnchor"></a>
-                    <a class="token" href="#/s:5HAKit23HACompressedEntityStateV10attributesSDySSypGSgvp">attributes</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>Undocumented</p>
-
-                      </div>
-                      <div class="declaration">
-                        <h4>Declaration</h4>
-                        <div class="language">
-                          <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">attributes</span><span class="p">:</span> <span class="p">[</span><span class="kt">String</span> <span class="p">:</span> <span class="kt">Any</span><span class="p">]?</span></code></pre>
-
-                        </div>
-                      </div>
-                    </section>
-                  </div>
-                </li>
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/s:5HAKit23HACompressedEntityStateV7contextSSSgvp"></a>
-                    <a name="//apple_ref/swift/Property/context" class="dashAnchor"></a>
-                    <a class="token" href="#/s:5HAKit23HACompressedEntityStateV7contextSSSgvp">context</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>Undocumented</p>
-
-                      </div>
-                      <div class="declaration">
-                        <h4>Declaration</h4>
-                        <div class="language">
-                          <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">context</span><span class="p">:</span> <span class="kt">String</span><span class="p">?</span></code></pre>
-
-                        </div>
-                      </div>
-                    </section>
-                  </div>
-                </li>
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/s:5HAKit23HACompressedEntityStateV11lastChanged10Foundation4DateVSgvp"></a>
-                    <a name="//apple_ref/swift/Property/lastChanged" class="dashAnchor"></a>
-                    <a class="token" href="#/s:5HAKit23HACompressedEntityStateV11lastChanged10Foundation4DateVSgvp">lastChanged</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>Undocumented</p>
-
-                      </div>
-                      <div class="declaration">
-                        <h4>Declaration</h4>
-                        <div class="language">
-                          <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">lastChanged</span><span class="p">:</span> <span class="kt">Date</span><span class="p">?</span></code></pre>
-
-                        </div>
-                      </div>
-                    </section>
-                  </div>
-                </li>
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/s:5HAKit23HACompressedEntityStateV11lastUpdated10Foundation4DateVSgvp"></a>
-                    <a name="//apple_ref/swift/Property/lastUpdated" class="dashAnchor"></a>
-                    <a class="token" href="#/s:5HAKit23HACompressedEntityStateV11lastUpdated10Foundation4DateVSgvp">lastUpdated</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>Undocumented</p>
-
-                      </div>
-                      <div class="declaration">
-                        <h4>Declaration</h4>
-                        <div class="language">
-                          <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">lastUpdated</span><span class="p">:</span> <span class="kt">Date</span><span class="p">?</span></code></pre>
-
-                        </div>
-                      </div>
-                    </section>
-                  </div>
-                </li>
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/s:5HAKit15HADataDecodableP4dataxAA0B0O_tKcfc"></a>
-                    <a name="//apple_ref/swift/Method/init(data:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:5HAKit15HADataDecodableP4dataxAA0B0O_tKcfc">init(data:<wbr>)</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        
-                      </div>
-                      <div class="declaration">
-                        <h4>Declaration</h4>
-                        <div class="language">
-                          <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="nf">init</span><span class="p">(</span><span class="nv">data</span><span class="p">:</span> <span class="kt"><a href="../Enums/HAData.html">HAData</a></span><span class="p">)</span> <span class="k">throws</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="nf">init</span><span class="p">(</span><span class="nv">rawValue</span><span class="p">:</span> <span class="kt">UInt8</span><span class="p">)</span></code></pre>
 
                         </div>
                       </div>

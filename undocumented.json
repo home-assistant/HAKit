@@ -160,6 +160,13 @@
       "symbol": "HAHTTPMethod.options",
       "symbol_kind": "source.lang.swift.decl.var.static",
       "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/HAKit/HAKit/Source/Requests/HASttData.swift",
+      "line": 5,
+      "symbol": "HASttHandlerId.init(rawValue:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
     }
   ],
   "source_directory": "/Users/runner/work/HAKit/HAKit"
