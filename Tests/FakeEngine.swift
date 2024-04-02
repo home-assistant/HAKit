@@ -31,6 +31,7 @@ internal class FakeEngine: Engine {
 
     func write(data: Data, opcode: FrameOpCode, completion: (() -> Void)?) {
         events.append(.writeData(data, opcode: opcode))
+        completion?()
     }
 
     func write(string: String, completion: (() -> Void)?) {
