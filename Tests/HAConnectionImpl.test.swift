@@ -1554,6 +1554,28 @@ internal class HAConnectionImplTests: XCTestCase {
         XCTAssertEqual(request.request.data as? [String: String], ["audioData": "a"])
         XCTAssertEqual(request.request.type, .sttData(.init(rawValue: 1)))
     }
+
+    func testSendSettDataClearsOnCompletion() {
+        connection.connect()
+        let expectation = expectation(description: "Completion")
+        let expectedData = "Fake data".data(using: .utf8)!
+        let request = HARequest(
+            type: .sttData(.init(rawValue: 1)),
+            data: [
+                "audioData": expectedData.base64EncodedString(),
+            ]
+        )
+        let invocation: HARequestInvocationSingle = .init(
+            request: request,
+            completion: { _ in
+                XCTAssertEqual(self.requestController.cleared.count, 1)
+                expectation.fulfill()
+            }
+        )
+        requestController.singles[1] = invocation
+        connection.sendRaw(identifier: 1, request: request)
+        waitForExpectations(timeout: 5.0)
+    }
 }
 
 extension WebSocketEvent: Equatable {
