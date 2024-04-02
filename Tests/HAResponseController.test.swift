@@ -72,6 +72,14 @@ internal class HAResponseControllerTests: XCTestCase {
         }
     }
 
+    func testPeerClosedEvent() {
+        fireConnected()
+        controller.didReceive(event: .peerClosed)
+        waitForCallback()
+        XCTAssertEqual(delegate.lastPhase, .disconnected(error: nil, forReset: false))
+        XCTAssertNil(delegate.lastReceived)
+    }
+
     func testAuthFlow() throws {
         fireConnected()
         try fireText(
