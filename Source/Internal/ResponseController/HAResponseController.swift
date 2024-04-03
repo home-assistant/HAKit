@@ -125,6 +125,9 @@ internal class HAResponseControllerImpl: HAResponseController {
         case let .error(error):
             HAGlobal.log(.error, "Error: \(String(describing: error))")
             phase = .disconnected(error: error, forReset: false)
+        case .peerClosed:
+            HAGlobal.log(.info, "Peer closed")
+            phase = .disconnected(error: nil, forReset: false)
         }
     }
 
