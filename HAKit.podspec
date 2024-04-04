@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name = 'HAKit'
-  s.version = '0.4'
+  s.version = '0.4.1'
   s.summary = 'Communicate with a Home Assistant instance.'
   s.author = 'Home Assistant'
 
@@ -19,7 +19,7 @@ Pod::Spec.new do |s|
 
   s.subspec 'Core' do |subspec|
     subspec.source_files = 'Source/**/*.swift'
-    subspec.dependency 'Starscream', '~> 4.0.4'
+    subspec.dependency 'Starscream', '~> 4.0.8'
   end
 
   s.subspec 'PromiseKit' do |subspec|
