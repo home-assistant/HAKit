@@ -14,9 +14,9 @@
         "package": "Starscream",
         "repositoryURL": "https://github.com/bgoncal/Starscream",
         "state": {
-          "branch": "ha-URLSession-fix",
+          "branch": null,
           "revision": "7e3d24425c20649105cb4bdd612b6bab66f73ade",
-          "version": null
+          "version": "4.0.8"
         }
       }
     ]
