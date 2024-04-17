@@ -20,7 +20,7 @@ public let package = Package(
     dependencies: [
         .package(
             url: "https://github.com/bgoncal/Starscream",
-            .branchItem("ha-URLSession-fix")
+            from: "4.0.8"
         ),
         .package(
             url: "https://github.com/mxcl/PromiseKit",
