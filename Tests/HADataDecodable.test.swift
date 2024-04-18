@@ -9,13 +9,13 @@ internal class HADataDecodableTests: XCTestCase {
 
     func testArrayDecodableSuccess() throws {
         let data = HAData.array([.empty, .empty, .empty])
-        let result = try [RandomDecodable].init(data: data)
+        let result = try [RandomDecodable](data: data)
         XCTAssertEqual(result.count, 3)
     }
 
     func testArrayDecodableFailureDueToRootData() {
         let data = HAData.dictionary(["key": "value"])
-        XCTAssertThrowsError(try [RandomDecodable].init(data: data)) { error in
+        XCTAssertThrowsError(try [RandomDecodable](data: data)) { error in
             XCTAssertEqual(error as? HADataError, .couldntTransform(key: "root"))
         }
     }
@@ -23,7 +23,7 @@ internal class HADataDecodableTests: XCTestCase {
     func testArrayDecodableFailureDueToInside() throws {
         RandomDecodable.shouldThrow = true
         let data = HAData.array([.empty, .empty, .empty])
-        XCTAssertThrowsError(try [RandomDecodable].init(data: data)) { error in
+        XCTAssertThrowsError(try [RandomDecodable](data: data)) { error in
             XCTAssertEqual(error as? HADataError, .missingKey("any"))
         }
     }
