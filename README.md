@@ -207,7 +207,7 @@ This library contains optional additions for use with PromiseKit. See the [sourc
 To install the library, either add it as a dependency in a `Package.swift` like:
 
 ```swift
-.Package(url: "https://github.com/home-assistant/HAKit.git", majorVersion: 0)
+.package(url: "https://github.com/home-assistant/HAKit", from: Version(0, 4, 1))
 ```
 
 To add it to an Xcode project, you can do this by adding the URL to File > Swift Packages > Add Package Dependency. You will find a few targets available:
