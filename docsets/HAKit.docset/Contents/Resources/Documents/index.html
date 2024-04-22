@@ -432,7 +432,7 @@
 <h3 id='swift-package-manager' class='heading'>Swift Package Manager</h3>
 
 <p>To install the library, either add it as a dependency in a <code>Package.swift</code> like:</p>
-<pre class="highlight swift"><code><span class="o">.</span><span class="kt">Package</span><span class="p">(</span><span class="nv">url</span><span class="p">:</span> <span class="s">"https://github.com/home-assistant/HAKit.git"</span><span class="p">,</span> <span class="nv">majorVersion</span><span class="p">:</span> <span class="mi">0</span><span class="p">)</span>
+<pre class="highlight swift"><code><span class="o">.</span><span class="nf">package</span><span class="p">(</span><span class="nv">url</span><span class="p">:</span> <span class="s">"https://github.com/home-assistant/HAKit"</span><span class="p">,</span> <span class="nv">from</span><span class="p">:</span> <span class="kt">Version</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
 </code></pre>
 
 <p>To add it to an Xcode project, you can do this by adding the URL to File &gt; Swift Packages &gt; Add Package Dependency. You will find a few targets available:</p>
