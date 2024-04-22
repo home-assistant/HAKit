@@ -63,7 +63,13 @@ public extension HAData {
         }
 
         if let value = value as? T {
-            return value
+            // Avoid full JSON cache when using JSONSerialization and referencing NSString
+            if var valueString = value as? String {
+                valueString.makeContiguousUTF8()
+                return valueString as? T ?? value
+            } else {
+                return value
+            }
         }
 
         throw HADataError.incorrectType(
