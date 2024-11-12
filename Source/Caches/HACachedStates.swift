@@ -1,6 +1,10 @@
 public extension HACachesContainer {
     /// Cache of entity states, see `HACachedStates` for values.
-    var states: HACache<HACachedStates> { self[HACacheKeyStates.self] }
+    /// - Parameter data: The data passed to connection request
+    /// - Returns: The cache object with states
+    func states(_ data: [String: Any] = [:]) -> HACache<HACachedStates> {
+        self[HACacheKeyStates.self, data]
+    }
 }
 
 /// Cached version of all entity states

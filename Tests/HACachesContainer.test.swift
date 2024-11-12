@@ -41,7 +41,7 @@ internal class HACachesContainerTests: XCTestCase {
 }
 
 private struct Key1: HACacheKey {
-    static func create(connection: HAConnection) -> HACache<Value1> {
+    static func create(connection: HAConnection, data: [String: Any]) -> HACache<Value1> {
         .init(
             connection: connection,
             populate: HACachePopulateInfo<Value1>(
@@ -61,7 +61,7 @@ private struct Value1: HADataDecodable {
 }
 
 private struct Key2: HACacheKey {
-    static func create(connection: HAConnection) -> HACache<Value1> {
+    static func create(connection: HAConnection, data: [String: Any]) -> HACache<Value1> {
         .init(
             connection: connection,
             populate: HACachePopulateInfo<Value1>(
