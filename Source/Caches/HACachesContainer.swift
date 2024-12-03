@@ -6,9 +6,14 @@ public protocol HACacheKey {
     ///
     /// This is called exactly once per connection per cache key.
     ///
-    /// - Parameter connection: The connection to create on
+    /// - Parameters:
+    ///   - connection: The connection to create on
+    ///   - data: The data passed to connection request
     /// - Returns: The cache you want to associate with the key
-    static func create(connection: HAConnection) -> HACache<Value>
+    static func create(
+        connection: HAConnection,
+        data: [String: Any]
+    ) -> HACache<Value>
 }
 
 /// Container for caches
@@ -56,7 +61,7 @@ public class HACachesContainer {
     /// - SeeAlso: `HACachesContainer` class description for how to use keys to retrieve caches.
     /// - Subscript: The key to look up
     /// - Returns: Either the existing cache for the key, or a new one created on-the-fly if none was available
-    public subscript<KeyType: HACacheKey>(_ key: KeyType.Type) -> HACache<KeyType.Value> {
+    public subscript<KeyType: HACacheKey>(_ key: KeyType.Type, data: [String: Any] = [:]) -> HACache<KeyType.Value> {
         // ObjectIdentifier is globally unique per class _or_ meta type, and we're using meta type here
         let key = ObjectIdentifier(KeyType.self)
 
@@ -64,7 +69,7 @@ public class HACachesContainer {
             return value
         }
 
-        let value = KeyType.create(connection: connection)
+        let value = KeyType.create(connection: connection, data: data)
         values[key] = value
         return value
     }

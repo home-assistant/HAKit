@@ -2,12 +2,12 @@ import Foundation
 
 /// Key for the cache
 internal struct HACacheKeyStates: HACacheKey {
-    static func create(connection: HAConnection) -> HACache<HACachedStates> {
+    static func create(connection: HAConnection, data: [String: Any]) -> HACache<HACachedStates> {
         .init(
             connection: connection,
             subscribe:
             .init(
-                subscription: .subscribeEntities(),
+                subscription: .subscribeEntities(data: data),
                 transform: { info in
                     .replace(processUpdates(
                         info: info,

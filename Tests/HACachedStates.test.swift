@@ -19,7 +19,7 @@ internal class HACachedStatesTests: XCTestCase {
     }
 
     func testPopulateAndSubscribeInfo() throws {
-        let cache = container.states
+        let cache = container.states()
         XCTAssertNil(cache.populateInfo)
         XCTAssertNil(cache.subscribeInfo)
         let subscribeOnlyInfo = try XCTUnwrap(cache.subscribeOnlyInfo)

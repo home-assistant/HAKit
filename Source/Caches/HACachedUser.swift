@@ -5,7 +5,7 @@ public extension HACachesContainer {
 
 /// Key for the cache
 private struct HACacheKeyCurrentUser: HACacheKey {
-    static func create(connection: HAConnection) -> HACache<HAResponseCurrentUser> {
+    static func create(connection: HAConnection, data: [String: Any]) -> HACache<HAResponseCurrentUser> {
         .init(
             connection: connection,
             populate: .init(request: .currentUser(), transform: \.incoming),
