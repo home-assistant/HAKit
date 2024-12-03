@@ -23,7 +23,7 @@ Pod::Spec.new do |s|
   end
 
   s.subspec 'PromiseKit' do |subspec|
-    subspec.dependency 'PromiseKit', '~> 6.13'
+    subspec.dependency 'PromiseKit', '~> 8.1.1'
     subspec.dependency 'HAKit/Core'
     subspec.source_files = 'Extensions/PromiseKit/**/*.swift'
   end
