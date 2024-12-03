@@ -24,7 +24,7 @@ public let package = Package(
         ),
         .package(
             url: "https://github.com/mxcl/PromiseKit",
-            from: "6.13.2"
+            from: "8.1.1"
         ),
     ],
     targets: [
