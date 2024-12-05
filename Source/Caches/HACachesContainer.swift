@@ -78,15 +78,10 @@ public class HACachesContainer {
                 return true
             }
 
-            do {
-                let currentData = try JSONSerialization.data(withJSONObject: entry.data, options: .prettyPrinted)
-                let requestedData = try JSONSerialization.data(withJSONObject: data, options: .prettyPrinted)
+            let currentData = try? JSONSerialization.data(withJSONObject: entry.data, options: .prettyPrinted)
+            let requestedData = try? JSONSerialization.data(withJSONObject: data, options: .prettyPrinted)
 
-                return currentData == requestedData
-            } catch {
-                HAGlobal.log(.error, "HACache error on JSON serialization: \(error.localizedDescription) ")
-                return false
-            }
+            return currentData == requestedData
         }), let cache = cacheEntry.cache as? HACache<KeyType.Value> {
             return cache
         }
