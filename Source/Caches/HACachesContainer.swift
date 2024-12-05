@@ -74,7 +74,7 @@ public class HACachesContainer {
 
         if let cacheEntries = values[key], let cacheEntry = cacheEntries.first(where: { entry in
             // Avoid unecessary json serialization to compare dictionaries
-            if entry.data.isEmpty && data.isEmpty {
+            if entry.data.isEmpty, data.isEmpty {
                 return true
             }
 
