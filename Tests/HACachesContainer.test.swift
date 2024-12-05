@@ -38,6 +38,20 @@ internal class HACachesContainerTests: XCTestCase {
         let cache2 = container[Key2.self]
         XCTAssertNotEqual(ObjectIdentifier(cache1), ObjectIdentifier(cache2))
     }
+
+    func testSameKeyWithDifferentDataReturnsDifferentCache() {
+        _ = container.states(["abc": "def"])
+        _ = container.states(["123": "456"])
+
+        XCTAssertEqual(container.values.first?.value.count, 2)
+    }
+
+    func testSameKeyWithSameDataReturnsSameCache() {
+        _ = container.states(["abc": "def"])
+        _ = container.states(["abc": "def"])
+
+        XCTAssertEqual(container.values.first?.value.count, 1)
+    }
 }
 
 private struct Key1: HACacheKey {
