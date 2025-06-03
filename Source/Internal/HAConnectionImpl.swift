@@ -98,7 +98,7 @@ internal class HAConnectionImpl: HAConnection {
                 to: .events(event),
                 allowConnecting: false,
                 initiated: nil,
-                handler: { [requestController] _, _ in requestController.retrySubscriptions() }
+                handler: { [weak requestController] _, _ in requestController?.retrySubscriptions() }
             )
         }
     }
