@@ -199,6 +199,13 @@ internal class HAResponseControllerTests: XCTestCase {
                 httpVersion: nil,
                 headerFields: nil
             ))
+        let responseJSONWithCharset =
+            try XCTUnwrap(HTTPURLResponse(
+                url: URL(string: "http://example.com")!,
+                statusCode: 200,
+                httpVersion: nil,
+                headerFields: ["Content-Type": "application/json; charset=utf-8"]
+            ))
 
         controller.didReceive(for: 1, response: .success((responseJSON, nil)))
         waitForCallback()
@@ -248,6 +255,18 @@ internal class HAResponseControllerTests: XCTestCase {
         )
         waitForCallback()
         XCTAssertEqual(delegate.lastReceived, .result(identifier: 2, result: .success(.dictionary(resultDictionary))))
+
+        try controller.didReceive(
+            for: 5,
+            response: .success((
+                responseJSONWithCharset,
+                JSONSerialization.data(withJSONObject: resultDictionary, options: [])
+            ))
+        )
+        waitForCallback()
+        XCTAssertEqual(delegate.lastReceived, .result(identifier: 5, result: .success(.dictionary(resultDictionary))))
+
+        delegate.lastReceived = nil
     }
 
     func testDidWriteEventLogs() {

@@ -172,11 +172,13 @@ internal class HAResponseControllerImpl: HAResponseController {
                         let result: HAData
 
                         if let data = data {
-                            switch urlResponse.allHeaderFields["Content-Type"] as? String {
-                            case "application/json", .none:
+                            let contentType = urlResponse.allHeaderFields["Content-Type"] as? String
+                            if contentType == nil ||
+                                contentType! == "application/json" ||
+                                contentType!.hasPrefix("application/json;") {
                                 let value = try JSONSerialization.jsonObject(with: data, options: [.allowFragments])
                                 result = HAData(value: value)
-                            default:
+                            } else {
                                 result = HAData(value: String(data: data, encoding: .utf8))
                             }
                         } else {
