@@ -4,17 +4,17 @@ import Starscream
 // NOTE: see HAConnection.swift for how to access these types
 
 internal class HAConnectionImpl: HAConnection {
-    public weak var delegate: HAConnectionDelegate?
-    public var configuration: HAConnectionConfiguration
+    weak var delegate: HAConnectionDelegate?
+    var configuration: HAConnectionConfiguration
 
-    public var callbackQueue: DispatchQueue = .main
+    var callbackQueue: DispatchQueue = .main
     internal var workQueue = DispatchQueue(
         label: "hakit-work-queue",
         autoreleaseFrequency: .workItem,
         target: .global()
     )
 
-    public var state: HAConnectionState {
+    var state: HAConnectionState {
         switch responseController.phase {
         case .disconnected:
             if connection == nil {
@@ -105,13 +105,13 @@ internal class HAConnectionImpl: HAConnection {
 
     // MARK: - Connection Handling
 
-    public func connect() {
+    func connect() {
         performConnectionChange { [self] in
             connect(resettingState: true)
         }
     }
 
-    public func disconnect() {
+    func disconnect() {
         performConnectionChange { [self] in
             disconnect(permanently: true, error: nil)
         }
@@ -189,7 +189,7 @@ internal class HAConnectionImpl: HAConnection {
     // MARK: - Sending
 
     @discardableResult
-    public func send(
+    func send(
         _ request: HARequest,
         completion: @escaping RequestCompletion
     ) -> HACancellable {
@@ -202,7 +202,7 @@ internal class HAConnectionImpl: HAConnection {
     }
 
     @discardableResult
-    public func send<T>(
+    func send<T>(
         _ request: HATypedRequest<T>,
         completion: @escaping (Result<T, HAError>) -> Void
     ) -> HACancellable {
@@ -270,7 +270,7 @@ internal class HAConnectionImpl: HAConnection {
     }
 
     @discardableResult
-    public func subscribe(
+    func subscribe(
         to request: HARequest,
         handler: @escaping SubscriptionHandler
     ) -> HACancellable {
@@ -278,7 +278,7 @@ internal class HAConnectionImpl: HAConnection {
     }
 
     @discardableResult
-    public func subscribe(
+    func subscribe(
         to request: HARequest,
         initiated: @escaping SubscriptionInitiatedHandler,
         handler: @escaping SubscriptionHandler
@@ -287,7 +287,7 @@ internal class HAConnectionImpl: HAConnection {
     }
 
     @discardableResult
-    public func subscribe<T>(
+    func subscribe<T>(
         to request: HATypedSubscription<T>,
         handler: @escaping (HACancellable, T) -> Void
     ) -> HACancellable {
@@ -295,7 +295,7 @@ internal class HAConnectionImpl: HAConnection {
     }
 
     @discardableResult
-    public func subscribe<T>(
+    func subscribe<T>(
         to request: HATypedSubscription<T>,
         initiated: @escaping SubscriptionInitiatedHandler,
         handler: @escaping (HACancellable, T) -> Void
