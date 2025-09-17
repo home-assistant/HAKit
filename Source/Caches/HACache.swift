@@ -336,15 +336,15 @@ public class HACache<ValueType> {
     ///   - cache: The cache whose state should be updated
     ///   - completion: The completion to invoke after updating the cache
     /// - Returns: The cancellable token for the populate request
-    private static func startPopulate<ValueType>(
-        for populate: HACachePopulateInfo<ValueType>,
+    private static func startPopulate<T>(
+        for populate: HACachePopulateInfo<T>,
         on connection: HAConnection,
-        cache: HACache<ValueType>,
-        completion: @escaping (Result<HACache<ValueType>, Error>) -> Void = { _ in }
+        cache: HACache<T>,
+        completion: @escaping (Result<HACache<T>, Error>) -> Void = { _ in }
     ) -> HACancellable {
         populate.start(connection, { [weak cache] handler in
             guard let cache = cache else { return }
-            let result: Result<HACache<ValueType>, Error> = cache.state.mutate { state in
+            let result: Result<HACache<T>, Error> = cache.state.mutate { state in
                 state.isWaitingForPopulate = false
 
                 do {
@@ -368,11 +368,11 @@ public class HACache<ValueType> {
     ///   - populate: The populate request, for re-issuing when needed
     ///   - cache: The cache whose state should be updated
     /// - Returns: The cancellable token for the subscription
-    private static func startSubscribe<ValueType>(
-        to subscription: HACacheSubscribeInfo<ValueType>,
+    private static func startSubscribe<T>(
+        to subscription: HACacheSubscribeInfo<T>,
         on connection: HAConnection,
-        populate: HACachePopulateInfo<ValueType>?,
-        cache: HACache<ValueType>
+        populate: HACachePopulateInfo<T>?,
+        cache: HACache<T>
     ) -> HACancellable {
         subscription.start(connection, { [weak cache, weak connection] handler in
             guard let cache, let connection else { return }
@@ -398,10 +398,10 @@ public class HACache<ValueType> {
     ///   - connection: The connection to subscribe on
     ///   - cache: The cache whose state should be updated
     /// - Returns: The cancellable token for the subscription
-    private static func startSubscribe<ValueType>(
-        to subscription: HACacheSubscribeInfo<ValueType?>,
+    private static func startSubscribe<T>(
+        to subscription: HACacheSubscribeInfo<T?>,
         on connection: HAConnection,
-        cache: HACache<ValueType>
+        cache: HACache<T>
     ) -> HACancellable {
         subscription.start(connection, { [weak cache] handler in
             guard let cache else { return }
