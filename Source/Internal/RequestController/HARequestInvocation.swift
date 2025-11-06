@@ -23,7 +23,7 @@ internal class HARequestInvocation: Equatable, Hashable {
         // for subclasses, too
         identifier == nil
     }
-    
+
     /// Check if the request's retry timeout has expired
     var isRetryTimeoutExpired: Bool {
         guard let timeout = request.retryTimeout else {
