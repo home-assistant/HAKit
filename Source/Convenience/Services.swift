@@ -12,11 +12,14 @@ public extension HATypedRequest {
         service: HAServicesService,
         data: [String: Any] = [:]
     ) -> HATypedRequest<HAResponseVoid> {
-        .init(request: .init(type: .callService, data: [
-            "domain": domain.rawValue,
-            "service": service.rawValue,
-            "service_data": data,
-        ]))
+        .init(request: .init(
+            type: .callService,
+            data: [
+                "domain": domain.rawValue,
+                "service": service.rawValue,
+                "service_data": data,
+            ]
+        ))
     }
 
     /// Retrieve definition of all services

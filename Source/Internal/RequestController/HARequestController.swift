@@ -121,7 +121,7 @@ internal class HARequestControllerImpl: HARequestController {
     func resetActive() {
         state.mutate { state in
             for invocation in state.pending {
-                if invocation.request.shouldRetry {
+                if invocation.request.shouldRetry && !invocation.isRetryTimeoutExpired {
                     invocation.identifier = nil
                 } else {
                     state.pending.remove(invocation)
