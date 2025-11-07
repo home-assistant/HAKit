@@ -370,6 +370,271 @@ internal class HARequestControllerTests: XCTestCase {
             Set(["try1", "try2"])
         )
     }
+
+    // MARK: - Retry Timeout Tests
+
+    func testResetActiveWithMaximumDateNotReached() throws {
+        let startDate = Date(timeIntervalSince1970: 1000)
+        HAGlobal.date = { startDate }
+
+        delegate.allowedSendKinds = .all
+
+        // Request with duration, will not be completed
+        let invoc1 = HARequestInvocationSingle(
+            request: .init(type: "test1", data: [:], retryDuration: .init(value: 10, unit: .seconds)),
+            completion: { _ in }
+        )
+
+        controller.add(invoc1)
+        XCTAssertEqual(delegate.didPrepare.count, 1)
+        delegate.didPrepare.removeAll()
+
+        // Move time forward by 5 seconds (before duration expires)
+        HAGlobal.date = { startDate.addingTimeInterval(5.0) }
+
+        controller.resetActive()
+
+        // Should be ready to retry
+        XCTAssertTrue(invoc1.needsAssignment)
+
+        controller.prepare()
+        XCTAssertEqual(delegate.didPrepare.count, 1)
+
+        let types = Set(delegate.didPrepare.map(\.request.type.command))
+        XCTAssertEqual(types, Set(["test1"]))
+    }
+
+    func testResetActiveWithMaximumDatePassed() throws {
+        let startDate = Date(timeIntervalSince1970: 1000)
+        HAGlobal.date = { startDate }
+
+        delegate.allowedSendKinds = .all
+
+        // Request with duration, will not be completed
+        let invoc1 = HARequestInvocationSingle(
+            request: .init(type: "test1", data: [:], retryDuration: .init(value: 10, unit: .seconds)),
+            completion: { _ in }
+        )
+
+        controller.add(invoc1)
+        XCTAssertEqual(delegate.didPrepare.count, 1)
+        delegate.didPrepare.removeAll()
+
+        // Move time forward by 15 seconds (past duration)
+        HAGlobal.date = { startDate.addingTimeInterval(15.0) }
+
+        controller.resetActive()
+
+        // Should NOT be ready to retry (removed from pending)
+        XCTAssertFalse(invoc1.needsAssignment)
+
+        controller.prepare()
+        XCTAssertEqual(delegate.didPrepare.count, 0)
+    }
+
+    func testResetActiveWithMixedMaximumDates() throws {
+        let startDate = Date(timeIntervalSince1970: 1000)
+        HAGlobal.date = { startDate }
+
+        delegate.allowedSendKinds = .all
+
+        // Request with short duration (will expire)
+        let invoc1 = HARequestInvocationSingle(
+            request: .init(type: "test1", data: [:], retryDuration: .init(value: 5, unit: .seconds)),
+            completion: { _ in }
+        )
+        // Request with long duration (will not expire)
+        let invoc2 = HARequestInvocationSingle(
+            request: .init(type: "test2", data: [:], retryDuration: .init(value: 20, unit: .seconds)),
+            completion: { _ in }
+        )
+        // Request with no duration (will never expire)
+        let invoc3 = HARequestInvocationSingle(
+            request: .init(type: "test3", data: [:], retryDuration: nil),
+            completion: { _ in }
+        )
+
+        controller.add(invoc1)
+        controller.add(invoc2)
+        controller.add(invoc3)
+        XCTAssertEqual(delegate.didPrepare.count, 3)
+        delegate.didPrepare.removeAll()
+
+        // Move time forward by 10 seconds
+        HAGlobal.date = { startDate.addingTimeInterval(10.0) }
+
+        controller.resetActive()
+
+        // invoc1 should be expired and removed
+        XCTAssertFalse(invoc1.needsAssignment)
+        // invoc2 and invoc3 should be ready to retry
+        XCTAssertTrue(invoc2.needsAssignment)
+        XCTAssertTrue(invoc3.needsAssignment)
+
+        controller.prepare()
+        XCTAssertEqual(delegate.didPrepare.count, 2)
+
+        let types = Set(delegate.didPrepare.map(\.request.type.command))
+        XCTAssertEqual(types, Set(["test2", "test3"]))
+    }
+
+    func testResetActiveWithNoMaximumDateNeverExpires() throws {
+        let startDate = Date(timeIntervalSince1970: 1000)
+        HAGlobal.date = { startDate }
+
+        delegate.allowedSendKinds = .all
+
+        // Request with no duration
+        let invoc1 = HARequestInvocationSingle(
+            request: .init(type: "test1", data: [:], retryDuration: nil),
+            completion: { _ in }
+        )
+
+        controller.add(invoc1)
+        XCTAssertEqual(delegate.didPrepare.count, 1)
+        delegate.didPrepare.removeAll()
+
+        // Move time forward by 1 hour
+        HAGlobal.date = { startDate.addingTimeInterval(3600.0) }
+
+        controller.resetActive()
+
+        // Should still be ready to retry
+        XCTAssertTrue(invoc1.needsAssignment)
+
+        controller.prepare()
+        XCTAssertEqual(delegate.didPrepare.count, 1)
+    }
+
+    func testResetActiveWithShouldRetryFalseAndMaximumDatePassed() throws {
+        let startDate = Date(timeIntervalSince1970: 1000)
+        HAGlobal.date = { startDate }
+
+        delegate.allowedSendKinds = .all
+
+        // Request with shouldRetry: false
+        let invoc1 = HARequestInvocationSingle(
+            request: .init(
+                type: "test1",
+                data: [:],
+                shouldRetry: false,
+                retryDuration: .init(value: 10, unit: .seconds)
+            ),
+            completion: { _ in }
+        )
+
+        controller.add(invoc1)
+        XCTAssertEqual(delegate.didPrepare.count, 1)
+        delegate.didPrepare.removeAll()
+
+        // Move time forward past duration
+        HAGlobal.date = { startDate.addingTimeInterval(15.0) }
+
+        controller.resetActive()
+
+        // Should not retry because shouldRetry is false (duration check is secondary)
+        XCTAssertFalse(invoc1.needsAssignment)
+
+        controller.prepare()
+        XCTAssertEqual(delegate.didPrepare.count, 0)
+    }
+
+    func testResetActiveSubscriptionWithMaximumDate() throws {
+        let startDate = Date(timeIntervalSince1970: 1000)
+        HAGlobal.date = { startDate }
+
+        delegate.allowedSendKinds = .all
+
+        // Subscription with duration
+        let invoc1 = HARequestInvocationSubscription(
+            request: .init(type: "test1", data: [:], retryDuration: .init(value: 10, unit: .seconds)),
+            initiated: { _ in },
+            handler: { _, _ in }
+        )
+
+        controller.add(invoc1)
+        XCTAssertEqual(delegate.didPrepare.count, 1)
+        delegate.didPrepare.removeAll()
+
+        // Move time forward past duration
+        HAGlobal.date = { startDate.addingTimeInterval(15.0) }
+
+        controller.resetActive()
+
+        // Should not be ready to retry (removed from pending)
+        XCTAssertFalse(invoc1.needsAssignment)
+
+        controller.prepare()
+        XCTAssertEqual(delegate.didPrepare.count, 0)
+    }
+
+    func testResetActiveDefaultMaximumDateOfTenSeconds() throws {
+        let startDate = Date(timeIntervalSince1970: 1000)
+        HAGlobal.date = { startDate }
+
+        delegate.allowedSendKinds = .all
+
+        // Request using default duration (should be 10 seconds)
+        let invoc1 = HARequestInvocationSingle(
+            request: .init(type: "test1", data: [:]),
+            completion: { _ in }
+        )
+
+        controller.add(invoc1)
+        XCTAssertEqual(delegate.didPrepare.count, 1)
+        delegate.didPrepare.removeAll()
+
+        // Move time forward by 9 seconds (within default duration)
+        HAGlobal.date = { startDate.addingTimeInterval(9.0) }
+        controller.resetActive()
+        XCTAssertTrue(invoc1.needsAssignment)
+
+        controller.prepare()
+        XCTAssertEqual(delegate.didPrepare.count, 1)
+        delegate.didPrepare.removeAll()
+
+        // Reset again with time at 11 seconds (past default duration)
+        HAGlobal.date = { startDate.addingTimeInterval(11.0) }
+        controller.resetActive()
+        XCTAssertFalse(invoc1.needsAssignment)
+
+        controller.prepare()
+        XCTAssertEqual(delegate.didPrepare.count, 0)
+    }
+
+    func testResetActiveWithDifferentUnits() throws {
+        let startDate = Date(timeIntervalSince1970: 1000)
+        HAGlobal.date = { startDate }
+
+        delegate.allowedSendKinds = .all
+
+        // Request with minutes
+        let invoc1 = HARequestInvocationSingle(
+            request: .init(type: "test1", data: [:], retryDuration: .init(value: 2, unit: .minutes)),
+            completion: { _ in }
+        )
+
+        controller.add(invoc1)
+        XCTAssertEqual(delegate.didPrepare.count, 1)
+        delegate.didPrepare.removeAll()
+
+        // Move time forward by 1 minute (within duration)
+        HAGlobal.date = { startDate.addingTimeInterval(60.0) }
+        controller.resetActive()
+        XCTAssertTrue(invoc1.needsAssignment)
+
+        controller.prepare()
+        XCTAssertEqual(delegate.didPrepare.count, 1)
+        delegate.didPrepare.removeAll()
+
+        // Move time forward by 3 minutes (past duration)
+        HAGlobal.date = { startDate.addingTimeInterval(180.0) }
+        controller.resetActive()
+        XCTAssertFalse(invoc1.needsAssignment)
+
+        controller.prepare()
+        XCTAssertEqual(delegate.didPrepare.count, 0)
+    }
 }
 
 private class TestHARequestControllerDelegate: HARequestControllerDelegate {
