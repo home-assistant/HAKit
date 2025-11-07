@@ -601,7 +601,7 @@ internal class HARequestControllerTests: XCTestCase {
         controller.prepare()
         XCTAssertEqual(delegate.didPrepare.count, 0)
     }
-    
+
     func testResetActiveWithDifferentUnits() throws {
         let startDate = Date(timeIntervalSince1970: 1000)
         HAGlobal.date = { startDate }
