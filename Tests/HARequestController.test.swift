@@ -514,7 +514,12 @@ internal class HARequestControllerTests: XCTestCase {
 
         // Request with shouldRetry: false
         let invoc1 = HARequestInvocationSingle(
-            request: .init(type: "test1", data: [:], shouldRetry: false, retryDuration: .init(value: 10, unit: .seconds)),
+            request: .init(
+                type: "test1",
+                data: [:],
+                shouldRetry: false,
+                retryDuration: .init(value: 10, unit: .seconds)
+            ),
             completion: { _ in }
         )
 

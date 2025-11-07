@@ -129,7 +129,7 @@ internal class HARequestInvocationTests: XCTestCase {
         HAGlobal.date = { currentDate }
 
         let request = HARequest(type: .callService, data: [:])
-        
+
         // Default should be 10 seconds
         let expectedDuration = Measurement<UnitDuration>(value: 10, unit: .seconds)
         XCTAssertEqual(request.retryDuration, expectedDuration, "Default retry duration should be 10 seconds")
@@ -147,7 +147,7 @@ internal class HARequestInvocationTests: XCTestCase {
         HAGlobal.date = { currentDate.addingTimeInterval(0.001) }
         XCTAssertTrue(invocation.isRetryTimeoutExpired)
     }
-    
+
     func testRetryTimeoutWithDifferentUnits() {
         let currentDate = Date(timeIntervalSince1970: 1000)
         HAGlobal.date = { currentDate }
@@ -161,7 +161,7 @@ internal class HARequestInvocationTests: XCTestCase {
 
         HAGlobal.date = { currentDate.addingTimeInterval(61.0) }
         XCTAssertTrue(invocation1.isRetryTimeoutExpired, "Should expire after 1 minute")
-        
+
         // Test with hours
         HAGlobal.date = { currentDate }
         let request2 = HARequest(type: .callService, data: [:], retryDuration: .init(value: 1, unit: .hours))
@@ -187,7 +187,7 @@ internal class HARequestInvocationTests: XCTestCase {
         HAGlobal.date = { startDate.addingTimeInterval(100) }
         XCTAssertEqual(invocation.createdAt, startDate, "Invocation createdAt should not change")
     }
-    
+
     func testRetryDurationStartsWhenInvocationIsCreated() {
         let requestCreationDate = Date(timeIntervalSince1970: 1000)
         HAGlobal.date = { requestCreationDate }

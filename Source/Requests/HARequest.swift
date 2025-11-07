@@ -12,7 +12,8 @@ public struct HARequest {
     ///   - data: The data to accompany with the request, at the top level
     ///   - queryItems: Query items to include in the call, for REST requests
     ///   - shouldRetry: Whether to retry the request when a connection change occurs
-    ///   - retryDuration: Maximum duration for which retries are allowed. Defaults to 10 seconds. Pass nil for unlimited retries.
+    ///   - retryDuration: Maximum duration for which retries are allowed. Defaults to 10 seconds.
+    ///                    Pass nil for unlimited retries.
     public init(
         type: HARequestType,
         data: [String: Any] = [:],
