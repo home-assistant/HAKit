@@ -34,94 +34,144 @@ internal class HARequestInvocationTests: XCTestCase {
 
     // MARK: - Retry Timeout Tests
 
-    func testRetryTimeoutNotExpiredWithinTimeout() {
-        let startDate = Date(timeIntervalSince1970: 1000)
-        HAGlobal.date = { startDate }
+    func testRetryTimeoutNotExpiredBeforeMaximumDate() {
+        let currentDate = Date(timeIntervalSince1970: 1000)
+        HAGlobal.date = { currentDate }
 
-        let request = HARequest(type: .callService, data: [:], retryTimeout: 10.0)
+        let request = HARequest(type: .callService, data: [:], retryDuration: .init(value: 10, unit: .seconds))
         let invocation = HARequestInvocation(request: request)
 
-        // Check immediately after creation
+        // Check immediately (before duration expires)
         XCTAssertFalse(invocation.isRetryTimeoutExpired)
 
-        // Check 5 seconds later (within timeout)
-        HAGlobal.date = { startDate.addingTimeInterval(5.0) }
+        // Check 5 seconds later (still before duration expires)
+        HAGlobal.date = { currentDate.addingTimeInterval(5.0) }
         XCTAssertFalse(invocation.isRetryTimeoutExpired)
 
-        // Check 9.9 seconds later (still within timeout)
-        HAGlobal.date = { startDate.addingTimeInterval(9.9) }
+        // Check 9.9 seconds later (still before duration expires)
+        HAGlobal.date = { currentDate.addingTimeInterval(9.9) }
         XCTAssertFalse(invocation.isRetryTimeoutExpired)
+
+        // Check exactly at duration boundary (should not be expired)
+        HAGlobal.date = { currentDate.addingTimeInterval(10.0) }
+        XCTAssertFalse(invocation.isRetryTimeoutExpired, "Should not be expired at exactly the duration")
     }
 
-    func testRetryTimeoutExpiredAfterTimeout() {
-        let startDate = Date(timeIntervalSince1970: 1000)
-        HAGlobal.date = { startDate }
+    func testRetryTimeoutExpiredAfterMaximumDate() {
+        let currentDate = Date(timeIntervalSince1970: 1000)
+        HAGlobal.date = { currentDate }
 
-        let request = HARequest(type: .callService, data: [:], retryTimeout: 10.0)
+        let request = HARequest(type: .callService, data: [:], retryDuration: .init(value: 10, unit: .seconds))
         let invocation = HARequestInvocation(request: request)
 
-        // Check exactly at timeout boundary
-        HAGlobal.date = { startDate.addingTimeInterval(10.0) }
-        XCTAssertFalse(invocation.isRetryTimeoutExpired, "Should not be expired at exactly 10 seconds")
+        // Check just after duration
+        HAGlobal.date = { currentDate.addingTimeInterval(10.1) }
+        XCTAssertTrue(invocation.isRetryTimeoutExpired, "Should be expired after duration")
 
-        // Check just after timeout
-        HAGlobal.date = { startDate.addingTimeInterval(10.1) }
-        XCTAssertTrue(invocation.isRetryTimeoutExpired, "Should be expired after 10 seconds")
-
-        // Check well after timeout
-        HAGlobal.date = { startDate.addingTimeInterval(60.0) }
-        XCTAssertTrue(invocation.isRetryTimeoutExpired, "Should be expired after 60 seconds")
+        // Check well after duration
+        HAGlobal.date = { currentDate.addingTimeInterval(60.0) }
+        XCTAssertTrue(invocation.isRetryTimeoutExpired, "Should be expired after duration")
     }
 
     func testRetryTimeoutNeverExpiresWhenNil() {
-        let startDate = Date(timeIntervalSince1970: 1000)
-        HAGlobal.date = { startDate }
+        let currentDate = Date(timeIntervalSince1970: 1000)
+        HAGlobal.date = { currentDate }
 
-        let request = HARequest(type: .callService, data: [:], retryTimeout: nil)
+        let request = HARequest(type: .callService, data: [:], retryDuration: nil)
         let invocation = HARequestInvocation(request: request)
 
         // Check immediately
         XCTAssertFalse(invocation.isRetryTimeoutExpired)
 
         // Check after 1 hour
-        HAGlobal.date = { startDate.addingTimeInterval(3600.0) }
+        HAGlobal.date = { currentDate.addingTimeInterval(3600.0) }
         XCTAssertFalse(invocation.isRetryTimeoutExpired)
 
         // Check after 1 day
-        HAGlobal.date = { startDate.addingTimeInterval(86400.0) }
+        HAGlobal.date = { currentDate.addingTimeInterval(86400.0) }
         XCTAssertFalse(invocation.isRetryTimeoutExpired)
     }
 
-    func testRetryTimeoutWithCustomTimeout() {
-        let startDate = Date(timeIntervalSince1970: 1000)
-        HAGlobal.date = { startDate }
+    func testRetryTimeoutWithCustomMaximumDate() {
+        let currentDate = Date(timeIntervalSince1970: 1000)
+        HAGlobal.date = { currentDate }
 
-        let request = HARequest(type: .callService, data: [:], retryTimeout: 30.0)
+        let request = HARequest(type: .callService, data: [:], retryDuration: .init(value: 30, unit: .seconds))
         let invocation = HARequestInvocation(request: request)
 
-        // Check before timeout
-        HAGlobal.date = { startDate.addingTimeInterval(20.0) }
+        // Check before duration
+        HAGlobal.date = { currentDate.addingTimeInterval(20.0) }
         XCTAssertFalse(invocation.isRetryTimeoutExpired)
 
-        // Check after timeout
-        HAGlobal.date = { startDate.addingTimeInterval(31.0) }
+        // Check after duration
+        HAGlobal.date = { currentDate.addingTimeInterval(31.0) }
         XCTAssertTrue(invocation.isRetryTimeoutExpired)
     }
 
-    func testRetryTimeoutWithVeryShortTimeout() {
-        let startDate = Date(timeIntervalSince1970: 1000)
-        HAGlobal.date = { startDate }
+    func testRetryTimeoutWithVeryShortDuration() {
+        let currentDate = Date(timeIntervalSince1970: 1000)
+        HAGlobal.date = { currentDate }
 
-        let request = HARequest(type: .callService, data: [:], retryTimeout: 0.5)
+        let request = HARequest(type: .callService, data: [:], retryDuration: .init(value: 500, unit: .milliseconds))
         let invocation = HARequestInvocation(request: request)
 
-        // Check before timeout
-        HAGlobal.date = { startDate.addingTimeInterval(0.3) }
+        // Check before duration
+        HAGlobal.date = { currentDate.addingTimeInterval(0.3) }
         XCTAssertFalse(invocation.isRetryTimeoutExpired)
 
-        // Check after timeout
-        HAGlobal.date = { startDate.addingTimeInterval(0.6) }
+        // Check after duration
+        HAGlobal.date = { currentDate.addingTimeInterval(0.6) }
         XCTAssertTrue(invocation.isRetryTimeoutExpired)
+    }
+
+    func testDefaultRetryMaximumDateIsApplied() {
+        let currentDate = Date(timeIntervalSince1970: 1000)
+        HAGlobal.date = { currentDate }
+
+        let request = HARequest(type: .callService, data: [:])
+        
+        // Default should be 10 seconds
+        let expectedDuration = Measurement<UnitDuration>(value: 10, unit: .seconds)
+        XCTAssertEqual(request.retryDuration, expectedDuration, "Default retry duration should be 10 seconds")
+    }
+
+    func testRetryTimeoutWithImmediateExpiry() {
+        let currentDate = Date(timeIntervalSince1970: 1000)
+        HAGlobal.date = { currentDate }
+
+        // Duration of 0 seconds
+        let request = HARequest(type: .callService, data: [:], retryDuration: .init(value: 0, unit: .seconds))
+        let invocation = HARequestInvocation(request: request)
+
+        // Should already be expired after any time passes
+        HAGlobal.date = { currentDate.addingTimeInterval(0.001) }
+        XCTAssertTrue(invocation.isRetryTimeoutExpired)
+    }
+    
+    func testRetryTimeoutWithDifferentUnits() {
+        let currentDate = Date(timeIntervalSince1970: 1000)
+        HAGlobal.date = { currentDate }
+
+        // Test with minutes
+        let request1 = HARequest(type: .callService, data: [:], retryDuration: .init(value: 1, unit: .minutes))
+        let invocation1 = HARequestInvocation(request: request1)
+
+        HAGlobal.date = { currentDate.addingTimeInterval(59.0) }
+        XCTAssertFalse(invocation1.isRetryTimeoutExpired, "Should not expire before 1 minute")
+
+        HAGlobal.date = { currentDate.addingTimeInterval(61.0) }
+        XCTAssertTrue(invocation1.isRetryTimeoutExpired, "Should expire after 1 minute")
+        
+        // Test with hours
+        HAGlobal.date = { currentDate }
+        let request2 = HARequest(type: .callService, data: [:], retryDuration: .init(value: 1, unit: .hours))
+        let invocation2 = HARequestInvocation(request: request2)
+
+        HAGlobal.date = { currentDate.addingTimeInterval(3599.0) }
+        XCTAssertFalse(invocation2.isRetryTimeoutExpired, "Should not expire before 1 hour")
+
+        HAGlobal.date = { currentDate.addingTimeInterval(3601.0) }
+        XCTAssertTrue(invocation2.isRetryTimeoutExpired, "Should expire after 1 hour")
     }
 
     func testCreatedAtCapturesCorrectTime() {
@@ -131,27 +181,37 @@ internal class HARequestInvocationTests: XCTestCase {
         let request = HARequest(type: .callService, data: [:])
         let invocation = HARequestInvocation(request: request)
 
-        XCTAssertEqual(invocation.createdAt, startDate)
+        XCTAssertEqual(invocation.createdAt, startDate, "Invocation createdAt should capture when it was created")
 
         // Change current time - createdAt should not change
         HAGlobal.date = { startDate.addingTimeInterval(100) }
-        XCTAssertEqual(invocation.createdAt, startDate)
+        XCTAssertEqual(invocation.createdAt, startDate, "Invocation createdAt should not change")
     }
+    
+    func testRetryDurationStartsWhenInvocationIsCreated() {
+        let requestCreationDate = Date(timeIntervalSince1970: 1000)
+        HAGlobal.date = { requestCreationDate }
 
-    func testDefaultRetryTimeoutIsApplied() {
-        let request = HARequest(type: .callService, data: [:])
-        XCTAssertEqual(request.retryTimeout, 10.0, "Default retry timeout should be 10 seconds")
-    }
+        // Create request early
+        let request = HARequest(type: .callService, data: [:], retryDuration: .init(value: 10, unit: .seconds))
 
-    func testRetryTimeoutCanBeSetToZero() {
-        let startDate = Date(timeIntervalSince1970: 1000)
-        HAGlobal.date = { startDate }
+        // Move time forward by 5 seconds before creating invocation
+        let invocationCreationDate = requestCreationDate.addingTimeInterval(5.0)
+        HAGlobal.date = { invocationCreationDate }
 
-        let request = HARequest(type: .callService, data: [:], retryTimeout: 0.0)
+        // Create invocation (this is when it's actually executed)
         let invocation = HARequestInvocation(request: request)
 
-        // Should expire immediately
-        HAGlobal.date = { startDate.addingTimeInterval(0.001) }
-        XCTAssertTrue(invocation.isRetryTimeoutExpired)
+        // The timeout should be based on invocation creation, not request creation
+        // We're at 5 seconds after request creation, but 0 seconds after invocation creation
+        XCTAssertFalse(invocation.isRetryTimeoutExpired, "Should not be expired immediately after invocation creation")
+
+        // Move time forward by 5 more seconds (10 seconds total since request creation, 5 since invocation)
+        HAGlobal.date = { requestCreationDate.addingTimeInterval(10.0) }
+        XCTAssertFalse(invocation.isRetryTimeoutExpired, "Should not be expired 5 seconds after invocation creation")
+
+        // Move time forward by 6 more seconds (16 seconds total since request creation, 11 since invocation)
+        HAGlobal.date = { requestCreationDate.addingTimeInterval(16.0) }
+        XCTAssertTrue(invocation.isRetryTimeoutExpired, "Should be expired 11 seconds after invocation creation")
     }
 }

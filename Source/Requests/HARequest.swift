@@ -12,20 +12,20 @@ public struct HARequest {
     ///   - data: The data to accompany with the request, at the top level
     ///   - queryItems: Query items to include in the call, for REST requests
     ///   - shouldRetry: Whether to retry the request when a connection change occurs
-    ///   - retryTimeout: Maximum time interval (in seconds) after creation to allow retries. Defaults to 10 seconds.
+    ///   - retryDuration: Maximum duration for which retries are allowed. Defaults to 10 seconds. Pass nil for unlimited retries.
     public init(
         type: HARequestType,
         data: [String: Any] = [:],
         queryItems: [URLQueryItem] = [],
         shouldRetry: Bool = true,
-        retryTimeout: TimeInterval? = 10.0
+        retryDuration: Measurement<UnitDuration>? = .init(value: 10, unit: .seconds)
     ) {
         precondition(JSONSerialization.isValidJSONObject(data))
         self.type = type
         self.data = data
         self.shouldRetry = shouldRetry
         self.queryItems = queryItems
-        self.retryTimeout = retryTimeout
+        self.retryDuration = retryDuration
     }
 
     /// The type of the request to be issued
@@ -36,6 +36,6 @@ public struct HARequest {
     public var shouldRetry: Bool
     /// For REST requests, any query items to include in the call
     public var queryItems: [URLQueryItem]
-    /// Maximum time interval (in seconds) after creation to allow retries. If nil, retries indefinitely.
-    public var retryTimeout: TimeInterval?
+    /// Maximum duration for which retries are allowed. If nil, retries indefinitely.
+    public var retryDuration: Measurement<UnitDuration>?
 }

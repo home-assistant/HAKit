@@ -24,13 +24,14 @@ internal class HARequestInvocation: Equatable, Hashable {
         identifier == nil
     }
 
-    /// Check if the request's retry timeout has expired
+    /// Check if the request's retry duration has expired
     var isRetryTimeoutExpired: Bool {
-        guard let timeout = request.retryTimeout else {
-            return false // No timeout means never expires
+        guard let duration = request.retryDuration else {
+            return false // No duration means never expires
         }
         let elapsed = HAGlobal.date().timeIntervalSince(createdAt)
-        return elapsed > timeout
+        let durationInSeconds = duration.converted(to: .seconds).value
+        return elapsed > durationInSeconds
     }
 
     func cancelRequest() -> HATypedRequest<HAResponseVoid>? {
