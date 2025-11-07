@@ -265,9 +265,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:5HAKit9HARequestV4type4data10queryItems11shouldRetryAcA0B4TypeO_SDySSypGSay10Foundation12URLQueryItemVGSbtcfc"></a>
-                    <a name="//apple_ref/swift/Method/init(type:data:queryItems:shouldRetry:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:5HAKit9HARequestV4type4data10queryItems11shouldRetryAcA0B4TypeO_SDySSypGSay10Foundation12URLQueryItemVGSbtcfc">init(type:<wbr>data:<wbr>queryItems:<wbr>shouldRetry:<wbr>)</a>
+                    <a name="/s:5HAKit9HARequestV4type4data10queryItems11shouldRetry13retryDurationAcA0B4TypeO_SDySSypGSay10Foundation12URLQueryItemVGSbAL11MeasurementVySo06NSUnitJ0CGSgtcfc"></a>
+                    <a name="//apple_ref/swift/Method/init(type:data:queryItems:shouldRetry:retryDuration:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:5HAKit9HARequestV4type4data10queryItems11shouldRetry13retryDurationAcA0B4TypeO_SDySSypGSay10Foundation12URLQueryItemVGSbAL11MeasurementVySo06NSUnitJ0CGSgtcfc">init(type:<wbr>data:<wbr>queryItems:<wbr>shouldRetry:<wbr>retryDuration:<wbr>)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -297,7 +297,8 @@
     <span class="nv">type</span><span class="p">:</span> <span class="kt"><a href="../Enums/HARequestType.html">HARequestType</a></span><span class="p">,</span>
     <span class="nv">data</span><span class="p">:</span> <span class="p">[</span><span class="kt">String</span><span class="p">:</span> <span class="kt">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">[:],</span>
     <span class="nv">queryItems</span><span class="p">:</span> <span class="p">[</span><span class="kt">URLQueryItem</span><span class="p">]</span> <span class="o">=</span> <span class="p">[],</span>
-    <span class="nv">shouldRetry</span><span class="p">:</span> <span class="kt">Bool</span> <span class="o">=</span> <span class="kc">true</span>
+    <span class="nv">shouldRetry</span><span class="p">:</span> <span class="kt">Bool</span> <span class="o">=</span> <span class="kc">true</span><span class="p">,</span>
+    <span class="nv">retryDuration</span><span class="p">:</span> <span class="kt">Measurement</span><span class="o">&lt;</span><span class="kt">UnitDuration</span><span class="o">&gt;</span><span class="p">?</span> <span class="o">=</span> <span class="o">.</span><span class="nf">init</span><span class="p">(</span><span class="nv">value</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="nv">unit</span><span class="p">:</span> <span class="o">.</span><span class="n">seconds</span><span class="p">)</span>
 <span class="p">)</span></code></pre>
 
                         </div>
@@ -351,6 +352,19 @@
                               <td>
                                 <div>
                                   <p>Whether to retry the request when a connection change occurs</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>retryDuration</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Maximum duration for which retries are allowed. Defaults to 10 seconds.
+           Pass nil for unlimited retries.</p>
                                 </div>
                               </td>
                             </tr>
@@ -468,13 +482,40 @@
                     </section>
                   </div>
                 </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:5HAKit9HARequestV13retryDuration10Foundation11MeasurementVySo06NSUnitD0CGSgvp"></a>
+                    <a name="//apple_ref/swift/Property/retryDuration" class="dashAnchor"></a>
+                    <a class="token" href="#/s:5HAKit9HARequestV13retryDuration10Foundation11MeasurementVySo06NSUnitD0CGSgvp">retryDuration</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Maximum duration for which retries are allowed. If nil, retries indefinitely.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">retryDuration</span><span class="p">:</span> <span class="kt">Measurement</span><span class="o">&lt;</span><span class="kt">UnitDuration</span><span class="o">&gt;</span><span class="p">?</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
               </ul>
             </div>
           </section>
         </section>
         <section id="footer">
-          <p>&copy; 2025 <a class="link" href="https://github.com/home-assistant/HAKit" target="_blank" rel="external noopener">Home Assistant</a>. All rights reserved. (Last updated: 2025-09-17)</p>
-          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external noopener">jazzy ♪♫ v0.15.3</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external noopener">Realm</a> project.</p>
+          <p>&copy; 2025 <a class="link" href="https://github.com/home-assistant/HAKit" target="_blank" rel="external noopener">Home Assistant</a>. All rights reserved. (Last updated: 2025-11-07)</p>
+          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external noopener">jazzy ♪♫ v0.15.4</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external noopener">Realm</a> project.</p>
         </section>
       </article>
     </div>
