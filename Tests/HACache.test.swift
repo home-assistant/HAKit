@@ -759,7 +759,7 @@ internal class HACacheTests: XCTestCase {
 
         waitForExpectations(timeout: 10.0)
 
-        XCTAssertNotNil(receivedUpdates.first, "Should have received an update after connection state changes")
+        XCTAssertNotNil(receivedUpdates.first as Any?, "Should have received an update after connection state changes")
     }
 
     func testSubscriptionWithNoPopulateWhenReissuePopulate() {

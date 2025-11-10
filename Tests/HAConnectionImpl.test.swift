@@ -1578,7 +1578,7 @@ internal class HAConnectionImplTests: XCTestCase {
     }
 }
 
-extension WebSocketEvent: Equatable {
+extension WebSocketEvent: @retroactive Equatable {
     public static func == (lhs: WebSocketEvent, rhs: WebSocketEvent) -> Bool {
         switch (lhs, lhs) {
         case let (.binary(lhsInside), .binary(rhsInside)):
