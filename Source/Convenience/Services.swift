@@ -52,7 +52,7 @@ public struct HAServiceDefinition {
     public init(domain: HAServicesDomain, service: HAServicesService, data: HAData) throws {
         let nameValue: String? = try? data.decode("name")
         let descriptionValue: String? = try? data.decode("description")
-        
+
         try self.init(
             domain: domain,
             service: service,
