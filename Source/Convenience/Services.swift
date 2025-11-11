@@ -50,8 +50,12 @@ public struct HAServiceDefinition {
     ///   - data: The data for the definition
     /// - Throws: If any required keys are missing in the data
     public init(domain: HAServicesDomain, service: HAServicesService, data: HAData) throws {
-        let nameValue: String? = try? data.decode("name")
-        let descriptionValue: String? = try? data.decode("description")
+        var nameValue: String? = try? data.decode("name")
+        var descriptionValue: String? = try? data.decode("description")
+        
+        // Treat empty strings as nil
+        if nameValue?.isEmpty == true { nameValue = nil }
+        if descriptionValue?.isEmpty == true { descriptionValue = nil }
 
         try self.init(
             domain: domain,
