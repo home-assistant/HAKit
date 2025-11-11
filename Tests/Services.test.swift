@@ -143,8 +143,15 @@ internal class CallServiceTests: XCTestCase {
         XCTAssertEqual(service.domain, "persistent_notification")
         XCTAssertEqual(service.service, "create")
         XCTAssertEqual(service.domainServicePair, "persistent_notification.create")
-        XCTAssertEqual(service.name, "persistent_notification.create", "we modified this")
-        XCTAssertEqual(service.description, "Show a notification in the frontend.")
+        XCTAssertEqual(
+            service.name,
+            "Show a notification in the frontend.",
+            "name should fall back to description when empty"
+        )
+        XCTAssertEqual(
+            service.description,
+            "Show a notification in the frontend."
+        )
         XCTAssertEqual(service.fields["message"] as? [String: String], [
             "description": "Message body of the notification. [Templates accepted]",
             "example": "Please check your configuration.yaml.",
@@ -166,8 +173,15 @@ internal class CallServiceTests: XCTestCase {
         XCTAssertEqual(service.domain, "persistent_notification")
         XCTAssertEqual(service.service, "dismiss")
         XCTAssertEqual(service.domainServicePair, "persistent_notification.dismiss")
-        XCTAssertEqual(service.name, "persistent_notification.dismiss", "we modified this")
-        XCTAssertEqual(service.description, "Remove a notification from the frontend.")
+        XCTAssertEqual(
+            service.name,
+            "Remove a notification from the frontend.",
+            "name should fall back to description when empty"
+        )
+        XCTAssertEqual(
+            service.description,
+            "Remove a notification from the frontend."
+        )
         XCTAssertEqual(
             service.fields["notification_id"]?["description"] as? String,
             "Target ID of the notification, which should be removed. [Required]"
@@ -181,7 +195,7 @@ internal class CallServiceTests: XCTestCase {
         XCTAssertEqual(service.domain, "persistent_notification")
         XCTAssertEqual(service.service, "mark_read")
         XCTAssertEqual(service.domainServicePair, "persistent_notification.mark_read")
-        XCTAssertEqual(service.name, "persistent_notification.mark_read", "we modified this")
+        XCTAssertEqual(service.name, "Mark a notification read.", "name should fall back to description when empty")
         XCTAssertEqual(service.description, "Mark a notification read.")
         XCTAssertEqual(
             service.fields["notification_id"]?["description"] as? String,
@@ -226,7 +240,7 @@ internal class CallServiceTests: XCTestCase {
         XCTAssertEqual(service.domain, "homeassistant")
         XCTAssertEqual(service.service, "turn_on")
         XCTAssertEqual(service.domainServicePair, "homeassistant.turn_on")
-        XCTAssertEqual(service.name, "Generic turn on")
+        XCTAssertEqual(service.name, "Generic turn on", "name should fall back to description when missing")
         XCTAssertEqual(service.description, "Generic turn on")
         XCTAssertTrue(service.fields.isEmpty)
 
@@ -234,8 +248,59 @@ internal class CallServiceTests: XCTestCase {
         XCTAssertEqual(service.domain, "homeassistant")
         XCTAssertEqual(service.service, "turn_off")
         XCTAssertEqual(service.domainServicePair, "homeassistant.turn_off")
-        XCTAssertEqual(service.name, "Generic turn off")
+        XCTAssertEqual(service.name, "Generic turn off", "name should fall back to description when missing")
         XCTAssertEqual(service.description, "Generic turn off")
         XCTAssertTrue(service.fields.isEmpty)
+    }
+
+    func testServiceDefinitionOptionalFields() throws {
+        // Test that name and description are truly optional
+        let data = HAData(testJsonString: """
+        {
+            "test_domain": {
+                "with_both": {
+                    "name": "Test Name",
+                    "description": "Test Description",
+                    "fields": {}
+                },
+                "with_only_name": {
+                    "name": "Only Name",
+                    "fields": {}
+                },
+                "with_only_description": {
+                    "description": "Only Description",
+                    "fields": {}
+                },
+                "with_neither": {
+                    "fields": {}
+                }
+            }
+        }
+        """)
+        let response = try HAResponseServices(data: data)
+        let domain = try XCTUnwrap(response.allByDomain["test_domain"])
+        XCTAssertEqual(domain.count, 4)
+
+        var service: HAServiceDefinition!
+
+        // Test with both name and description
+        service = try XCTUnwrap(domain["with_both"])
+        XCTAssertEqual(service.name, "Test Name")
+        XCTAssertEqual(service.description, "Test Description")
+
+        // Test with only name (description will be nil)
+        service = try XCTUnwrap(domain["with_only_name"])
+        XCTAssertEqual(service.name, "Only Name")
+        XCTAssertNil(service.description)
+
+        // Test with only description (name falls back to description)
+        service = try XCTUnwrap(domain["with_only_description"])
+        XCTAssertEqual(service.name, "Only Description")
+        XCTAssertEqual(service.description, "Only Description")
+
+        // Test with neither (name falls back to domain.service pair)
+        service = try XCTUnwrap(domain["with_neither"])
+        XCTAssertEqual(service.name, "test_domain.with_neither")
+        XCTAssertNil(service.description)
     }
 }
