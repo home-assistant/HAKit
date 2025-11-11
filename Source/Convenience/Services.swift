@@ -37,9 +37,9 @@ public struct HAServiceDefinition {
     public var domainServicePair: String
 
     /// The name of the service, for example "Turn On"
-    public var name: String
+    public var name: String?
     /// The description of the service
-    public var description: String
+    public var description: String?
     /// Available fields of the service call
     public var fields: [String: [String: Any]]
 
@@ -50,11 +50,14 @@ public struct HAServiceDefinition {
     ///   - data: The data for the definition
     /// - Throws: If any required keys are missing in the data
     public init(domain: HAServicesDomain, service: HAServicesService, data: HAData) throws {
+        let nameValue: String? = try? data.decode("name")
+        let descriptionValue: String? = try? data.decode("description")
+        
         try self.init(
             domain: domain,
             service: service,
-            name: data.decode("name", fallback: data.decode("description")),
-            description: data.decode("description"),
+            name: nameValue ?? descriptionValue,
+            description: descriptionValue,
             fields: data.decode("fields")
         )
     }
@@ -69,15 +72,15 @@ public struct HAServiceDefinition {
     public init(
         domain: HAServicesDomain,
         service: HAServicesService,
-        name: String,
-        description: String,
+        name: String?,
+        description: String?,
         fields: [String: [String: Any]]
     ) {
         self.domain = domain
         self.service = service
         let domainServicePair = "\(domain.rawValue).\(service.rawValue)"
         self.domainServicePair = domainServicePair
-        self.name = name.isEmpty ? domainServicePair : name
+        self.name = (name?.isEmpty == true || name == nil) ? nil : name
         self.description = description
         self.fields = fields
     }
