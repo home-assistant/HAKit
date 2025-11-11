@@ -52,7 +52,7 @@ public struct HAServiceDefinition {
     public init(domain: HAServicesDomain, service: HAServicesService, data: HAData) throws {
         var nameValue: String? = try? data.decode("name")
         var descriptionValue: String? = try? data.decode("description")
-        
+
         // Treat empty strings as nil
         if nameValue?.isEmpty == true { nameValue = nil }
         if descriptionValue?.isEmpty == true { descriptionValue = nil }

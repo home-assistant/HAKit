@@ -143,8 +143,15 @@ internal class CallServiceTests: XCTestCase {
         XCTAssertEqual(service.domain, "persistent_notification")
         XCTAssertEqual(service.service, "create")
         XCTAssertEqual(service.domainServicePair, "persistent_notification.create")
-        XCTAssertEqual(service.name, "Show a notification in the frontend.", "name should fall back to description when empty")
-        XCTAssertEqual(service.description, "Show a notification in the frontend.")
+        XCTAssertEqual(
+            service.name,
+            "Show a notification in the frontend.",
+            "name should fall back to description when empty"
+        )
+        XCTAssertEqual(
+            service.description,
+            "Show a notification in the frontend."
+        )
         XCTAssertEqual(service.fields["message"] as? [String: String], [
             "description": "Message body of the notification. [Templates accepted]",
             "example": "Please check your configuration.yaml.",
@@ -166,8 +173,15 @@ internal class CallServiceTests: XCTestCase {
         XCTAssertEqual(service.domain, "persistent_notification")
         XCTAssertEqual(service.service, "dismiss")
         XCTAssertEqual(service.domainServicePair, "persistent_notification.dismiss")
-        XCTAssertEqual(service.name, "Remove a notification from the frontend.", "name should fall back to description when empty")
-        XCTAssertEqual(service.description, "Remove a notification from the frontend.")
+        XCTAssertEqual(
+            service.name,
+            "Remove a notification from the frontend.",
+            "name should fall back to description when empty"
+        )
+        XCTAssertEqual(
+            service.description,
+            "Remove a notification from the frontend."
+        )
         XCTAssertEqual(
             service.fields["notification_id"]?["description"] as? String,
             "Target ID of the notification, which should be removed. [Required]"
