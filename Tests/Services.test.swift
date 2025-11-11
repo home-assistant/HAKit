@@ -143,7 +143,7 @@ internal class CallServiceTests: XCTestCase {
         XCTAssertEqual(service.domain, "persistent_notification")
         XCTAssertEqual(service.service, "create")
         XCTAssertEqual(service.domainServicePair, "persistent_notification.create")
-        XCTAssertNil(service.name, "name is empty string so should be nil")
+        XCTAssertEqual(service.name, "")
         XCTAssertEqual(service.description, "Show a notification in the frontend.")
         XCTAssertEqual(service.fields["message"] as? [String: String], [
             "description": "Message body of the notification. [Templates accepted]",
@@ -166,7 +166,7 @@ internal class CallServiceTests: XCTestCase {
         XCTAssertEqual(service.domain, "persistent_notification")
         XCTAssertEqual(service.service, "dismiss")
         XCTAssertEqual(service.domainServicePair, "persistent_notification.dismiss")
-        XCTAssertNil(service.name, "name is empty string so should be nil")
+        XCTAssertEqual(service.name, "")
         XCTAssertEqual(service.description, "Remove a notification from the frontend.")
         XCTAssertEqual(
             service.fields["notification_id"]?["description"] as? String,
@@ -181,7 +181,7 @@ internal class CallServiceTests: XCTestCase {
         XCTAssertEqual(service.domain, "persistent_notification")
         XCTAssertEqual(service.service, "mark_read")
         XCTAssertEqual(service.domainServicePair, "persistent_notification.mark_read")
-        XCTAssertNil(service.name, "name is empty string so should be nil")
+        XCTAssertEqual(service.name, "")
         XCTAssertEqual(service.description, "Mark a notification read.")
         XCTAssertEqual(
             service.fields["notification_id"]?["description"] as? String,

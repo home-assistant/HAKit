@@ -80,7 +80,7 @@ public struct HAServiceDefinition {
         self.service = service
         let domainServicePair = "\(domain.rawValue).\(service.rawValue)"
         self.domainServicePair = domainServicePair
-        self.name = (name?.isEmpty == true || name == nil) ? nil : name
+        self.name = name ?? domainServicePair
         self.description = description
         self.fields = fields
     }
