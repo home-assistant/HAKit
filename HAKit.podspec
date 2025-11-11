@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name = 'HAKit'
-  s.version = '0.4.6'
+  s.version = '0.4.7'
   s.summary = 'Communicate with a Home Assistant instance.'
   s.author = 'Home Assistant'
 
