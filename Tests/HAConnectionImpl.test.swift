@@ -835,13 +835,87 @@ internal class HAConnectionImplTests: XCTestCase {
     func testResponseEventAuth() {
         connection.responseController(responseController, didReceive: .auth(.required))
         connection.responseController(responseController, didReceive: .auth(.ok(version: "")))
-        connection.responseController(responseController, didReceive: .auth(.invalid))
         XCTAssertTrue(engine.events.isEmpty)
         XCTAssertTrue(responseController.received.isEmpty)
         XCTAssertTrue(delegate.states.isEmpty)
         XCTAssertEqual(delegate.notifiedCount, 0)
         XCTAssertFalse(requestController.didPrepare)
         XCTAssertFalse(requestController.didResetActive)
+    }
+
+    func testResponseEventAuthInvalidDisconnectsPermanently() {
+        connection.connect()
+        waitForCallbackQueue()
+        XCTAssertEqual(delegate.states, [.connecting])
+        XCTAssertEqual(delegate.notifiedCount, 1)
+
+        engine.events.removeAll()
+
+        // Simulate receiving invalid auth response
+        connection.responseController(responseController, didReceive: .auth(.invalid))
+        waitForCallbackQueue()
+
+        // Should disconnect permanently
+        XCTAssertTrue(engine.events.contains(.stop(CloseCode.goingAway.rawValue)))
+        XCTAssertTrue(reconnectManager.didPermanently)
+        XCTAssertFalse(reconnectManager.didTemporarily)
+
+        // Should set authenticationFailedPermanently flag
+        XCTAssertTrue(connection.authenticationFailedPermanently.read { $0 })
+
+        // Should be in disconnected state
+        XCTAssertEqual(connection.state, .disconnected(reason: .disconnected))
+        XCTAssertEqual(delegate.states.last, .disconnected(reason: .disconnected))
+        XCTAssertEqual(delegate.notifiedCount, 2)
+    }
+
+    func testAuthenticationFailedPermanentlyBlocksReconnect() {
+        connection.connectAutomatically = true
+
+        // Set the authentication failed flag
+        connection.authenticationFailedPermanently.mutate { $0 = true }
+
+        // Try to automatically reconnect
+        connection.send(.init(type: "test", data: [:]), completion: { _ in })
+
+        // Should not have attempted to connect
+        XCTAssertTrue(engine.events.isEmpty)
+    }
+
+    func testAuthenticationFailedPermanentlyBlocksManualReconnectUntilExplicitConnect() {
+        connection.connectAutomatically = true
+
+        // Simulate auth failure
+        connection.connect()
+        waitForCallbackQueue()
+        connection.responseController(responseController, didReceive: .auth(.invalid))
+        waitForCallbackQueue()
+
+        // Verify auth failed flag is set
+        XCTAssertTrue(connection.authenticationFailedPermanently.read { $0 })
+
+        engine.events.removeAll()
+
+        // Reconnect manager tries to reconnect
+        connection.reconnectManagerWantsReconnection(reconnectManager)
+
+        // Should not reconnect due to auth failure
+        XCTAssertTrue(engine.events.isEmpty)
+    }
+
+    func testExplicitConnectResetsAuthenticationFailedFlag() {
+        // Set the authentication failed flag
+        connection.authenticationFailedPermanently.mutate { $0 = true }
+        XCTAssertTrue(connection.authenticationFailedPermanently.read { $0 })
+
+        // Explicitly call connect
+        connection.connect()
+
+        // Should reset the flag
+        XCTAssertFalse(connection.authenticationFailedPermanently.read { $0 })
+
+        // Should attempt connection
+        XCTAssertFalse(engine.events.isEmpty)
     }
 
     func testResponseResultNoSingleOrSubscription() {

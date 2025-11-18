@@ -61,6 +61,16 @@ internal class HAConnectionImpl: HAConnection {
     let urlSession: URLSession
     var connectAutomatically: Bool
     var hasSetupResubscribeEvents = HAProtected<Bool>(value: false)
+    
+    /// Tracks whether authentication has failed permanently (e.g., invalid credentials).
+    ///
+    /// When `true`, automatic reconnection attempts are blocked to prevent repeatedly
+    /// attempting to authenticate with invalid credentials. This flag is reset when
+    /// `connect()` is explicitly called.
+    ///
+    /// Thread-safe using `HAProtected` because it's accessed from multiple dispatch queues,
+    /// including the main thread, work queue, and callback queue.
+    internal var authenticationFailedPermanently = HAProtected<Bool>(value: false)
     private(set) lazy var caches: HACachesContainer = .init(connection: self)
 
     init(
@@ -107,6 +117,7 @@ internal class HAConnectionImpl: HAConnection {
 
     func connect() {
         performConnectionChange { [self] in
+            authenticationFailedPermanently.mutate { $0 = false }
             connect(resettingState: true)
         }
     }
@@ -119,6 +130,10 @@ internal class HAConnectionImpl: HAConnection {
 
     private func connectAutomaticallyIfNeeded() {
         guard connectAutomatically, case .disconnected = state else { return }
+        guard !authenticationFailedPermanently.read({ $0 }) else {
+            HAGlobal.log(.info, "skipping auto-connect due to authentication failure")
+            return
+        }
         connect()
     }
 
@@ -132,6 +147,12 @@ internal class HAConnectionImpl: HAConnection {
 
     func connect(resettingState: Bool) {
         precondition(Thread.isMainThread)
+
+        // Don't allow reconnection if authentication has permanently failed
+        guard !authenticationFailedPermanently.read({ $0 }) else {
+            HAGlobal.log(.info, "blocking connect attempt due to authentication failure")
+            return
+        }
 
         guard let connectionInfo = configuration.connectionInfo() else {
             disconnect(permanently: false, error: ConnectError.noConnectionInfo)
