@@ -37,7 +37,10 @@ extension HAConnectionImpl: HAResponseControllerDelegate {
             // Authentication failed - disconnect permanently to avoid infinite retry loop
             HAGlobal.log(.error, "authentication failed with invalid token")
             authenticationFailedPermanently.mutate { $0 = true }
-            disconnect(permanently: true, error: HAError.internal(debugDescription: "authentication failed, invalid token"))
+            disconnect(
+                permanently: true,
+                error: HAError.internal(debugDescription: "authentication failed, invalid token")
+            )
         case .auth:
             // we send auth token pre-emptively, so we don't need to care about the other auth messages
             // note that we do watch for auth->command phase change so we can re-activate pending requests

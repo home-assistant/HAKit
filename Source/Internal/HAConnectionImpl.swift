@@ -61,7 +61,7 @@ internal class HAConnectionImpl: HAConnection {
     let urlSession: URLSession
     var connectAutomatically: Bool
     var hasSetupResubscribeEvents = HAProtected<Bool>(value: false)
-    
+
     /// Tracks whether authentication has failed permanently (e.g., invalid credentials).
     ///
     /// When `true`, automatic reconnection attempts are blocked to prevent repeatedly
