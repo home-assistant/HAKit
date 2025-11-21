@@ -55,22 +55,18 @@ internal class HAConnectionImpl: HAConnection {
         case noConnectionInfo
     }
 
+    internal enum DisconnectionContext {
+        case `default`
+        case permanently
+        case rejected
+    }
+
     let requestController: HARequestController
     let responseController: HAResponseController
     let reconnectManager: HAReconnectManager
     let urlSession: URLSession
     var connectAutomatically: Bool
     var hasSetupResubscribeEvents = HAProtected<Bool>(value: false)
-
-    /// Tracks whether authentication has failed permanently (e.g., invalid credentials).
-    ///
-    /// When `true`, automatic reconnection attempts are blocked to prevent repeatedly
-    /// attempting to authenticate with invalid credentials. This flag is reset when
-    /// `connect()` is explicitly called.
-    ///
-    /// Thread-safe using `HAProtected` because it's accessed from multiple dispatch queues,
-    /// including the main thread, work queue, and callback queue.
-    internal var authenticationFailedPermanently = HAProtected<Bool>(value: false)
     private(set) lazy var caches: HACachesContainer = .init(connection: self)
 
     init(
@@ -117,21 +113,20 @@ internal class HAConnectionImpl: HAConnection {
 
     func connect() {
         performConnectionChange { [self] in
-            authenticationFailedPermanently.mutate { $0 = false }
             connect(resettingState: true)
         }
     }
 
     func disconnect() {
         performConnectionChange { [self] in
-            disconnect(permanently: true, error: nil)
+            disconnect(context: .permanently, error: nil)
         }
     }
 
     private func connectAutomaticallyIfNeeded() {
         guard connectAutomatically, case .disconnected = state else { return }
-        guard !authenticationFailedPermanently.read({ $0 }) else {
-            HAGlobal.log(.info, "skipping auto-connect due to authentication failure")
+        guard reconnectManager.reason != .rejected else {
+            HAGlobal.log(.info, "skipping auto-connect due to rejected connection")
             return
         }
         connect()
@@ -148,14 +143,13 @@ internal class HAConnectionImpl: HAConnection {
     func connect(resettingState: Bool) {
         precondition(Thread.isMainThread)
 
-        // Don't allow reconnection if authentication has permanently failed
-        guard !authenticationFailedPermanently.read({ $0 }) else {
-            HAGlobal.log(.info, "blocking connect attempt due to authentication failure")
+        guard reconnectManager.reason != .rejected else {
+            HAGlobal.log(.info, "blocking connect attempt due to rejected connection")
             return
         }
 
         guard let connectionInfo = configuration.connectionInfo() else {
-            disconnect(permanently: false, error: ConnectError.noConnectionInfo)
+            disconnect(error: ConnectError.noConnectionInfo)
             return
         }
 
@@ -189,19 +183,22 @@ internal class HAConnectionImpl: HAConnection {
         }
     }
 
-    func disconnect(permanently: Bool, error: Error?) {
+    func disconnect(context: DisconnectionContext = .default, error: Error?) {
         precondition(Thread.isMainThread)
 
-        HAGlobal.log(.info, "disconnecting; permanently: \(permanently), error: \(String(describing: error))")
+        HAGlobal.log(.info, "disconnecting; permanently: \(context), error: \(String(describing: error))")
 
         connection?.delegate = nil
         connection?.disconnect(closeCode: CloseCode.goingAway.rawValue)
         connection = nil
 
-        if permanently {
-            reconnectManager.didDisconnectPermanently()
-        } else {
+        switch context {
+        case .default:
             reconnectManager.didDisconnectTemporarily(error: error)
+        case .permanently:
+            reconnectManager.didDisconnectPermanently()
+        case .rejected:
+            reconnectManager.didDisconnectRejected()
         }
 
         notifyState()
@@ -458,7 +455,7 @@ extension HAConnectionImpl: HAReconnectManagerDelegate {
     }
 
     func reconnect(_ manager: HAReconnectManager, wantsDisconnectFor error: Error) {
-        disconnect(permanently: false, error: error)
+        disconnect(error: error)
     }
 
     func reconnectManager(

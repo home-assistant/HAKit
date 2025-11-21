@@ -27,6 +27,7 @@ internal protocol HAReconnectManager: AnyObject {
 
     func didStartInitialConnect()
     func didDisconnectPermanently()
+    func didDisconnectRejected()
     func didDisconnectTemporarily(error: Error?)
     func didFinishConnect()
 }
@@ -121,6 +122,10 @@ internal class HAReconnectManagerImpl: HAReconnectManager {
     }
 
     func didDisconnectPermanently() {
+        reset()
+    }
+    
+    func didDisconnectRejected() {
         reset()
     }
 

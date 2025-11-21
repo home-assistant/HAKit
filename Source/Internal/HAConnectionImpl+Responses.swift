@@ -17,7 +17,7 @@ extension HAConnectionImpl {
                 )
             case let .failure(error):
                 HAGlobal.log(.error, "delegate failed to provide access token \(error), bailing")
-                disconnect(permanently: false, error: error)
+                disconnect(error: error)
             }
         }
 
@@ -34,11 +34,10 @@ extension HAConnectionImpl: HAResponseControllerDelegate {
     ) {
         switch response {
         case .auth(.invalid):
-            // Authentication failed - disconnect permanently to avoid infinite retry loop
+            // Authentication failed - disconnect with rejected context to block automatic retries
             HAGlobal.log(.error, "authentication failed with invalid token")
-            authenticationFailedPermanently.mutate { $0 = true }
             disconnect(
-                permanently: true,
+                context: .rejected,
                 error: HAError.internal(debugDescription: "authentication failed, invalid token")
             )
         case .auth:
@@ -87,7 +86,7 @@ extension HAConnectionImpl: HAResponseControllerDelegate {
         case let .disconnected(error, forReset: reset):
             if !reset {
                 // state will notify from this method call
-                disconnect(permanently: false, error: error)
+                disconnect(error: error)
             }
             requestController.resetActive()
         }
