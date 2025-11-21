@@ -17,7 +17,7 @@ extension HAConnectionImpl {
                 )
             case let .failure(error):
                 HAGlobal.log(.error, "delegate failed to provide access token \(error), bailing")
-                disconnect(permanently: false, error: error)
+                disconnect(error: error)
             }
         }
 
@@ -33,8 +33,15 @@ extension HAConnectionImpl: HAResponseControllerDelegate {
         didReceive response: HAWebSocketResponse
     ) {
         switch response {
+        case .auth(.invalid):
+            // Authentication failed - disconnect with rejected context to block automatic retries
+            HAGlobal.log(.error, "authentication failed with invalid token")
+            disconnect(
+                context: .rejected,
+                error: HAError.internal(debugDescription: "authentication failed, invalid token")
+            )
         case .auth:
-            // we send auth token pre-emptively, so we don't need to care about the messages for auth
+            // we send auth token pre-emptively, so we don't need to care about the other auth messages
             // note that we do watch for auth->command phase change so we can re-activate pending requests
             break
         case let .event(identifier: identifier, data: data):
@@ -79,7 +86,7 @@ extension HAConnectionImpl: HAResponseControllerDelegate {
         case let .disconnected(error, forReset: reset):
             if !reset {
                 // state will notify from this method call
-                disconnect(permanently: false, error: error)
+                disconnect(error: error)
             }
             requestController.resetActive()
         }

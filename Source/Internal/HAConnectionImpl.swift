@@ -55,6 +55,12 @@ internal class HAConnectionImpl: HAConnection {
         case noConnectionInfo
     }
 
+    internal enum DisconnectionContext {
+        case `default`
+        case permanently
+        case rejected
+    }
+
     let requestController: HARequestController
     let responseController: HAResponseController
     let reconnectManager: HAReconnectManager
@@ -113,12 +119,16 @@ internal class HAConnectionImpl: HAConnection {
 
     func disconnect() {
         performConnectionChange { [self] in
-            disconnect(permanently: true, error: nil)
+            disconnect(context: .permanently, error: nil)
         }
     }
 
     private func connectAutomaticallyIfNeeded() {
         guard connectAutomatically, case .disconnected = state else { return }
+        guard reconnectManager.reason != .rejected else {
+            HAGlobal.log(.info, "skipping auto-connect due to rejected connection")
+            return
+        }
         connect()
     }
 
@@ -133,8 +143,13 @@ internal class HAConnectionImpl: HAConnection {
     func connect(resettingState: Bool) {
         precondition(Thread.isMainThread)
 
+        guard reconnectManager.reason != .rejected else {
+            HAGlobal.log(.info, "blocking connect attempt due to rejected connection")
+            return
+        }
+
         guard let connectionInfo = configuration.connectionInfo() else {
-            disconnect(permanently: false, error: ConnectError.noConnectionInfo)
+            disconnect(error: ConnectError.noConnectionInfo)
             return
         }
 
@@ -168,19 +183,22 @@ internal class HAConnectionImpl: HAConnection {
         }
     }
 
-    func disconnect(permanently: Bool, error: Error?) {
+    func disconnect(context: DisconnectionContext = .default, error: Error?) {
         precondition(Thread.isMainThread)
 
-        HAGlobal.log(.info, "disconnecting; permanently: \(permanently), error: \(String(describing: error))")
+        HAGlobal.log(.info, "disconnecting; permanently: \(context), error: \(String(describing: error))")
 
         connection?.delegate = nil
         connection?.disconnect(closeCode: CloseCode.goingAway.rawValue)
         connection = nil
 
-        if permanently {
-            reconnectManager.didDisconnectPermanently()
-        } else {
+        switch context {
+        case .default:
             reconnectManager.didDisconnectTemporarily(error: error)
+        case .permanently:
+            reconnectManager.didDisconnectPermanently()
+        case .rejected:
+            reconnectManager.didDisconnectRejected()
         }
 
         notifyState()
@@ -437,7 +455,7 @@ extension HAConnectionImpl: HAReconnectManagerDelegate {
     }
 
     func reconnect(_ manager: HAReconnectManager, wantsDisconnectFor error: Error) {
-        disconnect(permanently: false, error: error)
+        disconnect(error: error)
     }
 
     func reconnectManager(
