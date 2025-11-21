@@ -63,6 +63,7 @@ internal class HAReconnectManagerImpl: HAReconnectManager {
         var retryCount: Int = 0
         var lastError: Error?
         var nextTimerDate: Date?
+        var isRejected: Bool = false
         @HASchedulingTimer var reconnectTimer: Timer? {
             didSet {
                 nextTimerDate = reconnectTimer?.fireDate
@@ -78,6 +79,7 @@ internal class HAReconnectManagerImpl: HAReconnectManager {
             reconnectTimer = nil
             lastError = nil
             retryCount = 0
+            isRejected = false
         }
     }
 
@@ -85,6 +87,10 @@ internal class HAReconnectManagerImpl: HAReconnectManager {
 
     var reason: HAConnectionState.DisconnectReason {
         state.read { state in
+            if state.isRejected {
+                return .rejected
+            }
+            
             guard let nextTimerDate = state.nextTimerDate else {
                 return .disconnected
             }
@@ -126,7 +132,10 @@ internal class HAReconnectManagerImpl: HAReconnectManager {
     }
     
     func didDisconnectRejected() {
-        reset()
+        state.mutate { state in
+            state.reset()
+            state.isRejected = true
+        }
     }
 
     func didFinishConnect() {
