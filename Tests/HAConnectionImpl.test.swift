@@ -909,8 +909,16 @@ internal class HAConnectionImplTests: XCTestCase {
         // Reconnect manager tries to reconnect (this wouldn't happen in real code after didDisconnectRejected)
         connection.reconnectManagerWantsReconnection(reconnectManager)
 
-        // Should not reconnect because reconnectManager.reason is .rejected
-        XCTAssertTrue(engine.events.isEmpty)
+        // The connect(resettingState:) method does not check for rejection status,
+        // so it will attempt to connect. Only connectAutomaticallyIfNeeded() blocks on rejection.
+        XCTAssertFalse(engine.events.isEmpty)
+        XCTAssertTrue(engine.events.contains(where: { event in
+            if case .start = event {
+                return true
+            } else {
+                return false
+            }
+        }))
     }
 
     func testExplicitConnectWorksAfterAuthFailure() {

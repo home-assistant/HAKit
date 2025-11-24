@@ -143,11 +143,6 @@ internal class HAConnectionImpl: HAConnection {
     func connect(resettingState: Bool) {
         precondition(Thread.isMainThread)
 
-        guard reconnectManager.reason != .rejected else {
-            HAGlobal.log(.info, "blocking connect attempt due to rejected connection")
-            return
-        }
-
         guard let connectionInfo = configuration.connectionInfo() else {
             disconnect(error: ConnectError.noConnectionInfo)
             return
