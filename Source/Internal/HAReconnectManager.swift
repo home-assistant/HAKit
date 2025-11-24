@@ -90,7 +90,7 @@ internal class HAReconnectManagerImpl: HAReconnectManager {
             if state.isRejected {
                 return .rejected
             }
-            
+
             guard let nextTimerDate = state.nextTimerDate else {
                 return .disconnected
             }
@@ -130,7 +130,7 @@ internal class HAReconnectManagerImpl: HAReconnectManager {
     func didDisconnectPermanently() {
         reset()
     }
-    
+
     func didDisconnectRejected() {
         state.mutate { state in
             state.reset()
