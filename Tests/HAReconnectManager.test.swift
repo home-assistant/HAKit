@@ -51,6 +51,19 @@ internal class HAReconnectManagerTests: XCTestCase {
         assertIdle(connected: false)
     }
 
+    func testConnectThenDisconnectRejected() {
+        reconnectManager.didStartInitialConnect()
+        assertIdle(connected: false)
+        reconnectManager.didDisconnectRejected()
+        
+        // Should be in rejected state
+        XCTAssertEqual(reconnectManager.reason, .rejected)
+        XCTAssertNil(reconnectManager.pingTimer)
+        XCTAssertNil(reconnectManager.reconnectTimer)
+        XCTAssertEqual(reconnectManager.retryCount, 0)
+        XCTAssertEqual(delegate.wantsReconnection, 0)
+    }
+
     func testConnectThenDisconnectTemporarilyWithError() {
         enum FakeError: Error {
             case error
