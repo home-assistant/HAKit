@@ -923,7 +923,7 @@ internal class HAConnectionImplTests: XCTestCase {
         // Verify rejected disconnect was called
         XCTAssertTrue(reconnectManager.didReject)
         XCTAssertEqual(reconnectManager.reason, .rejected)
-        
+
         engine.events.removeAll()
         reconnectManager.didStartInitial = false
         // Reset reason to simulate explicit connect resetting the state
@@ -1854,7 +1854,7 @@ private class FakeHAReconnectManager: HAReconnectManager {
         didPermanently = true
         reason = .disconnected
     }
-    
+
     var didReject = false
     func didDisconnectRejected() {
         didReject = true

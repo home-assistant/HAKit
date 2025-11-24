@@ -55,7 +55,7 @@ internal class HAReconnectManagerTests: XCTestCase {
         reconnectManager.didStartInitialConnect()
         assertIdle(connected: false)
         reconnectManager.didDisconnectRejected()
-        
+
         // Should be in rejected state
         XCTAssertEqual(reconnectManager.reason, .rejected)
         XCTAssertNil(reconnectManager.pingTimer)
