@@ -383,7 +383,8 @@ internal class HAConnectionImplTests: XCTestCase {
             switch reason {
             case let .waitingToReconnect(lastError: error, atLatest: _, retryCount: _):
                 XCTAssertEqual(FakeError.error as NSError?, error as NSError?)
-            case .disconnected: XCTFail("expected waiting to reconnect")
+            case .disconnected, .rejected:
+                XCTFail("expected waiting to reconnect")
             }
         case .connecting, .ready, .authenticating: XCTFail("expected disconnected")
         }
@@ -497,7 +498,8 @@ internal class HAConnectionImplTests: XCTestCase {
             switch reason {
             case let .waitingToReconnect(lastError: error, atLatest: _, retryCount: _):
                 XCTAssertEqual(FakeError.error as NSError?, error as NSError?)
-            case .disconnected: XCTFail("expected waiting to reconnect")
+            case .disconnected, .rejected:
+                XCTFail("expected waiting to reconnect")
             }
         case .connecting, .ready, .authenticating: XCTFail("expected disconnected")
         }
@@ -835,13 +837,112 @@ internal class HAConnectionImplTests: XCTestCase {
     func testResponseEventAuth() {
         connection.responseController(responseController, didReceive: .auth(.required))
         connection.responseController(responseController, didReceive: .auth(.ok(version: "")))
-        connection.responseController(responseController, didReceive: .auth(.invalid))
         XCTAssertTrue(engine.events.isEmpty)
         XCTAssertTrue(responseController.received.isEmpty)
         XCTAssertTrue(delegate.states.isEmpty)
         XCTAssertEqual(delegate.notifiedCount, 0)
         XCTAssertFalse(requestController.didPrepare)
         XCTAssertFalse(requestController.didResetActive)
+    }
+
+    func testResponseEventAuthInvalidDisconnectsPermanently() {
+        connection.connect()
+        waitForCallbackQueue()
+        XCTAssertEqual(delegate.states, [.connecting])
+        XCTAssertEqual(delegate.notifiedCount, 1)
+
+        engine.events.removeAll()
+
+        // Simulate receiving invalid auth response
+        connection.responseController(responseController, didReceive: .auth(.invalid))
+        waitForCallbackQueue()
+
+        // Should disconnect with rejected reason (via .rejected context)
+        XCTAssertTrue(engine.events.contains(.stop(CloseCode.goingAway.rawValue)))
+        XCTAssertTrue(reconnectManager.didReject)
+        XCTAssertFalse(reconnectManager.didTemporarily)
+
+        // Should be in disconnected state with rejected reason
+        XCTAssertEqual(connection.state, .disconnected(reason: .rejected))
+        XCTAssertEqual(delegate.states.last, .disconnected(reason: .rejected))
+        XCTAssertEqual(delegate.notifiedCount, 2)
+    }
+
+    func testAuthenticationFailureBlocksAutomaticReconnect() {
+        connection.connectAutomatically = true
+
+        // Simulate full auth failure scenario
+        connection.connect()
+        waitForCallbackQueue()
+        connection.responseController(responseController, didReceive: .auth(.invalid))
+        waitForCallbackQueue()
+
+        // Verify rejected disconnect was called (which prevents automatic retries)
+        XCTAssertTrue(reconnectManager.didReject)
+        XCTAssertFalse(reconnectManager.didTemporarily)
+        XCTAssertEqual(reconnectManager.reason, .rejected)
+
+        engine.events.removeAll()
+
+        // Try to trigger automatic reconnect via send
+        connection.send(.init(type: "test", data: [:]), completion: { _ in })
+
+        // Should not have attempted to connect because reconnectManager.reason is .rejected
+        XCTAssertTrue(engine.events.isEmpty)
+    }
+
+    func testAuthenticationFailureBlocksReconnectManagerRetries() {
+        connection.connectAutomatically = true
+
+        // Simulate auth failure
+        connection.connect()
+        waitForCallbackQueue()
+        connection.responseController(responseController, didReceive: .auth(.invalid))
+        waitForCallbackQueue()
+
+        // Verify rejected disconnect was called
+        XCTAssertTrue(reconnectManager.didReject)
+        XCTAssertEqual(reconnectManager.reason, .rejected)
+
+        engine.events.removeAll()
+
+        // Reconnect manager tries to reconnect (this wouldn't happen in real code after didDisconnectRejected)
+        connection.reconnectManagerWantsReconnection(reconnectManager)
+
+        // The connect(resettingState:) method does not check for rejection status,
+        // so it will attempt to connect. Only connectAutomaticallyIfNeeded() blocks on rejection.
+        XCTAssertFalse(engine.events.isEmpty)
+        XCTAssertTrue(engine.events.contains(where: { event in
+            if case .start = event {
+                return true
+            } else {
+                return false
+            }
+        }))
+    }
+
+    func testExplicitConnectWorksAfterAuthFailure() {
+        // Simulate auth failure
+        connection.connect()
+        waitForCallbackQueue()
+        connection.responseController(responseController, didReceive: .auth(.invalid))
+        waitForCallbackQueue()
+
+        // Verify rejected disconnect was called
+        XCTAssertTrue(reconnectManager.didReject)
+        XCTAssertEqual(reconnectManager.reason, .rejected)
+
+        engine.events.removeAll()
+        reconnectManager.didStartInitial = false
+        // Reset reason to simulate explicit connect resetting the state
+        reconnectManager.reason = .disconnected
+
+        // Explicitly call connect - this should work despite rejection
+        connection.connect()
+
+        // Should reset state and attempt connection
+        XCTAssertTrue(reconnectManager.didStartInitial)
+        XCTAssertFalse(engine.events.isEmpty)
     }
 
     func testResponseResultNoSingleOrSubscription() {
@@ -1760,6 +1861,12 @@ private class FakeHAReconnectManager: HAReconnectManager {
     func didDisconnectPermanently() {
         didPermanently = true
         reason = .disconnected
+    }
+
+    var didReject = false
+    func didDisconnectRejected() {
+        didReject = true
+        reason = .rejected
     }
 
     var didTemporarily = false

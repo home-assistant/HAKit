@@ -24,6 +24,7 @@ public enum HAConnectionState: Equatable {
         public static func == (lhs: DisconnectReason, rhs: DisconnectReason) -> Bool {
             switch (lhs, rhs) {
             case (.disconnected, .disconnected): return true
+            case (.rejected, .rejected): return true
             case let (
                 .waitingToReconnect(lhsError, lhsDate, lhsRetry),
                 .waitingToReconnect(rhsError, rhsDate, rhsRetry)
@@ -38,6 +39,9 @@ public enum HAConnectionState: Equatable {
         /// Disconnected and not going to automatically reconnect
         /// This can either be the initial state or after `disconnect()` is called
         case disconnected
+        /// Connection was rejected (e.g., authentication failed)
+        /// Will not reconnect automatically or through reconnect manager until `connect()` is explicitly called
+        case rejected
         /// Waiting to reconnect, either by timer (with given Date) or network state changes
         case waitingToReconnect(lastError: Error?, atLatest: Date, retryCount: Int)
     }
