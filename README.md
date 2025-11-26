@@ -220,7 +220,7 @@ To add it to an Xcode project, you can do this by adding the URL to File > Swift
 Add the following line to your Podfile:
 
 ```ruby
-pod "HAKit", "~> 0.4.7"
+pod "HAKit", "~> 0.4.8"
 # We are working from a fork of Starscream due to a necessary fix, please specify in your podfile
 pod 'Starscream', git: 'https://github.com/bgoncal/starscream', branch: 'ha-URLSession-fix'
 # pod "HAKit/PromiseKit" # optional, for PromiseKit support
