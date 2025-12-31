@@ -2,19 +2,27 @@ import Foundation
 
 extension HAEntity {
     mutating func update(from state: HACompressedEntityState) {
-        self.state = state.state
+        if let newState = state.state {
+            self.state = newState
+        }
         lastChanged = state.lastChanged ?? lastChanged
         lastUpdated = state.lastUpdated ?? lastUpdated
         attributes.dictionary = state.attributes ?? attributes.dictionary
-        context = .init(id: state.context ?? "", userId: nil, parentId: nil)
+        if let contextId = state.context {
+            context = .init(id: contextId, userId: nil, parentId: nil)
+        }
     }
 
     mutating func add(_ state: HACompressedEntityState) {
-        self.state = state.state
+        if let newState = state.state {
+            self.state = newState
+        }
         lastChanged = state.lastChanged ?? lastChanged
         lastUpdated = state.lastUpdated ?? lastUpdated
-        attributes.dictionary.merge(state.attributes ?? [:]) { current, _ in current }
-        context = .init(id: state.context ?? "", userId: nil, parentId: nil)
+        attributes.dictionary.merge(state.attributes ?? [:]) { _, new in new }
+        if let contextId = state.context {
+            context = .init(id: contextId, userId: nil, parentId: nil)
+        }
     }
 
     mutating func subtract(_ state: HACompressedEntityStateRemove) {
