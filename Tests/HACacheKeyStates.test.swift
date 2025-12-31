@@ -542,7 +542,7 @@ internal final class HACacheKeyStates_test: XCTestCase {
         XCTAssertEqual(updatedSensor.state, "21.8")
         XCTAssertEqual(updatedSensor.lastUpdated, Date(timeIntervalSince1970: 1_767_121_353.5))
         XCTAssertEqual(updatedSensor.context.id, "02")
-        XCTAssertEqual(updatedSensor.attributes["last_updated_timestamp"] as? Int, 1767121353)
+        XCTAssertEqual(updatedSensor.attributes["last_updated_timestamp"] as? Int, 1_767_121_353)
 
         // Verify original sensor attributes preserved
         XCTAssertEqual(updatedSensor.attributes["unit_of_measurement"] as? String, "°C")

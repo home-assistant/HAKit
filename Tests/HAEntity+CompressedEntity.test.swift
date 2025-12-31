@@ -269,7 +269,7 @@ internal final class HAEntity_CompressedEntity_test: XCTestCase {
         )
 
         XCTAssertEqual(entity.state, "21.2")
-        XCTAssertEqual(entity.attributes["last_updated_timestamp"] as? Int, 1767121353)
+        XCTAssertEqual(entity.attributes["last_updated_timestamp"] as? Int, 1_767_121_353)
         // All original attributes should still be there
         XCTAssertEqual(entity.attributes["unit_of_measurement"] as? String, "°C")
         XCTAssertEqual(entity.attributes["device_class"] as? String, "temperature")
@@ -300,7 +300,7 @@ internal final class HAEntity_CompressedEntity_test: XCTestCase {
         XCTAssertEqual(entity.state, "22.8")
         XCTAssertEqual(entity.attributes["battery_level"] as? Int, 85)
         // Previous added attribute should still be there
-        XCTAssertEqual(entity.attributes["last_updated_timestamp"] as? Int, 1767121353)
+        XCTAssertEqual(entity.attributes["last_updated_timestamp"] as? Int, 1_767_121_353)
         // All original attributes should STILL be there
         XCTAssertEqual(entity.attributes["unit_of_measurement"] as? String, "°C")
         XCTAssertEqual(entity.attributes["device_class"] as? String, "temperature")
