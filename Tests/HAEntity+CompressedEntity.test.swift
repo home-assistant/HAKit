@@ -688,7 +688,7 @@ internal final class HAEntity_CompressedEntity_test: XCTestCase {
 
         // Attempting to convert to HAEntity should throw an error
         XCTAssertThrowsError(try compressedState.asEntity(entityId: "light.test")) { error in
-            guard case HADataError.couldntTransform(let key) = error else {
+            guard case let HADataError.couldntTransform(key) = error else {
                 XCTFail("Expected HADataError.couldntTransform but got \(error)")
                 return
             }
