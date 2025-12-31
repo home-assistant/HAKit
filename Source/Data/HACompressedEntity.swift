@@ -13,14 +13,14 @@ public struct HACompressedStatesUpdates: HADataDecodable {
 }
 
 public struct HACompressedEntityState: HADataDecodable {
-    public var state: String
+    public var state: String?
     public var attributes: [String: Any]?
     public var context: String?
     public var lastChanged: Date?
     public var lastUpdated: Date?
 
     public init(data: HAData) throws {
-        self.state = try data.decode("s")
+        self.state = try? data.decode("s")
         self.attributes = try? data.decode("a")
         self.context = try? data.decode("c")
         self.lastChanged = try? data.decode("lc")
@@ -28,7 +28,10 @@ public struct HACompressedEntityState: HADataDecodable {
     }
 
     func asEntity(entityId: String) throws -> HAEntity {
-        try HAEntity(
+        guard let state else {
+            throw HADataError.couldntTransform(key: "s")
+        }
+        return try HAEntity(
             entityId: entityId,
             state: state,
             lastChanged: lastChanged ?? Date(),
