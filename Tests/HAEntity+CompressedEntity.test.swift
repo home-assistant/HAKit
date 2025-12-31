@@ -665,4 +665,34 @@ internal final class HAEntity_CompressedEntity_test: XCTestCase {
         XCTAssertEqual(entity.attributes["preset_mode"] as? String, "home")
         XCTAssertEqual(entity.attributes["friendly_name"] as? String, "Living Room Thermostat")
     }
+
+    func testAsEntityThrowsErrorWhenStateIsNil() throws {
+        // Create a HACompressedEntityState without a state field
+        let compressedState = try HACompressedEntityState(
+            data: HAData(
+                testJsonString:
+                """
+                {
+                    "a": {
+                        "friendly_name": "Test Entity"
+                    },
+                    "c": "01HPMC69D08CHCWQ76GC69BD3G",
+                    "lu": 1707933377.952297
+                }
+                """
+            )
+        )
+
+        // Verify that state is nil
+        XCTAssertNil(compressedState.state)
+
+        // Attempting to convert to HAEntity should throw an error
+        XCTAssertThrowsError(try compressedState.asEntity(entityId: "light.test")) { error in
+            guard case HADataError.couldntTransform(let key) = error else {
+                XCTFail("Expected HADataError.couldntTransform but got \(error)")
+                return
+            }
+            XCTAssertEqual(key, "s")
+        }
+    }
 }
