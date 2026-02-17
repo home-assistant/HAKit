@@ -34,7 +34,7 @@ internal class HAConnectionInfoTests: XCTestCase {
         let engine1 = FakeEngine()
         let engine2 = FakeEngine()
 
-        let connectionInfo = try HAConnectionInfo(url: url, userAgent: nil, evaluateCertificate: nil, engine: engine1)
+        let connectionInfo = try HAConnectionInfo(url: url, userAgent: nil, evaluateCertificate: nil, clientIdentity: nil, engine: engine1)
         XCTAssertEqual(connectionInfo.url, url)
         XCTAssertEqual(ObjectIdentifier(connectionInfo.engine as AnyObject), ObjectIdentifier(engine1))
 
@@ -53,6 +53,7 @@ internal class HAConnectionInfoTests: XCTestCase {
             url: url,
             userAgent: nil,
             evaluateCertificate: nil,
+            clientIdentity: nil,
             engine: engine2
         )
         XCTAssertFalse(connectionInfoWithDifferentEngine.shouldReplace(webSocket))
@@ -197,8 +198,8 @@ internal class HAConnectionInfoTests: XCTestCase {
         let url2 = URL(string: "http://example.com/2")!
         let engine = FakeEngine()
 
-        let connectionInfo1 = try HAConnectionInfo(url: url1, userAgent: nil, evaluateCertificate: nil, engine: engine)
-        let connectionInfo2 = try HAConnectionInfo(url: url2, userAgent: nil, evaluateCertificate: nil, engine: engine)
+        let connectionInfo1 = try HAConnectionInfo(url: url1, userAgent: nil, evaluateCertificate: nil, clientIdentity: nil, engine: engine)
+        let connectionInfo2 = try HAConnectionInfo(url: url2, userAgent: nil, evaluateCertificate: nil, clientIdentity: nil, engine: engine)
 
         let webSocket1 = connectionInfo1.webSocket()
         XCTAssertFalse(connectionInfo1.shouldReplace(webSocket1))
@@ -222,4 +223,84 @@ internal class HAConnectionInfoTests: XCTestCase {
             XCTAssertEqual(connectionInfo.url, expected)
         }
     }
+
+    #if !os(watchOS)
+    func testCreationWithClientIdentity() throws {
+        let url = URL(string: "http://example.com/with_client_identity")!
+        var identityCalled = false
+
+        let connectionInfo = try HAConnectionInfo(
+            url: url,
+            userAgent: "TestAgent",
+            evaluateCertificate: nil,
+            clientIdentity: {
+                identityCalled = true
+                return nil
+            }
+        )
+
+        XCTAssertEqual(connectionInfo.url, url)
+        XCTAssertEqual(connectionInfo.userAgent, "TestAgent")
+        XCTAssertNotNil(connectionInfo.clientIdentity)
+
+        // Creating the webSocket should use the clientIdentity path
+        let webSocket = connectionInfo.webSocket()
+        XCTAssertEqual(webSocket.request.url, url.appendingPathComponent("api/websocket"))
+        XCTAssertEqual(webSocket.request.value(forHTTPHeaderField: "User-Agent"), "TestAgent")
+    }
+
+    func testCreationWithClientIdentityAndCertificateEvaluation() throws {
+        let url = URL(string: "http://example.com/with_client_identity_and_cert")!
+        var identityCalled = false
+        var certEvalCalled = false
+
+        let connectionInfo = try HAConnectionInfo(
+            url: url,
+            userAgent: nil,
+            evaluateCertificate: { _, completion in
+                certEvalCalled = true
+                completion(.success(()))
+            },
+            clientIdentity: {
+                identityCalled = true
+                return nil
+            }
+        )
+
+        XCTAssertEqual(connectionInfo.url, url)
+        XCTAssertNotNil(connectionInfo.clientIdentity)
+        XCTAssertNotNil(connectionInfo.evaluateCertificate)
+
+        // Creating the webSocket should use the clientIdentity path with cert evaluation
+        let webSocket = connectionInfo.webSocket()
+        XCTAssertEqual(webSocket.request.url, url.appendingPathComponent("api/websocket"))
+    }
+
+    func testCreationWithClientIdentityInternalInit() throws {
+        let url = URL(string: "http://example.com/with_client_identity_internal")!
+        let engine = FakeEngine()
+        var identityCalled = false
+
+        let connectionInfo = try HAConnectionInfo(
+            url: url,
+            userAgent: "TestAgent",
+            evaluateCertificate: nil,
+            clientIdentity: {
+                identityCalled = true
+                return nil
+            },
+            engine: engine
+        )
+
+        XCTAssertEqual(connectionInfo.url, url)
+        XCTAssertEqual(connectionInfo.userAgent, "TestAgent")
+        XCTAssertNotNil(connectionInfo.clientIdentity)
+        XCTAssertNotNil(connectionInfo.engine)
+
+        // When engine is provided, it should be used instead of clientIdentity path
+        let webSocket = connectionInfo.webSocket()
+        webSocket.write(string: "test")
+        XCTAssertTrue(engine.events.contains(.writeString("test")))
+    }
+    #endif
 }
