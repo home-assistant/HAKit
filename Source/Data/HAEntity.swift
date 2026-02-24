@@ -90,16 +90,24 @@ public struct HAEntity: HADataDecodable, Hashable {
 /// The attributes of the entity's state
 public struct HAEntityAttributes {
     /// Convenience access to values inside of the dictionary
-    public subscript(key: String) -> Any? { dictionary[key] }
+    public subscript(key: String) -> Any? {
+        dictionary[key]
+    }
+
     /// A dictionary representation of the attributes
     /// This contains all keys and values received, including those not parsed or handled otherwise
     public var dictionary: [String: Any]
 
     /// The display name for the entity, from the `friendly_name` attribute
-    public var friendlyName: String? { self["friendly_name"] as? String }
+    public var friendlyName: String? {
+        self["friendly_name"] as? String
+    }
+
     /// The icon of the entity, from the `icon` attribute
     /// This will be in the format `type:name`, e.g. `mdi:map` or `hass:line`
-    public var icon: String? { self["icon"] as? String }
+    public var icon: String? {
+        self["icon"] as? String
+    }
 
     /// For a zone-type entity, this contains parsed attributes specific to the zone
     public var zone: HAEntityAttributesZone?

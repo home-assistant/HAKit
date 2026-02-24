@@ -238,7 +238,7 @@ internal class HAReconnectManagerImpl: HAReconnectManager {
     }
 }
 
-// for tests
+/// for tests
 extension HAReconnectManagerImpl {
     var reconnectTimer: Timer? {
         state.read(\.reconnectTimer)

@@ -157,7 +157,7 @@ internal class HACacheTests: XCTestCase {
         XCTAssertEqual(cache.map(\.uuid).value, expected.uuid)
     }
 
-    func testSubscribingAfterConnectionGoesAway() throws {
+    func testSubscribingAfterConnectionGoesAway() {
         cache.connection = nil
         _ = cache.subscribe { _, _ in
         }
@@ -166,7 +166,7 @@ internal class HACacheTests: XCTestCase {
         XCTAssertEqual(populateCount, 0)
     }
 
-    func testSubscribingConnectsImmediately() throws {
+    func testSubscribingConnectsImmediately() {
         _ = cache.subscribe { _, _ in
             XCTFail("should not have invoked subscribe at all")
         }
@@ -180,7 +180,7 @@ internal class HACacheTests: XCTestCase {
         XCTAssertNil(subscribePerform)
     }
 
-    func testSubscribingWhenConnectionDisconnectedCausesConnect() throws {
+    func testSubscribingWhenConnectionDisconnectedCausesConnect() {
         // this tests that subscribing doesn't case us to re-enter our locked state
         connection.automaticallyTransitionToConnecting = true
 
@@ -217,7 +217,7 @@ internal class HACacheTests: XCTestCase {
         XCTAssertNil(subscribePerform)
     }
 
-    func testResetWithoutSubscribersDisconnects() throws {
+    func testResetWithoutSubscribersDisconnects() {
         cache.shouldResetWithoutSubscribers = true
 
         let handlerToken = cache.subscribe { _, _ in
@@ -232,7 +232,7 @@ internal class HACacheTests: XCTestCase {
         XCTAssertFalse(subscribeCancellableInvoked)
     }
 
-    func testResetWithoutSubscribersChangedLaterDisconnects() throws {
+    func testResetWithoutSubscribersChangedLaterDisconnects() {
         let handlerToken = cache.subscribe { _, _ in
             XCTFail("should not have invoked subscribe at all")
         }
@@ -395,7 +395,7 @@ internal class HACacheTests: XCTestCase {
         XCTAssertEqual(handlerValues2, values)
     }
 
-    func testDoesntReissuePopulateOnReconnect() throws {
+    func testDoesntReissuePopulateOnReconnect() {
         _ = cache.subscribe { _, _ in }
 
         XCTAssertNotNil(populatePerform)
@@ -776,7 +776,4 @@ internal class HACacheTests: XCTestCase {
 
 private struct CacheItem: Equatable {
     let uuid = UUID()
-    static func == (lhs: CacheItem, rhs: CacheItem) -> Bool {
-        lhs.uuid == rhs.uuid
-    }
 }

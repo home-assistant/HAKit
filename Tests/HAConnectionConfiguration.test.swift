@@ -11,8 +11,8 @@ internal class HAConnectionConfigurationTests: XCTestCase {
     }
 
     func testConnectionInfo() throws {
-        let url1 = URL(string: "http://example.com/1")!
-        let url2 = URL(string: "http://example.com/2")!
+        let url1 = try XCTUnwrap(URL(string: "http://example.com/1"))
+        let url2 = try XCTUnwrap(URL(string: "http://example.com/2"))
 
         var configuration = HAConnectionConfiguration(
             connectionInfo: { try? .init(url: url1) },
@@ -25,7 +25,7 @@ internal class HAConnectionConfigurationTests: XCTestCase {
         try XCTAssertEqual(XCTUnwrap(configuration.connectionInfo()).url, url2)
     }
 
-    func testFetchAuthToken() throws {
+    func testFetchAuthToken() {
         enum TestError: Error {
             case test
         }

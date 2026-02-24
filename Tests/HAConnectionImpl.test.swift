@@ -57,7 +57,13 @@ internal class HAConnectionImplTests: XCTestCase {
         connection = .init(
             configuration: .init(connectionInfo: { [weak self] in
                 if let url = self?.url, let engine = self?.engine {
-                    return try? .init(url: url, userAgent: nil, evaluateCertificate: nil, engine: engine)
+                    return try? .init(
+                        url: url,
+                        userAgent: nil,
+                        evaluateCertificate: nil,
+                        clientIdentity: nil,
+                        engine: engine
+                    )
                 } else {
                     XCTAssertNotNil(self?.engine, "invoked after deallocated")
                     return nil
@@ -221,7 +227,7 @@ internal class HAConnectionImplTests: XCTestCase {
         XCTAssertFalse(reconnectManager.didTemporarily)
     }
 
-    func testConnectionConnectDisconnectOffThread() throws {
+    func testConnectionConnectDisconnectOffThread() {
         XCTAssertTrue(engine.events.isEmpty)
         XCTAssertFalse(reconnectManager.didStartInitial)
 
@@ -334,7 +340,7 @@ internal class HAConnectionImplTests: XCTestCase {
         XCTAssertEqual(delegate.notifiedCount, 2)
     }
 
-    func testDisconnectedTemporarilyWithoutError() throws {
+    func testDisconnectedTemporarilyWithoutError() {
         connection.connect()
         waitForCallbackQueue()
         XCTAssertEqual(delegate.states, [.connecting])
@@ -362,7 +368,7 @@ internal class HAConnectionImplTests: XCTestCase {
         }
     }
 
-    func testDisconnectedTemporarilyWithError() throws {
+    func testDisconnectedTemporarilyWithError() {
         enum FakeError: Error {
             case error
         }
@@ -390,7 +396,7 @@ internal class HAConnectionImplTests: XCTestCase {
         }
     }
 
-    func testDisconnectedForReset() throws {
+    func testDisconnectedForReset() {
         enum FakeError: Error {
             case error
         }
@@ -505,7 +511,7 @@ internal class HAConnectionImplTests: XCTestCase {
         }
     }
 
-    func testAutomaticConnection() throws {
+    func testAutomaticConnection() {
         XCTAssertTrue(engine.events.isEmpty)
 
         connection.connectAutomatically = false
@@ -1558,7 +1564,7 @@ internal class HAConnectionImplTests: XCTestCase {
         }
     }
 
-    func testCachesContainerExists() throws {
+    func testCachesContainerExists() {
         let container = connection.caches
         XCTAssertEqual(ObjectIdentifier(container.connection), ObjectIdentifier(connection))
     }

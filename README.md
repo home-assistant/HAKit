@@ -33,6 +33,67 @@ You may further configure other attributes of this connection, such as `callback
 
 Once you invoke `.connect()` (or it is invoked automatically) and until you invoke `.disconnect()` the connection will try to stay connected by attempting to reconnect when network status changes and after a retry period following disconnection.
 
+## mTLS (Client Certificate Authentication)
+
+> **Note**: This feature is experimental and not available on watchOS.
+
+If your Home Assistant instance is behind a reverse proxy that requires client certificate authentication (mutual TLS / mTLS), you can provide a `clientIdentity` when creating the connection info:
+
+```swift
+let connection = HAKit.connection(configuration: .init(
+  connectionInfo: {
+    try! .init(
+      url: URL(string: "https://homeassistant.example.com")!,
+      clientIdentity: {
+        // Return your SecIdentity containing the client certificate and private key
+        // This is typically loaded from a .p12 file stored in the Keychain
+        return loadClientIdentityFromKeychain()
+      }
+    )
+  },
+  fetchAuthToken: { completion in
+    completion(.success("API_Token_Here"))
+  }
+))
+```
+
+### Loading a client identity from a .p12 file
+
+```swift
+func loadClientIdentity(from p12Data: Data, password: String) -> SecIdentity? {
+    var importResult: CFArray?
+    let options = [kSecImportExportPassphrase: password] as CFDictionary
+    
+    let status = SecPKCS12Import(p12Data as CFData, options, &importResult)
+    guard status == errSecSuccess,
+          let items = importResult as? [[String: Any]],
+          let firstItem = items.first,
+          let identity = firstItem[kSecImportItemIdentity as String] as? SecIdentity else {
+        return nil
+    }
+    
+    return identity
+}
+```
+
+### Combining with certificate evaluation
+
+You can also combine `clientIdentity` with `evaluateCertificate` for custom server certificate validation (e.g., self-signed certificates):
+
+```swift
+try .init(
+  url: URL(string: "https://homeassistant.example.com")!,
+  evaluateCertificate: { secTrust, completion in
+    // Custom certificate validation logic
+    // Call completion(.success(())) to accept or completion(.failure(error)) to reject
+    completion(.success(()))
+  },
+  clientIdentity: {
+    return loadClientIdentityFromKeychain()
+  }
+)
+```
+
 ## Logging
 
 You can enable logging of the library by configuring `HAGlobal`:

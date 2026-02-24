@@ -92,8 +92,9 @@ internal class HAEntityTests: XCTestCase {
         XCTAssertNil(entity.context.parentId)
         XCTAssertNil(entity.context.userId)
 
+        let utcTimeZone = try XCTUnwrap(TimeZone(identifier: "UTC"))
         let changed = Calendar.current.dateComponents(
-            in: TimeZone(identifier: "UTC")!,
+            in: utcTimeZone,
             from: entity.lastChanged
         )
         XCTAssertEqual(changed.year, 2021)
@@ -105,7 +106,7 @@ internal class HAEntityTests: XCTestCase {
         XCTAssertEqual(changed.nanosecond ?? -1, 625_000_000, accuracy: 100_000)
 
         let updated = Calendar.current.dateComponents(
-            in: TimeZone(identifier: "UTC")!,
+            in: utcTimeZone,
             from: entity.lastUpdated
         )
         XCTAssertEqual(updated.year, 2021)
@@ -153,8 +154,9 @@ internal class HAEntityTests: XCTestCase {
         XCTAssertEqual(zoneAttributes.longitude, -122.3939609527588, accuracy: 0.0000001)
         XCTAssertEqual(zoneAttributes.radius.converted(to: .meters).value, 50.0, accuracy: 0.000001)
 
+        let utcTimeZone = try XCTUnwrap(TimeZone(identifier: "UTC"))
         let changed = Calendar.current.dateComponents(
-            in: TimeZone(identifier: "UTC")!,
+            in: utcTimeZone,
             from: entity.lastChanged
         )
         XCTAssertEqual(changed.year, 2021)
@@ -166,7 +168,7 @@ internal class HAEntityTests: XCTestCase {
         XCTAssertEqual(changed.nanosecond ?? -1, 997_000_000, accuracy: 100_000)
 
         let updated = Calendar.current.dateComponents(
-            in: TimeZone(identifier: "UTC")!,
+            in: utcTimeZone,
             from: entity.lastUpdated
         )
         XCTAssertEqual(updated, changed)

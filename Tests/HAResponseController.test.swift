@@ -113,7 +113,7 @@ internal class HAResponseControllerTests: XCTestCase {
         fireDisconnected()
     }
 
-    func testInvalidText() throws {
+    func testInvalidText() {
         fireConnected()
 
         controller.didReceive(event: .text("{"))
@@ -141,7 +141,7 @@ internal class HAResponseControllerTests: XCTestCase {
         )
     }
 
-    func testRestResponseFailure() throws {
+    func testRestResponseFailure() {
         enum FakeError: Error {
             case error
         }
@@ -153,9 +153,10 @@ internal class HAResponseControllerTests: XCTestCase {
     }
 
     func testRestResponse4xx() throws {
+        let responseURL = try XCTUnwrap(URL(string: "http://example.com"))
         let response =
             try XCTUnwrap(HTTPURLResponse(
-                url: URL(string: "http://example.com")!,
+                url: responseURL,
                 statusCode: 401,
                 httpVersion: nil,
                 headerFields: nil
@@ -178,30 +179,31 @@ internal class HAResponseControllerTests: XCTestCase {
     }
 
     func testRestResponseSuccess() throws {
+        let successURL = try XCTUnwrap(URL(string: "http://example.com"))
         let responseJSON =
             try XCTUnwrap(HTTPURLResponse(
-                url: URL(string: "http://example.com")!,
+                url: successURL,
                 statusCode: 200,
                 httpVersion: nil,
                 headerFields: ["Content-Type": "application/json"]
             ))
         let responseString =
             try XCTUnwrap(HTTPURLResponse(
-                url: URL(string: "http://example.com")!,
+                url: successURL,
                 statusCode: 200,
                 httpVersion: nil,
                 headerFields: ["Content-Type": "application/octet-stream"]
             ))
         let responseNoHeader =
             try XCTUnwrap(HTTPURLResponse(
-                url: URL(string: "http://example.com")!,
+                url: successURL,
                 statusCode: 200,
                 httpVersion: nil,
                 headerFields: nil
             ))
         let responseJSONWithCharset =
             try XCTUnwrap(HTTPURLResponse(
-                url: URL(string: "http://example.com")!,
+                url: successURL,
                 statusCode: 200,
                 httpVersion: nil,
                 headerFields: ["Content-Type": "application/json; charset=utf-8"]

@@ -373,7 +373,7 @@ internal class HARequestControllerTests: XCTestCase {
 
     // MARK: - Retry Timeout Tests
 
-    func testResetActiveWithMaximumDateNotReached() throws {
+    func testResetActiveWithMaximumDateNotReached() {
         let startDate = Date(timeIntervalSince1970: 1000)
         HAGlobal.date = { startDate }
 
@@ -404,7 +404,7 @@ internal class HARequestControllerTests: XCTestCase {
         XCTAssertEqual(types, Set(["test1"]))
     }
 
-    func testResetActiveWithMaximumDatePassed() throws {
+    func testResetActiveWithMaximumDatePassed() {
         let startDate = Date(timeIntervalSince1970: 1000)
         HAGlobal.date = { startDate }
 
@@ -432,7 +432,7 @@ internal class HARequestControllerTests: XCTestCase {
         XCTAssertEqual(delegate.didPrepare.count, 0)
     }
 
-    func testResetActiveWithMixedMaximumDates() throws {
+    func testResetActiveWithMixedMaximumDates() {
         let startDate = Date(timeIntervalSince1970: 1000)
         HAGlobal.date = { startDate }
 
@@ -478,7 +478,7 @@ internal class HARequestControllerTests: XCTestCase {
         XCTAssertEqual(types, Set(["test2", "test3"]))
     }
 
-    func testResetActiveWithNoMaximumDateNeverExpires() throws {
+    func testResetActiveWithNoMaximumDateNeverExpires() {
         let startDate = Date(timeIntervalSince1970: 1000)
         HAGlobal.date = { startDate }
 
@@ -506,7 +506,7 @@ internal class HARequestControllerTests: XCTestCase {
         XCTAssertEqual(delegate.didPrepare.count, 1)
     }
 
-    func testResetActiveWithShouldRetryFalseAndMaximumDatePassed() throws {
+    func testResetActiveWithShouldRetryFalseAndMaximumDatePassed() {
         let startDate = Date(timeIntervalSince1970: 1000)
         HAGlobal.date = { startDate }
 
@@ -539,7 +539,7 @@ internal class HARequestControllerTests: XCTestCase {
         XCTAssertEqual(delegate.didPrepare.count, 0)
     }
 
-    func testResetActiveSubscriptionWithMaximumDate() throws {
+    func testResetActiveSubscriptionWithMaximumDate() {
         let startDate = Date(timeIntervalSince1970: 1000)
         HAGlobal.date = { startDate }
 
@@ -568,7 +568,7 @@ internal class HARequestControllerTests: XCTestCase {
         XCTAssertEqual(delegate.didPrepare.count, 0)
     }
 
-    func testResetActiveDefaultMaximumDateOfTenSeconds() throws {
+    func testResetActiveDefaultMaximumDateOfTenSeconds() {
         let startDate = Date(timeIntervalSince1970: 1000)
         HAGlobal.date = { startDate }
 
@@ -602,7 +602,7 @@ internal class HARequestControllerTests: XCTestCase {
         XCTAssertEqual(delegate.didPrepare.count, 0)
     }
 
-    func testResetActiveWithDifferentUnits() throws {
+    func testResetActiveWithDifferentUnits() {
         let startDate = Date(timeIntervalSince1970: 1000)
         HAGlobal.date = { startDate }
 

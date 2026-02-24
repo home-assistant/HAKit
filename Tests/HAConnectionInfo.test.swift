@@ -4,8 +4,8 @@ import XCTest
 
 internal class HAConnectionInfoTests: XCTestCase {
     func testCreation() throws {
-        let url1 = URL(string: "http://example.com")!
-        let url2 = URL(string: "http://example.com/2")!
+        let url1 = try XCTUnwrap(URL(string: "http://example.com"))
+        let url2 = try XCTUnwrap(URL(string: "http://example.com/2"))
 
         let connectionInfo1 = try HAConnectionInfo(url: url1)
         XCTAssertEqual(connectionInfo1.url, url1)
@@ -30,11 +30,17 @@ internal class HAConnectionInfoTests: XCTestCase {
     }
 
     func testCreationWithEngine() throws {
-        let url = URL(string: "http://example.com/with_engine")!
+        let url = try XCTUnwrap(URL(string: "http://example.com/with_engine"))
         let engine1 = FakeEngine()
         let engine2 = FakeEngine()
 
-        let connectionInfo = try HAConnectionInfo(url: url, userAgent: nil, evaluateCertificate: nil, engine: engine1)
+        let connectionInfo = try HAConnectionInfo(
+            url: url,
+            userAgent: nil,
+            evaluateCertificate: nil,
+            clientIdentity: nil,
+            engine: engine1
+        )
         XCTAssertEqual(connectionInfo.url, url)
         XCTAssertEqual(ObjectIdentifier(connectionInfo.engine as AnyObject), ObjectIdentifier(engine1))
 
@@ -53,13 +59,14 @@ internal class HAConnectionInfoTests: XCTestCase {
             url: url,
             userAgent: nil,
             evaluateCertificate: nil,
+            clientIdentity: nil,
             engine: engine2
         )
         XCTAssertFalse(connectionInfoWithDifferentEngine.shouldReplace(webSocket))
     }
 
     func testCreationWithUserAgent() throws {
-        let url = URL(string: "http://example.com/with_user_agent")!
+        let url = try XCTUnwrap(URL(string: "http://example.com/with_user_agent"))
         let userAgent = "SomeAgent/1.0"
 
         let connectionInfo = try HAConnectionInfo(url: url, userAgent: userAgent)
@@ -72,9 +79,9 @@ internal class HAConnectionInfoTests: XCTestCase {
     }
 
     func testCreationWithNonstandardPort() throws {
-        let url1 = URL(string: "http://example.com:12345/with_porty_host")!
-        let url2 = URL(string: "http://example.com:80/with_porty_host")!
-        let url3 = URL(string: "https://example.com:443/with_porty_host")!
+        let url1 = try XCTUnwrap(URL(string: "http://example.com:12345/with_porty_host"))
+        let url2 = try XCTUnwrap(URL(string: "http://example.com:80/with_porty_host"))
+        let url3 = try XCTUnwrap(URL(string: "https://example.com:443/with_porty_host"))
 
         let connectionInfo1 = try HAConnectionInfo(url: url1)
         let connectionInfo2 = try HAConnectionInfo(url: url2)
@@ -110,7 +117,7 @@ internal class HAConnectionInfoTests: XCTestCase {
             String(Int(UInt16.max) + 1),
             "999999999999999",
         ] {
-            let url2 = URL(string: "http://example.com:" + port)!
+            let url2 = try XCTUnwrap(URL(string: "http://example.com:" + port))
             XCTAssertThrowsError(try HAConnectionInfo(url: url2)) { error in
                 XCTAssertEqual(error as? HAConnectionInfo.CreationError, .invalidPort)
             }
@@ -120,7 +127,7 @@ internal class HAConnectionInfoTests: XCTestCase {
     func testCreationWithCertificateEvaluation() throws {
         var result: Result<Void, Error> = .success(())
 
-        let url = URL(string: "http://example.com")!
+        let url = try XCTUnwrap(URL(string: "http://example.com"))
         let connectionInfo = try HAConnectionInfo(url: url, evaluateCertificate: {
             $1(result)
         })
@@ -193,12 +200,24 @@ internal class HAConnectionInfoTests: XCTestCase {
     }
 
     func testShouldReplace() throws {
-        let url1 = URL(string: "http://example.com/1")!
-        let url2 = URL(string: "http://example.com/2")!
+        let url1 = try XCTUnwrap(URL(string: "http://example.com/1"))
+        let url2 = try XCTUnwrap(URL(string: "http://example.com/2"))
         let engine = FakeEngine()
 
-        let connectionInfo1 = try HAConnectionInfo(url: url1, userAgent: nil, evaluateCertificate: nil, engine: engine)
-        let connectionInfo2 = try HAConnectionInfo(url: url2, userAgent: nil, evaluateCertificate: nil, engine: engine)
+        let connectionInfo1 = try HAConnectionInfo(
+            url: url1,
+            userAgent: nil,
+            evaluateCertificate: nil,
+            clientIdentity: nil,
+            engine: engine
+        )
+        let connectionInfo2 = try HAConnectionInfo(
+            url: url2,
+            userAgent: nil,
+            evaluateCertificate: nil,
+            clientIdentity: nil,
+            engine: engine
+        )
 
         let webSocket1 = connectionInfo1.webSocket()
         XCTAssertFalse(connectionInfo1.shouldReplace(webSocket1))
@@ -222,4 +241,123 @@ internal class HAConnectionInfoTests: XCTestCase {
             XCTAssertEqual(connectionInfo.url, expected)
         }
     }
+
+    #if !os(watchOS)
+    func testCreationWithClientIdentity() throws {
+        let url = try XCTUnwrap(URL(string: "http://example.com/with_client_identity"))
+
+        let connectionInfo = try HAConnectionInfo(
+            url: url,
+            userAgent: "TestAgent",
+            evaluateCertificate: nil,
+            clientIdentity: { nil }
+        )
+
+        XCTAssertEqual(connectionInfo.url, url)
+        XCTAssertEqual(connectionInfo.userAgent, "TestAgent")
+        XCTAssertNotNil(connectionInfo.clientIdentity)
+
+        // Creating the webSocket should use the clientIdentity path
+        let webSocket = connectionInfo.webSocket()
+        XCTAssertEqual(webSocket.request.url, url.appendingPathComponent("api/websocket"))
+        XCTAssertEqual(webSocket.request.value(forHTTPHeaderField: "User-Agent"), "TestAgent")
+    }
+
+    func testCreationWithClientIdentityAndCertificateEvaluation() throws {
+        let url = try XCTUnwrap(URL(string: "http://example.com/with_client_identity_and_cert"))
+
+        let connectionInfo = try HAConnectionInfo(
+            url: url,
+            userAgent: nil,
+            evaluateCertificate: { _, completion in completion(.success(())) },
+            clientIdentity: { nil }
+        )
+
+        XCTAssertEqual(connectionInfo.url, url)
+        XCTAssertNotNil(connectionInfo.clientIdentity)
+        XCTAssertNotNil(connectionInfo.evaluateCertificate)
+
+        // Creating the webSocket should use the clientIdentity path with cert evaluation
+        let webSocket = connectionInfo.webSocket()
+        XCTAssertEqual(webSocket.request.url, url.appendingPathComponent("api/websocket"))
+    }
+
+    func testMakeSSLSettingsEmpty() {
+        let settings = HAConnectionInfo.makeSSLSettings(certificateArray: nil, disableCertificateChainValidation: false)
+        XCTAssertTrue(settings.isEmpty)
+    }
+
+    func testMakeSSLSettingsWithCertificateArray() {
+        // CFArray is non-nil even when empty, so the kCFStreamSSLCertificates branch executes
+        let settings = HAConnectionInfo.makeSSLSettings(
+            certificateArray: [] as CFArray,
+            disableCertificateChainValidation: false
+        )
+        XCTAssertFalse(settings.isEmpty)
+        XCTAssertNotNil(settings[kCFStreamSSLCertificates as String])
+        XCTAssertNil(settings[kCFStreamSSLValidatesCertificateChain as String])
+    }
+
+    func testMakeSSLSettingsDisablesCertificateChainValidation() {
+        let settings = HAConnectionInfo.makeSSLSettings(certificateArray: nil, disableCertificateChainValidation: true)
+        XCTAssertFalse(settings.isEmpty)
+        XCTAssertEqual(settings[kCFStreamSSLValidatesCertificateChain as String] as? Bool, false)
+        XCTAssertNil(settings[kCFStreamSSLCertificates as String])
+    }
+
+    func testMakeStreamConfigurationWithEmptySettings() {
+        var inputStream: InputStream?
+        var outputStream: OutputStream?
+        Stream.getBoundStreams(withBufferSize: 4096, inputStream: &inputStream, outputStream: &outputStream)
+        guard let inStream = inputStream, let outStream = outputStream else {
+            XCTFail("Could not create bound streams")
+            return
+        }
+        // No identity, no cert eval → empty settings → CFStreamSetProperty not called
+        let config = HAConnectionInfo.makeStreamConfiguration(
+            clientIdentity: { nil },
+            disableCertificateChainValidation: false
+        )
+        config(inStream, outStream)
+    }
+
+    func testMakeStreamConfigurationAppliesSSLSettings() {
+        var inputStream: InputStream?
+        var outputStream: OutputStream?
+        Stream.getBoundStreams(withBufferSize: 4096, inputStream: &inputStream, outputStream: &outputStream)
+        guard let inStream = inputStream, let outStream = outputStream else {
+            XCTFail("Could not create bound streams")
+            return
+        }
+        // No identity, cert eval disabled → non-empty settings → CFStreamSetProperty called
+        let config = HAConnectionInfo.makeStreamConfiguration(
+            clientIdentity: { nil },
+            disableCertificateChainValidation: true
+        )
+        config(inStream, outStream)
+    }
+
+    func testCreationWithClientIdentityInternalInit() throws {
+        let url = try XCTUnwrap(URL(string: "http://example.com/with_client_identity_internal"))
+        let engine = FakeEngine()
+
+        let connectionInfo = try HAConnectionInfo(
+            url: url,
+            userAgent: "TestAgent",
+            evaluateCertificate: nil,
+            clientIdentity: { nil },
+            engine: engine
+        )
+
+        XCTAssertEqual(connectionInfo.url, url)
+        XCTAssertEqual(connectionInfo.userAgent, "TestAgent")
+        XCTAssertNotNil(connectionInfo.clientIdentity)
+        XCTAssertNotNil(connectionInfo.engine)
+
+        // When engine is provided, it should be used instead of clientIdentity path
+        let webSocket = connectionInfo.webSocket()
+        webSocket.write(string: "test")
+        XCTAssertTrue(engine.events.contains(.writeString("test")))
+    }
+    #endif
 }

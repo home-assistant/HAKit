@@ -1,7 +1,13 @@
 public struct HAHTTPMethod: RawRepresentable, Hashable, ExpressibleByStringLiteral {
     public var rawValue: String
-    public init(rawValue: String) { self.rawValue = rawValue }
-    public init(stringLiteral value: StringLiteralType) { self.init(rawValue: value) }
+
+    public init(rawValue: String) {
+        self.rawValue = rawValue
+    }
+
+    public init(stringLiteral value: StringLiteralType) {
+        self.init(rawValue: value)
+    }
 
     public static var get: Self = "GET"
     public static var post: Self = "POST"

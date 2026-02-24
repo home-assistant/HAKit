@@ -68,13 +68,13 @@ internal class HACachedStatesTests: XCTestCase {
         XCTAssertEqual(outgoingType?.all.first?.state, "not_home")
         XCTAssertEqual(outgoingType?.all.first?.domain, "person")
 
+        let unwrappedOutgoingType = try XCTUnwrap(outgoingType)
         let updateEventResult = try subscribeOnlyInfo.transform(
             incoming: HACompressedStatesUpdates(
                 data: .init(
                     testJsonString:
                     """
                     {
-
                             "c": {
                                 "person.bruno": {
                                     "+": {
@@ -86,7 +86,7 @@ internal class HACachedStatesTests: XCTestCase {
                     """
                 )
             ),
-            current: .init(entities: Array(outgoingType!.all)),
+            current: .init(entities: Array(unwrappedOutgoingType.all)),
             subscriptionPhase: .iteration
         )
 
@@ -106,7 +106,6 @@ internal class HACachedStatesTests: XCTestCase {
                     testJsonString:
                     """
                     {
-
                             "r": [
                                 "person.bruno"
                             ]
@@ -114,7 +113,7 @@ internal class HACachedStatesTests: XCTestCase {
                     """
                 )
             ),
-            current: .init(entities: Array(outgoingType!.all)),
+            current: .init(entities: Array(unwrappedOutgoingType.all)),
             subscriptionPhase: .iteration
         )
 

@@ -38,7 +38,7 @@ internal class HARequestInvocationSingleTests: XCTestCase {
         XCTAssertNil(weakValue)
     }
 
-    func testCompletionInvokedOnceAndCleared() throws {
+    func testCompletionInvokedOnceAndCleared() {
         let completionExpectation = expectation(description: "completion")
 
         class TestClass {}

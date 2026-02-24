@@ -1,6 +1,8 @@
 public extension HACachesContainer {
     /// Cache of the current user.
-    var user: HACache<HAResponseCurrentUser> { self[HACacheKeyCurrentUser.self] }
+    var user: HACache<HAResponseCurrentUser> {
+        self[HACacheKeyCurrentUser.self]
+    }
 }
 
 /// Key for the cache
