@@ -52,7 +52,7 @@ public struct HAConnectionInfo: Equatable {
     #endif
 
     #if !os(watchOS)
-    // Internally create a connection info with engine
+    /// Internally create a connection info with engine
     internal init(
         url: URL,
         userAgent: String?,
@@ -75,7 +75,7 @@ public struct HAConnectionInfo: Equatable {
         self.clientIdentity = clientIdentity
     }
     #else
-    // Internally create a connection info with engine
+    /// Internally create a connection info with engine
     internal init(
         url: URL,
         userAgent: String?,

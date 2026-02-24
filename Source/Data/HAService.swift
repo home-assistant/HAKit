@@ -6,14 +6,19 @@ public struct HAServicesDomain: RawRepresentable, Hashable, ExpressibleByStringL
     public var rawValue: String
     /// Construct a service domain from a raw value
     /// - Parameter rawValue: The raw value
-    public init(rawValue: String) { self.rawValue = rawValue }
+    public init(rawValue: String) {
+        self.rawValue = rawValue
+    }
+
     /// Construct a service domain from a literal
     ///
     /// This is mainly useful when stringly-calling a parameter that takes this type.
     /// You should use the `HAServicesDomain.init(rawValue:)` initializer instead.
     ///
     /// - Parameter value: The literal value
-    public init(stringLiteral value: StringLiteralType) { self.rawValue = value }
+    public init(stringLiteral value: StringLiteralType) {
+        self.rawValue = value
+    }
 }
 
 /// The service itself in a service call
@@ -26,12 +31,17 @@ public struct HAServicesService: RawRepresentable, Hashable, ExpressibleByString
     public var rawValue: String
     /// Construct a service from a raw value
     /// - Parameter rawValue: The raw value
-    public init(rawValue: String) { self.rawValue = rawValue }
+    public init(rawValue: String) {
+        self.rawValue = rawValue
+    }
+
     /// Construct a service from a literal
     ///
     /// This is mainly useful when stringly-calling a parameter that takes this type.
     /// You should use the `HAServicesService.init(rawValue:)` initializer instead.
     ///
     /// - Parameter value: The literal value
-    public init(stringLiteral value: StringLiteralType) { self.rawValue = value }
+    public init(stringLiteral value: StringLiteralType) {
+        self.rawValue = value
+    }
 }

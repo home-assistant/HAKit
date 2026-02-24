@@ -17,7 +17,9 @@ public enum HAConnectionState: Equatable {
     /// The object of the notification will be the connection.
     /// UserInfo will be nil.
     /// Notification fires on `NotificationCenter.default`.
-    public static var didTransitionToStateNotification: Notification.Name { .init("HAConnectionDidTransitiontoState") }
+    public static var didTransitionToStateNotification: Notification.Name {
+        .init("HAConnectionDidTransitiontoState")
+    }
 
     /// Reason for disconnection state
     public enum DisconnectReason: Equatable {

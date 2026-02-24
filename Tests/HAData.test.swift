@@ -315,17 +315,17 @@ internal class HADataTests: XCTestCase {
         }
     }
 
-    func testDecodeWithFallbackWithIncorrectType() throws {
+    func testDecodeWithFallbackWithIncorrectType() {
         let value = HAData(value: ["name": "zacwest"])
         XCTAssertEqual(value.decode("name", fallback: 3) as Int, 3)
     }
 
-    func testDecodeWithFallbackWithMissingKey() throws {
+    func testDecodeWithFallbackWithMissingKey() {
         let value = HAData(value: [])
         XCTAssertEqual(value.decode("name", fallback: 3) as Int, 3)
     }
 
-    func testDecodeWithFallbackWithValue() throws {
+    func testDecodeWithFallbackWithValue() {
         let value = HAData(value: ["name": "zacwest"])
         XCTAssertEqual(value.decode("name", fallback: "other") as String, "zacwest")
     }

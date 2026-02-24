@@ -4,8 +4,8 @@ import XCTest
 
 internal class HAConnectionInfoTests: XCTestCase {
     func testCreation() throws {
-        let url1 = URL(string: "http://example.com")!
-        let url2 = URL(string: "http://example.com/2")!
+        let url1 = try XCTUnwrap(URL(string: "http://example.com"))
+        let url2 = try XCTUnwrap(URL(string: "http://example.com/2"))
 
         let connectionInfo1 = try HAConnectionInfo(url: url1)
         XCTAssertEqual(connectionInfo1.url, url1)
@@ -30,11 +30,17 @@ internal class HAConnectionInfoTests: XCTestCase {
     }
 
     func testCreationWithEngine() throws {
-        let url = URL(string: "http://example.com/with_engine")!
+        let url = try XCTUnwrap(URL(string: "http://example.com/with_engine"))
         let engine1 = FakeEngine()
         let engine2 = FakeEngine()
 
-        let connectionInfo = try HAConnectionInfo(url: url, userAgent: nil, evaluateCertificate: nil, clientIdentity: nil, engine: engine1)
+        let connectionInfo = try HAConnectionInfo(
+            url: url,
+            userAgent: nil,
+            evaluateCertificate: nil,
+            clientIdentity: nil,
+            engine: engine1
+        )
         XCTAssertEqual(connectionInfo.url, url)
         XCTAssertEqual(ObjectIdentifier(connectionInfo.engine as AnyObject), ObjectIdentifier(engine1))
 
@@ -60,7 +66,7 @@ internal class HAConnectionInfoTests: XCTestCase {
     }
 
     func testCreationWithUserAgent() throws {
-        let url = URL(string: "http://example.com/with_user_agent")!
+        let url = try XCTUnwrap(URL(string: "http://example.com/with_user_agent"))
         let userAgent = "SomeAgent/1.0"
 
         let connectionInfo = try HAConnectionInfo(url: url, userAgent: userAgent)
@@ -73,9 +79,9 @@ internal class HAConnectionInfoTests: XCTestCase {
     }
 
     func testCreationWithNonstandardPort() throws {
-        let url1 = URL(string: "http://example.com:12345/with_porty_host")!
-        let url2 = URL(string: "http://example.com:80/with_porty_host")!
-        let url3 = URL(string: "https://example.com:443/with_porty_host")!
+        let url1 = try XCTUnwrap(URL(string: "http://example.com:12345/with_porty_host"))
+        let url2 = try XCTUnwrap(URL(string: "http://example.com:80/with_porty_host"))
+        let url3 = try XCTUnwrap(URL(string: "https://example.com:443/with_porty_host"))
 
         let connectionInfo1 = try HAConnectionInfo(url: url1)
         let connectionInfo2 = try HAConnectionInfo(url: url2)
@@ -111,7 +117,7 @@ internal class HAConnectionInfoTests: XCTestCase {
             String(Int(UInt16.max) + 1),
             "999999999999999",
         ] {
-            let url2 = URL(string: "http://example.com:" + port)!
+            let url2 = try XCTUnwrap(URL(string: "http://example.com:" + port))
             XCTAssertThrowsError(try HAConnectionInfo(url: url2)) { error in
                 XCTAssertEqual(error as? HAConnectionInfo.CreationError, .invalidPort)
             }
@@ -121,7 +127,7 @@ internal class HAConnectionInfoTests: XCTestCase {
     func testCreationWithCertificateEvaluation() throws {
         var result: Result<Void, Error> = .success(())
 
-        let url = URL(string: "http://example.com")!
+        let url = try XCTUnwrap(URL(string: "http://example.com"))
         let connectionInfo = try HAConnectionInfo(url: url, evaluateCertificate: {
             $1(result)
         })
@@ -194,12 +200,24 @@ internal class HAConnectionInfoTests: XCTestCase {
     }
 
     func testShouldReplace() throws {
-        let url1 = URL(string: "http://example.com/1")!
-        let url2 = URL(string: "http://example.com/2")!
+        let url1 = try XCTUnwrap(URL(string: "http://example.com/1"))
+        let url2 = try XCTUnwrap(URL(string: "http://example.com/2"))
         let engine = FakeEngine()
 
-        let connectionInfo1 = try HAConnectionInfo(url: url1, userAgent: nil, evaluateCertificate: nil, clientIdentity: nil, engine: engine)
-        let connectionInfo2 = try HAConnectionInfo(url: url2, userAgent: nil, evaluateCertificate: nil, clientIdentity: nil, engine: engine)
+        let connectionInfo1 = try HAConnectionInfo(
+            url: url1,
+            userAgent: nil,
+            evaluateCertificate: nil,
+            clientIdentity: nil,
+            engine: engine
+        )
+        let connectionInfo2 = try HAConnectionInfo(
+            url: url2,
+            userAgent: nil,
+            evaluateCertificate: nil,
+            clientIdentity: nil,
+            engine: engine
+        )
 
         let webSocket1 = connectionInfo1.webSocket()
         XCTAssertFalse(connectionInfo1.shouldReplace(webSocket1))
@@ -226,17 +244,13 @@ internal class HAConnectionInfoTests: XCTestCase {
 
     #if !os(watchOS)
     func testCreationWithClientIdentity() throws {
-        let url = URL(string: "http://example.com/with_client_identity")!
-        var identityCalled = false
+        let url = try XCTUnwrap(URL(string: "http://example.com/with_client_identity"))
 
         let connectionInfo = try HAConnectionInfo(
             url: url,
             userAgent: "TestAgent",
             evaluateCertificate: nil,
-            clientIdentity: {
-                identityCalled = true
-                return nil
-            }
+            clientIdentity: { nil }
         )
 
         XCTAssertEqual(connectionInfo.url, url)
@@ -250,21 +264,13 @@ internal class HAConnectionInfoTests: XCTestCase {
     }
 
     func testCreationWithClientIdentityAndCertificateEvaluation() throws {
-        let url = URL(string: "http://example.com/with_client_identity_and_cert")!
-        var identityCalled = false
-        var certEvalCalled = false
+        let url = try XCTUnwrap(URL(string: "http://example.com/with_client_identity_and_cert"))
 
         let connectionInfo = try HAConnectionInfo(
             url: url,
             userAgent: nil,
-            evaluateCertificate: { _, completion in
-                certEvalCalled = true
-                completion(.success(()))
-            },
-            clientIdentity: {
-                identityCalled = true
-                return nil
-            }
+            evaluateCertificate: { _, completion in completion(.success(())) },
+            clientIdentity: { nil }
         )
 
         XCTAssertEqual(connectionInfo.url, url)
@@ -277,18 +283,14 @@ internal class HAConnectionInfoTests: XCTestCase {
     }
 
     func testCreationWithClientIdentityInternalInit() throws {
-        let url = URL(string: "http://example.com/with_client_identity_internal")!
+        let url = try XCTUnwrap(URL(string: "http://example.com/with_client_identity_internal"))
         let engine = FakeEngine()
-        var identityCalled = false
 
         let connectionInfo = try HAConnectionInfo(
             url: url,
             userAgent: "TestAgent",
             evaluateCertificate: nil,
-            clientIdentity: {
-                identityCalled = true
-                return nil
-            },
+            clientIdentity: { nil },
             engine: engine
         )
 
