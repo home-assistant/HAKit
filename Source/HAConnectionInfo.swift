@@ -166,24 +166,12 @@ public struct HAConnectionInfo: Equatable {
         } else if let clientIdentity = clientIdentity {
             // Use FoundationTransport with stream configuration for mTLS
             let hasCertEval = evaluateCertificate != nil
-            let transport = FoundationTransport(streamConfiguration: { [clientIdentity] inStream, outStream in
-                let sslSettings = Self.makeSSLSettings(
-                    identity: clientIdentity(),
+            let transport = FoundationTransport(
+                streamConfiguration: Self.makeStreamConfiguration(
+                    clientIdentity: clientIdentity,
                     disableCertificateChainValidation: hasCertEval
                 )
-                if !sslSettings.isEmpty {
-                    CFReadStreamSetProperty(
-                        inStream,
-                        CFStreamPropertyKey(rawValue: kCFStreamPropertySSLSettings),
-                        sslSettings as CFTypeRef
-                    )
-                    CFWriteStreamSetProperty(
-                        outStream,
-                        CFStreamPropertyKey(rawValue: kCFStreamPropertySSLSettings),
-                        sslSettings as CFTypeRef
-                    )
-                }
-            })
+            )
             let pinning = evaluateCertificate.flatMap { HAStarscreamCertificatePinningImpl(evaluateCertificate: $0) }
             let engine = WSEngine(transport: transport, certPinner: pinning)
             webSocket = WebSocket(request: request, engine: engine)
@@ -240,6 +228,35 @@ public struct HAConnectionInfo: Equatable {
             settings[kCFStreamSSLValidatesCertificateChain as String] = false
         }
         return settings
+    }
+
+    /// Returns a stream configuration closure suitable for use with `FoundationTransport`.
+    /// - Parameters:
+    ///   - clientIdentity: Provider for the client identity used in mTLS
+    ///   - disableCertificateChainValidation: Pass true when custom certificate evaluation is in use
+    /// - Returns: A closure that configures SSL settings on the given streams
+    internal static func makeStreamConfiguration(
+        clientIdentity: @escaping ClientIdentityProvider,
+        disableCertificateChainValidation: Bool
+    ) -> (InputStream, OutputStream) -> Void {
+        { inStream, outStream in
+            let sslSettings = makeSSLSettings(
+                identity: clientIdentity(),
+                disableCertificateChainValidation: disableCertificateChainValidation
+            )
+            if !sslSettings.isEmpty {
+                CFReadStreamSetProperty(
+                    inStream,
+                    CFStreamPropertyKey(rawValue: kCFStreamPropertySSLSettings),
+                    sslSettings as CFTypeRef
+                )
+                CFWriteStreamSetProperty(
+                    outStream,
+                    CFStreamPropertyKey(rawValue: kCFStreamPropertySSLSettings),
+                    sslSettings as CFTypeRef
+                )
+            }
+        }
     }
     #endif
 

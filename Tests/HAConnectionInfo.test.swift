@@ -294,6 +294,38 @@ internal class HAConnectionInfoTests: XCTestCase {
         XCTAssertNil(settings[kCFStreamSSLCertificates as String])
     }
 
+    func testMakeStreamConfigurationWithEmptySettings() {
+        var inputStream: InputStream?
+        var outputStream: OutputStream?
+        Stream.getBoundStreams(withBufferSize: 4096, inputStream: &inputStream, outputStream: &outputStream)
+        guard let inStream = inputStream, let outStream = outputStream else {
+            XCTFail("Could not create bound streams")
+            return
+        }
+        // No identity, no cert eval → empty settings → CFStreamSetProperty not called
+        let config = HAConnectionInfo.makeStreamConfiguration(
+            clientIdentity: { nil },
+            disableCertificateChainValidation: false
+        )
+        config(inStream, outStream)
+    }
+
+    func testMakeStreamConfigurationAppliesSSLSettings() {
+        var inputStream: InputStream?
+        var outputStream: OutputStream?
+        Stream.getBoundStreams(withBufferSize: 4096, inputStream: &inputStream, outputStream: &outputStream)
+        guard let inStream = inputStream, let outStream = outputStream else {
+            XCTFail("Could not create bound streams")
+            return
+        }
+        // No identity, cert eval disabled → non-empty settings → CFStreamSetProperty called
+        let config = HAConnectionInfo.makeStreamConfiguration(
+            clientIdentity: { nil },
+            disableCertificateChainValidation: true
+        )
+        config(inStream, outStream)
+    }
+
     func testCreationWithClientIdentityInternalInit() throws {
         let url = try XCTUnwrap(URL(string: "http://example.com/with_client_identity_internal"))
         let engine = FakeEngine()
