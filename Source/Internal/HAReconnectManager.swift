@@ -113,6 +113,12 @@ internal class HAReconnectManagerImpl: HAReconnectManager {
         #endif
     }
 
+    deinit {
+        #if canImport(Network)
+        pathMonitor.cancel()
+        #endif
+    }
+
     private func reset() {
         state.mutate { state in
             state.reset()
