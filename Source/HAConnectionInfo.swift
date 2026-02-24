@@ -213,16 +213,16 @@ public struct HAConnectionInfo: Equatable {
     #if !os(watchOS)
     /// Builds the SSL stream settings dictionary for client certificate configuration.
     /// - Parameters:
-    ///   - identity: Client identity for mTLS authentication, or nil
+    ///   - certificateArray: Array of `SecIdentity`/`SecCertificate` for `kCFStreamSSLCertificates`, or nil
     ///   - disableCertificateChainValidation: Pass true when custom certificate evaluation is in use
     /// - Returns: SSL settings dictionary; empty if no configuration is needed
     internal static func makeSSLSettings(
-        identity: SecIdentity?,
+        certificateArray: CFArray?,
         disableCertificateChainValidation: Bool
     ) -> [String: Any] {
         var settings: [String: Any] = [:]
-        if let identity {
-            settings[kCFStreamSSLCertificates as String] = [identity] as CFArray
+        if let certificateArray {
+            settings[kCFStreamSSLCertificates as String] = certificateArray
         }
         if disableCertificateChainValidation {
             settings[kCFStreamSSLValidatesCertificateChain as String] = false
@@ -240,8 +240,9 @@ public struct HAConnectionInfo: Equatable {
         disableCertificateChainValidation: Bool
     ) -> (InputStream, OutputStream) -> Void {
         { inStream, outStream in
+            let certificateArray = clientIdentity().map { [$0] as CFArray }
             let sslSettings = makeSSLSettings(
-                identity: clientIdentity(),
+                certificateArray: certificateArray,
                 disableCertificateChainValidation: disableCertificateChainValidation
             )
             if !sslSettings.isEmpty {

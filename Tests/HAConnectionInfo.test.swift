@@ -283,12 +283,23 @@ internal class HAConnectionInfoTests: XCTestCase {
     }
 
     func testMakeSSLSettingsEmpty() {
-        let settings = HAConnectionInfo.makeSSLSettings(identity: nil, disableCertificateChainValidation: false)
+        let settings = HAConnectionInfo.makeSSLSettings(certificateArray: nil, disableCertificateChainValidation: false)
         XCTAssertTrue(settings.isEmpty)
     }
 
+    func testMakeSSLSettingsWithCertificateArray() {
+        // CFArray is non-nil even when empty, so the kCFStreamSSLCertificates branch executes
+        let settings = HAConnectionInfo.makeSSLSettings(
+            certificateArray: [] as CFArray,
+            disableCertificateChainValidation: false
+        )
+        XCTAssertFalse(settings.isEmpty)
+        XCTAssertNotNil(settings[kCFStreamSSLCertificates as String])
+        XCTAssertNil(settings[kCFStreamSSLValidatesCertificateChain as String])
+    }
+
     func testMakeSSLSettingsDisablesCertificateChainValidation() {
-        let settings = HAConnectionInfo.makeSSLSettings(identity: nil, disableCertificateChainValidation: true)
+        let settings = HAConnectionInfo.makeSSLSettings(certificateArray: nil, disableCertificateChainValidation: true)
         XCTAssertFalse(settings.isEmpty)
         XCTAssertEqual(settings[kCFStreamSSLValidatesCertificateChain as String] as? Bool, false)
         XCTAssertNil(settings[kCFStreamSSLCertificates as String])
