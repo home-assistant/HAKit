@@ -147,7 +147,8 @@ internal class HARequestControllerImpl: HARequestController {
         invocation(for: identifier) as? HARequestInvocationSubscription
     }
 
-    /// only single invocations can be cleared, as subscriptions need to be cancelled
+    /// Only single invocations can be cleared, as subscriptions need to be cancelled
+    /// - Parameter invocation: The invocation to clear
     func clear(invocation: HARequestInvocationSingle) {
         state.mutate { state in
             if let identifier = invocation.identifier {
