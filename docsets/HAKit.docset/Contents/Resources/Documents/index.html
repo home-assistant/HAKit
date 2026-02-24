@@ -274,6 +274,60 @@
 <p>You may further configure other attributes of this connection, such as <code>callbackQueue</code> (where your handlers are invoked), as well as triggering manual connection attempts. See the protocol for more information.</p>
 
 <p>Once you invoke <code>.connect()</code> (or it is invoked automatically) and until you invoke <code>.disconnect()</code> the connection will try to stay connected by attempting to reconnect when network status changes and after a retry period following disconnection.</p>
+<h2 id='mtls-client-certificate-authentication' class='heading'>mTLS (Client Certificate Authentication)</h2>
+
+<blockquote>
+<p><strong>Note</strong>: This feature is experimental and not available on watchOS.</p>
+</blockquote>
+
+<p>If your Home Assistant instance is behind a reverse proxy that requires client certificate authentication (mutual TLS / mTLS), you can provide a <code>clientIdentity</code> when creating the connection info:</p>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">connection</span> <span class="o">=</span> <span class="kt">HAKit</span><span class="o">.</span><span class="nf">connection</span><span class="p">(</span><span class="nv">configuration</span><span class="p">:</span> <span class="o">.</span><span class="nf">init</span><span class="p">(</span>
+  <span class="nv">connectionInfo</span><span class="p">:</span> <span class="p">{</span>
+    <span class="k">try!</span> <span class="o">.</span><span class="nf">init</span><span class="p">(</span>
+      <span class="nv">url</span><span class="p">:</span> <span class="kt">URL</span><span class="p">(</span><span class="nv">string</span><span class="p">:</span> <span class="s">"https://homeassistant.example.com"</span><span class="p">)</span><span class="o">!</span><span class="p">,</span>
+      <span class="nv">clientIdentity</span><span class="p">:</span> <span class="p">{</span>
+        <span class="c1">// Return your SecIdentity containing the client certificate and private key</span>
+        <span class="c1">// This is typically loaded from a .p12 file stored in the Keychain</span>
+        <span class="k">return</span> <span class="nf">loadClientIdentityFromKeychain</span><span class="p">()</span>
+      <span class="p">}</span>
+    <span class="p">)</span>
+  <span class="p">},</span>
+  <span class="nv">fetchAuthToken</span><span class="p">:</span> <span class="p">{</span> <span class="n">completion</span> <span class="k">in</span>
+    <span class="nf">completion</span><span class="p">(</span><span class="o">.</span><span class="nf">success</span><span class="p">(</span><span class="s">"API_Token_Here"</span><span class="p">))</span>
+  <span class="p">}</span>
+<span class="p">))</span>
+</code></pre>
+<h3 id='loading-a-client-identity-from-a-p12-file' class='heading'>Loading a client identity from a .p12 file</h3>
+<pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">loadClientIdentity</span><span class="p">(</span><span class="n">from</span> <span class="nv">p12Data</span><span class="p">:</span> <span class="kt">Data</span><span class="p">,</span> <span class="nv">password</span><span class="p">:</span> <span class="kt">String</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">SecIdentity</span><span class="p">?</span> <span class="p">{</span>
+    <span class="k">var</span> <span class="nv">importResult</span><span class="p">:</span> <span class="kt">CFArray</span><span class="p">?</span>
+    <span class="k">let</span> <span class="nv">options</span> <span class="o">=</span> <span class="p">[</span><span class="nv">kSecImportExportPassphrase</span><span class="p">:</span> <span class="n">password</span><span class="p">]</span> <span class="k">as</span> <span class="kt">CFDictionary</span>
+
+    <span class="k">let</span> <span class="nv">status</span> <span class="o">=</span> <span class="kt">SecPKCS12Import</span><span class="p">(</span><span class="n">p12Data</span> <span class="k">as</span> <span class="kt">CFData</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">importResult</span><span class="p">)</span>
+    <span class="k">guard</span> <span class="n">status</span> <span class="o">==</span> <span class="n">errSecSuccess</span><span class="p">,</span>
+          <span class="k">let</span> <span class="nv">items</span> <span class="o">=</span> <span class="n">importResult</span> <span class="k">as?</span> <span class="p">[[</span><span class="kt">String</span><span class="p">:</span> <span class="kt">Any</span><span class="p">]],</span>
+          <span class="k">let</span> <span class="nv">firstItem</span> <span class="o">=</span> <span class="n">items</span><span class="o">.</span><span class="n">first</span><span class="p">,</span>
+          <span class="k">let</span> <span class="nv">identity</span> <span class="o">=</span> <span class="n">firstItem</span><span class="p">[</span><span class="n">kSecImportItemIdentity</span> <span class="k">as</span> <span class="kt">String</span><span class="p">]</span> <span class="k">as?</span> <span class="kt">SecIdentity</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="kc">nil</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">identity</span>
+<span class="p">}</span>
+</code></pre>
+<h3 id='combining-with-certificate-evaluation' class='heading'>Combining with certificate evaluation</h3>
+
+<p>You can also combine <code>clientIdentity</code> with <code>evaluateCertificate</code> for custom server certificate validation (e.g., self-signed certificates):</p>
+<pre class="highlight swift"><code><span class="k">try</span> <span class="o">.</span><span class="nf">init</span><span class="p">(</span>
+  <span class="nv">url</span><span class="p">:</span> <span class="kt">URL</span><span class="p">(</span><span class="nv">string</span><span class="p">:</span> <span class="s">"https://homeassistant.example.com"</span><span class="p">)</span><span class="o">!</span><span class="p">,</span>
+  <span class="nv">evaluateCertificate</span><span class="p">:</span> <span class="p">{</span> <span class="n">secTrust</span><span class="p">,</span> <span class="n">completion</span> <span class="k">in</span>
+    <span class="c1">// Custom certificate validation logic</span>
+    <span class="c1">// Call completion(.success(())) to accept or completion(.failure(error)) to reject</span>
+    <span class="nf">completion</span><span class="p">(</span><span class="o">.</span><span class="nf">success</span><span class="p">(()))</span>
+  <span class="p">},</span>
+  <span class="nv">clientIdentity</span><span class="p">:</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nf">loadClientIdentityFromKeychain</span><span class="p">()</span>
+  <span class="p">}</span>
+<span class="p">)</span>
+</code></pre>
 <h2 id='logging' class='heading'>Logging</h2>
 
 <p>You can enable logging of the library by configuring <code><a href="Enums/HAGlobal.html">HAGlobal</a></code>:</p>
@@ -459,7 +513,7 @@
           </section>
         </section>
         <section id="footer">
-          <p>&copy; 2026 <a class="link" href="https://github.com/home-assistant/HAKit" target="_blank" rel="external noopener">Home Assistant</a>. All rights reserved. (Last updated: 2026-01-26)</p>
+          <p>&copy; 2026 <a class="link" href="https://github.com/home-assistant/HAKit" target="_blank" rel="external noopener">Home Assistant</a>. All rights reserved. (Last updated: 2026-02-24)</p>
           <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external noopener">jazzy ♪♫ v0.15.4</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external noopener">Realm</a> project.</p>
         </section>
       </article>

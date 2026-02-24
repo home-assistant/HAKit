@@ -292,9 +292,36 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:5HAKit16HAConnectionInfoV3url9userAgent19evaluateCertificateAC10Foundation3URLV_SSSgySo11SecTrustRefa_ys6ResultOyyts5Error_pGXEtcSgtKcfc"></a>
-                    <a name="//apple_ref/swift/Method/init(url:userAgent:evaluateCertificate:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:5HAKit16HAConnectionInfoV3url9userAgent19evaluateCertificateAC10Foundation3URLV_SSSgySo11SecTrustRefa_ys6ResultOyyts5Error_pGXEtcSgtKcfc">init(url:<wbr>userAgent:<wbr>evaluateCertificate:<wbr>)</a>
+                    <a name="/s:5HAKit16HAConnectionInfoV22ClientIdentityProvidera"></a>
+                    <a name="//apple_ref/swift/Alias/ClientIdentityProvider" class="dashAnchor"></a>
+                    <a class="token" href="#/s:5HAKit16HAConnectionInfoV22ClientIdentityProvidera">ClientIdentityProvider</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Client identity provider for mTLS</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">typealias</span> <span class="kt">ClientIdentityProvider</span> <span class="o">=</span> <span class="p">()</span> <span class="o">-&gt;</span> <span class="kt">SecIdentity</span><span class="p">?</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:5HAKit16HAConnectionInfoV3url9userAgent19evaluateCertificate14clientIdentityAC10Foundation3URLV_SSSgySo11SecTrustRefa_ys6ResultOyyts5Error_pGXEtcSgSo0mjO0aSgycSgtKcfc"></a>
+                    <a name="//apple_ref/swift/Method/init(url:userAgent:evaluateCertificate:clientIdentity:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:5HAKit16HAConnectionInfoV3url9userAgent19evaluateCertificate14clientIdentityAC10Foundation3URLV_SSSgySo11SecTrustRefa_ys6ResultOyyts5Error_pGXEtcSgSo0mjO0aSgycSgtKcfc">init(url:<wbr>userAgent:<wbr>evaluateCertificate:<wbr>clientIdentity:<wbr>)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -304,64 +331,38 @@
                       <div class="abstract">
                         <p>Create a connection info</p>
 
-<p>URLs are in the form of: <a href="https://url-to-hass:8123">https://url-to-hass:8123</a> and /api/websocket will be appended.</p>
-<div class="aside aside-throws">
-    <p class="aside-title">Throws</p>
-    If the URL provided is invalid in some way, see <code>CreationError</code>
-
-</div>
-
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="nf">init</span><span class="p">(</span><span class="nv">url</span><span class="p">:</span> <span class="kt">URL</span><span class="p">,</span> <span class="nv">userAgent</span><span class="p">:</span> <span class="kt">String</span><span class="p">?</span> <span class="o">=</span> <span class="kc">nil</span><span class="p">,</span> <span class="nv">evaluateCertificate</span><span class="p">:</span> <span class="kt"><a href="../Structs/HAConnectionInfo.html#/s:5HAKit16HAConnectionInfoV19EvaluateCertificatea">EvaluateCertificate</a></span><span class="p">?</span> <span class="o">=</span> <span class="kc">nil</span><span class="p">)</span> <span class="k">throws</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="nf">init</span><span class="p">(</span>
+    <span class="nv">url</span><span class="p">:</span> <span class="kt">URL</span><span class="p">,</span>
+    <span class="nv">userAgent</span><span class="p">:</span> <span class="kt">String</span><span class="p">?</span> <span class="o">=</span> <span class="kc">nil</span><span class="p">,</span>
+    <span class="nv">evaluateCertificate</span><span class="p">:</span> <span class="kt"><a href="../Structs/HAConnectionInfo.html#/s:5HAKit16HAConnectionInfoV19EvaluateCertificatea">EvaluateCertificate</a></span><span class="p">?</span> <span class="o">=</span> <span class="kc">nil</span><span class="p">,</span>
+    <span class="nv">clientIdentity</span><span class="p">:</span> <span class="kt"><a href="../Structs/HAConnectionInfo.html#/s:5HAKit16HAConnectionInfoV22ClientIdentityProvidera">ClientIdentityProvider</a></span><span class="p">?</span> <span class="o">=</span> <span class="kc">nil</span>
+<span class="p">)</span> <span class="k">throws</span></code></pre>
 
                         </div>
                       </div>
-                      <div>
-                        <h4>Parameters</h4>
-                        <table class="graybox">
-                          <tbody>
-                            <tr>
-                              <td>
-                                <code>
-                                <em>url</em>
-                                </code>
-                              </td>
-                              <td>
-                                <div>
-                                  <p>The url to connect to</p>
-                                </div>
-                              </td>
-                            </tr>
-                            <tr>
-                              <td>
-                                <code>
-                                <em>userAgent</em>
-                                </code>
-                              </td>
-                              <td>
-                                <div>
-                                  <p>Optionally change the User-Agent to this</p>
-                                </div>
-                              </td>
-                            </tr>
-                            <tr>
-                              <td>
-                                <code>
-                                <em>evaluateCertificate</em>
-                                </code>
-                              </td>
-                              <td>
-                                <div>
-                                  <p>Optionally override default SecTrust validation</p>
-                                </div>
-                              </td>
-                            </tr>
-                          </tbody>
-                        </table>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/"></a>
+                    <a name="//apple_ref/swift/Method/init(url:userAgent:evaluateCertificate:)" class="dashAnchor"></a>
+                    <a class="token" href="#/">init(url:<wbr>userAgent:<wbr>evaluateCertificate:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Create a connection info</p>
+
                       </div>
                     </section>
                   </div>
@@ -478,7 +479,7 @@
           </section>
         </section>
         <section id="footer">
-          <p>&copy; 2026 <a class="link" href="https://github.com/home-assistant/HAKit" target="_blank" rel="external noopener">Home Assistant</a>. All rights reserved. (Last updated: 2026-01-26)</p>
+          <p>&copy; 2026 <a class="link" href="https://github.com/home-assistant/HAKit" target="_blank" rel="external noopener">Home Assistant</a>. All rights reserved. (Last updated: 2026-02-24)</p>
           <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external noopener">jazzy ♪♫ v0.15.4</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external noopener">Realm</a> project.</p>
         </section>
       </article>
