@@ -282,6 +282,18 @@ internal class HAConnectionInfoTests: XCTestCase {
         XCTAssertEqual(webSocket.request.url, url.appendingPathComponent("api/websocket"))
     }
 
+    func testMakeSSLSettingsEmpty() {
+        let settings = HAConnectionInfo.makeSSLSettings(identity: nil, disableCertificateChainValidation: false)
+        XCTAssertTrue(settings.isEmpty)
+    }
+
+    func testMakeSSLSettingsDisablesCertificateChainValidation() {
+        let settings = HAConnectionInfo.makeSSLSettings(identity: nil, disableCertificateChainValidation: true)
+        XCTAssertFalse(settings.isEmpty)
+        XCTAssertEqual(settings[kCFStreamSSLValidatesCertificateChain as String] as? Bool, false)
+        XCTAssertNil(settings[kCFStreamSSLCertificates as String])
+    }
+
     func testCreationWithClientIdentityInternalInit() throws {
         let url = try XCTUnwrap(URL(string: "http://example.com/with_client_identity_internal"))
         let engine = FakeEngine()

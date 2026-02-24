@@ -167,19 +167,10 @@ public struct HAConnectionInfo: Equatable {
             // Use FoundationTransport with stream configuration for mTLS
             let hasCertEval = evaluateCertificate != nil
             let transport = FoundationTransport(streamConfiguration: { [clientIdentity] inStream, outStream in
-                var sslSettings: [String: Any] = [:]
-
-                // Configure client certificate for mTLS
-                if let identity = clientIdentity() {
-                    sslSettings[kCFStreamSSLCertificates as String] = [identity] as CFArray
-                }
-
-                // If we have custom certificate evaluation, disable default chain validation
-                // so our evaluateCertificate callback can handle it
-                if hasCertEval {
-                    sslSettings[kCFStreamSSLValidatesCertificateChain as String] = false
-                }
-
+                let sslSettings = Self.makeSSLSettings(
+                    identity: clientIdentity(),
+                    disableCertificateChainValidation: hasCertEval
+                )
                 if !sslSettings.isEmpty {
                     CFReadStreamSetProperty(
                         inStream,
@@ -230,6 +221,27 @@ public struct HAConnectionInfo: Equatable {
 
         return components.url!
     }
+
+    #if !os(watchOS)
+    /// Builds the SSL stream settings dictionary for client certificate configuration.
+    /// - Parameters:
+    ///   - identity: Client identity for mTLS authentication, or nil
+    ///   - disableCertificateChainValidation: Pass true when custom certificate evaluation is in use
+    /// - Returns: SSL settings dictionary; empty if no configuration is needed
+    internal static func makeSSLSettings(
+        identity: SecIdentity?,
+        disableCertificateChainValidation: Bool
+    ) -> [String: Any] {
+        var settings: [String: Any] = [:]
+        if let identity {
+            settings[kCFStreamSSLCertificates as String] = [identity] as CFArray
+        }
+        if disableCertificateChainValidation {
+            settings[kCFStreamSSLValidatesCertificateChain as String] = false
+        }
+        return settings
+    }
+    #endif
 
     public static func == (lhs: HAConnectionInfo, rhs: HAConnectionInfo) -> Bool {
         lhs.url == rhs.url
