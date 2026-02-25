@@ -37,6 +37,10 @@ Once you invoke `.connect()` (or it is invoked automatically) and until you invo
 
 > **Note**: This feature is experimental and not available on watchOS.
 
+HAKit supports mutual TLS (mTLS) authentication for both WebSocket and REST API connections. This allows you to connect to Home Assistant instances behind reverse proxies that require client certificate authentication.
+
+### WebSocket mTLS
+
 If your Home Assistant instance is behind a reverse proxy that requires client certificate authentication (mutual TLS / mTLS), you can provide a `clientIdentity` when creating the connection info:
 
 ```swift
@@ -56,6 +60,66 @@ let connection = HAKit.connection(configuration: .init(
   }
 ))
 ```
+
+### REST API mTLS
+
+For REST API calls, you can provide a custom `URLSession` with certificate handling through the `HACertificateProvider` protocol:
+
+```swift
+// 1. Implement the HACertificateProvider protocol
+struct MyCertificateProvider: HACertificateProvider {
+    func provideClientCertificate(
+        for challenge: URLAuthenticationChallenge,
+        completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void
+    ) {
+        // Load and provide your client certificate
+        if let identity = loadClientIdentityFromKeychain() {
+            let credential = URLCredential(
+                identity: identity,
+                certificates: nil,
+                persistence: .none
+            )
+            completionHandler(.useCredential, credential)
+        } else {
+            completionHandler(.cancelAuthenticationChallenge, nil)
+        }
+    }
+    
+    func evaluateServerTrust(
+        _ serverTrust: SecTrust,
+        forHost host: String,
+        completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void
+    ) {
+        // Optionally validate self-signed or custom CA certificates
+        // For standard certificates, you can use default handling:
+        completionHandler(.performDefaultHandling, nil)
+    }
+}
+
+// 2. Create a URLSession with the certificate provider
+let provider = MyCertificateProvider()
+let delegate = HAURLSessionDelegate(certificateProvider: provider)
+let urlSession = URLSession(
+    configuration: .ephemeral,
+    delegate: delegate,
+    delegateQueue: nil
+)
+
+// 3. Pass the URLSession when creating the connection
+let connection = HAKit.connection(
+    configuration: .init(
+        connectionInfo: {
+            try! .init(url: URL(string: "https://homeassistant.example.com")!)
+        },
+        fetchAuthToken: { completion in
+            completion(.success("API_Token_Here"))
+        }
+    ),
+    urlSession: urlSession
+)
+```
+
+This approach allows you to handle certificate authentication for REST API calls independently from WebSocket connections, giving you full control over the certificate validation process.
 
 ### Loading a client identity from a .p12 file
 
