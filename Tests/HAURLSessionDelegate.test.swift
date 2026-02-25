@@ -3,7 +3,7 @@ import XCTest
 
 internal class HAURLSessionDelegateTests: XCTestCase {
     /// Mock implementation of HACertificateProvider for testing
-    final class MockCertificateProvider: HACertificateProvider {
+    private final class MockCertificateProvider: HACertificateProvider {
         var provideClientCertificateCalled = false
         var evaluateServerTrustCalled = false
         var clientCertificateDisposition: URLSession.AuthChallengeDisposition = .useCredential
