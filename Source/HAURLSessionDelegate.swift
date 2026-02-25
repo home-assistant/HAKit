@@ -54,7 +54,7 @@ public class HAURLSessionDelegate: NSObject, URLSessionDelegate {
         self.certificateProvider = certificateProvider
         super.init()
     }
-
+ 
     public func urlSession(
         _ session: URLSession,
         didReceive challenge: URLAuthenticationChallenge,
