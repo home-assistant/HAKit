@@ -31,6 +31,37 @@ internal class HAURLSessionDelegateTests: XCTestCase {
         }
     }
 
+    private func createServerTrust() throws -> SecTrust {
+        let certData = try XCTUnwrap(
+            Data(base64Encoded: """
+                MIIFljCCA36gAwIBAgINAgO8U1lrNMcY9QFQZjANBgkqhkiG9w0BAQsFADBHMQswCQYDVQQGEwJVUzEiMCAGA1UEChMZR29vZ2xlIFRy
+                dXN0IFNlcnZpY2VzIExMQzEUMBIGA1UEAxMLR1RTIFJvb3QgUjEwHhcNMjAwODEzMDAwMDQyWhcNMjcwOTMwMDAwMDQyWjBGMQswCQYD
+                VQQGEwJVUzEiMCAGA1UEChMZR29vZ2xlIFRydXN0IFNlcnZpY2VzIExMQzETMBEGA1UEAxMKR1RTIENBIDFDMzCCASIwDQYJKoZIhvcN
+                AQEBBQADggEPADCCAQoCggEBAPWI3+dijB43+DdCkH9sh9D7ZYIl/ejLa6T/belaI+KZ9hzpkgOZE3wJCor6QtZeViSqejOEH9Hpabu5
+                dOxXTGZok3c3VVP+ORBNtzS7XyV3NzsXlOo85Z3VvMO0Q+sup0fvsEQRY9i0QYXdQTBIkxu/t/bgRQIh4JZCF8/ZK2VWNAcmBA2o/X3K
+                Lu/qSHw3TT8An4Pf73WELnlXXPxXbhqW//yMmqaZviXZf5YsBvcRKgKAgOtjGDxQSYflispfGStZloEAoPtR28p3CwvJlk/vcEnHXG0g
+                /Zm0tOLKLnf9LdwLtmsTDIwZKxeWmLnwi/agJ7u2441Rj72ux5uxiZ0CAwEAAaOCAYAwggF8MA4GA1UdDwEB/wQEAwIBhjAdBgNVHSUE
+                FjAUBggrBgEFBQcDAQYIKwYBBQUHAwIwEgYDVR0TAQH/BAgwBgEB/wIBADAdBgNVHQ4EFgQUinR/r4XN7pXNPZzQ4kYU83E1HScwHwYD
+                VR0jBBgwFoAU5K8rJnEaK0gnhS9SZizv8IkTcT4waAYIKwYBBQUHAQEEXDBaMCYGCCsGAQUFBzABhhpodHRwOi8vb2NzcC5wa2kuZ29v
+                Zy9ndHNyMTAwBggrBgEFBQcwAoYkaHR0cDovL3BraS5nb29nL3JlcG8vY2VydHMvZ3RzcjEuZGVyMDQGA1UdHwQtMCswKaAnoCWGI2h0
+                dHA6Ly9jcmwucGtpLmdvb2cvZ3RzcjEvZ3RzcjEuY3JsMFcGA1UdIARQME4wOAYKKwYBBAHWeQIFAzAqMCgGCCsGAQUFBwIBFhxodHRw
+                czovL3BraS5nb29nL3JlcG9zaXRvcnkvMAgGBmeBDAECATAIBgZngQwBAgIwDQYJKoZIhvcNAQELBQADggIBAIl9rCBcDDy+mqhXlRu0
+                rvqrpXJxtDaV/d9AEQNMwkYUuxQkq/BQcSLbrcRuf8/xam/IgxvYzolfh2yHuKkMo5uhYpSTld9brmYZCwKWnvy15xBpPnrLRklfRuFB
+                sdeYTWU0AIAaP0+fbH9JAIFTQaSSIYKCGvGjRFsqUBITTcFTNvNCCK9U+o53UxtkOCcXCb1YyRt8OS1b887U7ZfbFAO/CVMkH8IMBHmY
+                JvJh8VNS/UKMG2YrPxWhu//2m+OBmgEGcYk1KCTd4b3rGS3hSMs9WYNRtHTGnXzGsYZbr8w0xNPM1IERlQCh9BIiAfq0g3GvjLeMcySs
+                N1PCAJA/Ef5c7TaUEDu9Ka7ixzpiO2xj2YC/WXGsYye5TBeg2vZzFb8q3o/zpWwygTMD0IZRcZk0upONXbVRWPeyk+gB9lm+cZv9TSjO
+                z23HFtz30dZGm6fKa+l3D/2gthsjgx0QGtkJAITgRNOidSOzNIb2ILCkXhAd4FJGAJ2xDx8hcFH1mt0G/FX0Kw4zd8NLQsLxdxP8c4CU
+                6x+7Nz/OAipmsHMdMqUybDKwjuDEI/9bfU1lcKwrmz3O2+BtjjKAvpafkmO8l7tdufThcV4q5O8DIrGKZTqPwJNl1IXNDw9bg1kWRxYt
+                nCQ6yICmJhSFm/Y3m6xv+cXDBlHz4n/FsRC6UfTd
+            """, options: [.ignoreUnknownCharacters])
+        )
+        let certificate = try XCTUnwrap(SecCertificateCreateWithData(nil, certData as CFData))
+        var trust: SecTrust?
+        let status = SecTrustCreateWithCertificates(certificate, SecPolicyCreateBasicX509(), &trust)
+        XCTAssertEqual(status, errSecSuccess)
+        return try XCTUnwrap(trust)
+    }
+
     func testInitialization() {
         let provider = MockCertificateProvider()
         let delegate = HAURLSessionDelegate(certificateProvider: provider)
@@ -183,40 +214,12 @@ internal class HAURLSessionDelegateTests: XCTestCase {
         waitForExpectations(timeout: 1.0)
     }
 
-    func testServerTrustChallengeWithTrust() {
+    func testServerTrustChallengeWithTrust() throws {
         let provider = MockCertificateProvider()
         let delegate = HAURLSessionDelegate(certificateProvider: provider)
 
         let session = URLSession(configuration: .ephemeral)
-
-        // Create a minimal, valid DER-encoded certificate for testing
-        // This is a real self-signed certificate generated with openssl
-        let certData = Data(
-            base64Encoded: "MIIBkTCB+wIJAKoSVqPi4qyMMA0GCSqGSIb3DQEBCwUAMBExDzANBgNVBAMMBnRl" +
-                "c3RlcjAeFw0yNDAyMjYwMDAwMDBaFw0yNTAyMjYwMDAwMDBaMBExDzANBgNVBAMM" +
-                "BnRlc3RlcjCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAw0qKpfOtGlR7cqYU" +
-                "4WqKvVqExNdvCblJ4cNslAn/YY4U0k0vD4g0bTtJpqm0PAqPJJT0cLlXZmMKt8lC" +
-                "EqtqPkQN8L1Kq4TtJpPtqKlQpvNqtJpqKlQpvNqtJpPtqKlQpvNqtJpPtqKlQpvN" +
-                "qtJpPtqKlQpvNqtJpPtqKlQpvNqtJpwCAwEAATANBgkqhkiG9w0BAQsFAAOBgQBM" +
-                "2qtJpPtqKlQpvNqtJpPtqKlQpvNqtJpPtqKlQpvNqtJpPtqKlQpvNqtJpPtqKlQp" +
-                "vNqtJpPtqKlQpvNqtJpPtqKlQpvNqtJpPtqKlQpvNqtJpPtqKlQpvNqtJpPtqKlQ" +
-                "pvNqtJpPtqKlQpvNqtJpPtqKlQpvNqtJpPtqKlQpvNqtJpPtqKlQpvNqtJpPtqKg"
-        )!
-
-        guard let certificate = SecCertificateCreateWithData(nil, certData as CFData) else {
-            // If certificate creation fails, skip this test gracefully
-            // This can happen on certain platforms or configurations
-            return
-        }
-
-        var trust: SecTrust?
-        let policy = SecPolicyCreateBasicX509()
-        let status = SecTrustCreateWithCertificates(certificate, policy, &trust)
-
-        guard status == errSecSuccess, let serverTrust = trust else {
-            // If trust creation fails, skip this test gracefully
-            return
-        }
+        let serverTrust = try createServerTrust()
 
         let customProtectionSpace = CustomProtectionSpace(
             host: "example.com",
@@ -248,38 +251,14 @@ internal class HAURLSessionDelegateTests: XCTestCase {
         waitForExpectations(timeout: 1.0)
     }
 
-    func testProviderRejectsServerTrust() {
+    func testProviderRejectsServerTrust() throws {
         let provider = MockCertificateProvider()
         provider.serverTrustDisposition = .cancelAuthenticationChallenge
         provider.serverTrustCredential = nil
 
         let delegate = HAURLSessionDelegate(certificateProvider: provider)
         let session = URLSession(configuration: .ephemeral)
-
-        // Create a minimal DER-encoded certificate for testing
-        let certData = Data(
-            base64Encoded: "MIIBkTCB+wIJAKoSVqPi4qyMMA0GCSqGSIb3DQEBCwUAMBExDzANBgNVBAMMBnRl" +
-                "c3RlcjAeFw0yNDAyMjYwMDAwMDBaFw0yNTAyMjYwMDAwMDBaMBExDzANBgNVBAMM" +
-                "BnRlc3RlcjCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAw0qKpfOtGlR7cqYU" +
-                "4WqKvVqExNdvCblJ4cNslAn/YY4U0k0vD4g0bTtJpqm0PAqPJJT0cLlXZmMKt8lC" +
-                "EqtqPkQN8L1Kq4TtJpPtqKlQpvNqtJpqKlQpvNqtJpPtqKlQpvNqtJpPtqKlQpvN" +
-                "qtJpPtqKlQpvNqtJpPtqKlQpvNqtJpwCAwEAATANBgkqhkiG9w0BAQsFAAOBgQBM" +
-                "2qtJpPtqKlQpvNqtJpPtqKlQpvNqtJpPtqKlQpvNqtJpPtqKlQpvNqtJpPtqKlQp" +
-                "vNqtJpPtqKlQpvNqtJpPtqKlQpvNqtJpPtqKlQpvNqtJpPtqKlQpvNqtJpPtqKlQ" +
-                "pvNqtJpPtqKlQpvNqtJpPtqKlQpvNqtJpPtqKlQpvNqtJpPtqKlQpvNqtJpPtqKg"
-        )!
-
-        guard let certificate = SecCertificateCreateWithData(nil, certData as CFData) else {
-            return
-        }
-
-        var trust: SecTrust?
-        let policy = SecPolicyCreateBasicX509()
-        let status = SecTrustCreateWithCertificates(certificate, policy, &trust)
-
-        guard status == errSecSuccess, let serverTrust = trust else {
-            return
-        }
+        let serverTrust = try createServerTrust()
 
         let customProtectionSpace = CustomProtectionSpace(
             host: "example.com",
