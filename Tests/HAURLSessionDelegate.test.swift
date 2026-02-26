@@ -192,8 +192,7 @@ internal class HAURLSessionDelegateTests: XCTestCase {
         // Create a minimal, valid DER-encoded certificate for testing
         // This is a real self-signed certificate generated with openssl
         let certData = Data(
-            base64Encoded:
-                "MIIBkTCB+wIJAKoSVqPi4qyMMA0GCSqGSIb3DQEBCwUAMBExDzANBgNVBAMMBnRl" +
+            base64Encoded: "MIIBkTCB+wIJAKoSVqPi4qyMMA0GCSqGSIb3DQEBCwUAMBExDzANBgNVBAMMBnRl" +
                 "c3RlcjAeFw0yNDAyMjYwMDAwMDBaFw0yNTAyMjYwMDAwMDBaMBExDzANBgNVBAMM" +
                 "BnRlc3RlcjCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAw0qKpfOtGlR7cqYU" +
                 "4WqKvVqExNdvCblJ4cNslAn/YY4U0k0vD4g0bTtJpqm0PAqPJJT0cLlXZmMKt8lC" +
@@ -259,8 +258,7 @@ internal class HAURLSessionDelegateTests: XCTestCase {
 
         // Create a minimal DER-encoded certificate for testing
         let certData = Data(
-            base64Encoded:
-                "MIIBkTCB+wIJAKoSVqPi4qyMMA0GCSqGSIb3DQEBCwUAMBExDzANBgNVBAMMBnRl" +
+            base64Encoded: "MIIBkTCB+wIJAKoSVqPi4qyMMA0GCSqGSIb3DQEBCwUAMBExDzANBgNVBAMMBnRl" +
                 "c3RlcjAeFw0yNDAyMjYwMDAwMDBaFw0yNTAyMjYwMDAwMDBaMBExDzANBgNVBAMM" +
                 "BnRlc3RlcjCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAw0qKpfOtGlR7cqYU" +
                 "4WqKvVqExNdvCblJ4cNslAn/YY4U0k0vD4g0bTtJpqm0PAqPJJT0cLlXZmMKt8lC" +
