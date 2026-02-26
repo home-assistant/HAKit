@@ -191,16 +191,17 @@ internal class HAURLSessionDelegateTests: XCTestCase {
 
         // Create a minimal, valid DER-encoded certificate for testing
         // This is a real self-signed certificate generated with openssl
-        let certData = Data(base64Encoded:
-            "MIIBkTCB+wIJAKoSVqPi4qyMMA0GCSqGSIb3DQEBCwUAMBExDzANBgNVBAMMBnRl" +
-            "c3RlcjAeFw0yNDAyMjYwMDAwMDBaFw0yNTAyMjYwMDAwMDBaMBExDzANBgNVBAMM" +
-            "BnRlc3RlcjCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAw0qKpfOtGlR7cqYU" +
-            "4WqKvVqExNdvCblJ4cNslAn/YY4U0k0vD4g0bTtJpqm0PAqPJJT0cLlXZmMKt8lC" +
-            "EqtqPkQN8L1Kq4TtJpPtqKlQpvNqtJpqKlQpvNqtJpPtqKlQpvNqtJpPtqKlQpvN" +
-            "qtJpPtqKlQpvNqtJpPtqKlQpvNqtJpwCAwEAATANBgkqhkiG9w0BAQsFAAOBgQBM" +
-            "2qtJpPtqKlQpvNqtJpPtqKlQpvNqtJpPtqKlQpvNqtJpPtqKlQpvNqtJpPtqKlQp" +
-            "vNqtJpPtqKlQpvNqtJpPtqKlQpvNqtJpPtqKlQpvNqtJpPtqKlQpvNqtJpPtqKlQ" +
-            "pvNqtJpPtqKlQpvNqtJpPtqKlQpvNqtJpPtqKlQpvNqtJpPtqKlQpvNqtJpPtqKg"
+        let certData = Data(
+            base64Encoded:
+                "MIIBkTCB+wIJAKoSVqPi4qyMMA0GCSqGSIb3DQEBCwUAMBExDzANBgNVBAMMBnRl" +
+                "c3RlcjAeFw0yNDAyMjYwMDAwMDBaFw0yNTAyMjYwMDAwMDBaMBExDzANBgNVBAMM" +
+                "BnRlc3RlcjCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAw0qKpfOtGlR7cqYU" +
+                "4WqKvVqExNdvCblJ4cNslAn/YY4U0k0vD4g0bTtJpqm0PAqPJJT0cLlXZmMKt8lC" +
+                "EqtqPkQN8L1Kq4TtJpPtqKlQpvNqtJpqKlQpvNqtJpPtqKlQpvNqtJpPtqKlQpvN" +
+                "qtJpPtqKlQpvNqtJpPtqKlQpvNqtJpwCAwEAATANBgkqhkiG9w0BAQsFAAOBgQBM" +
+                "2qtJpPtqKlQpvNqtJpPtqKlQpvNqtJpPtqKlQpvNqtJpPtqKlQpvNqtJpPtqKlQp" +
+                "vNqtJpPtqKlQpvNqtJpPtqKlQpvNqtJpPtqKlQpvNqtJpPtqKlQpvNqtJpPtqKlQ" +
+                "pvNqtJpPtqKlQpvNqtJpPtqKlQpvNqtJpPtqKlQpvNqtJpPtqKlQpvNqtJpPtqKg"
         )!
 
         guard let certificate = SecCertificateCreateWithData(nil, certData as CFData) else {
@@ -257,16 +258,17 @@ internal class HAURLSessionDelegateTests: XCTestCase {
         let session = URLSession(configuration: .ephemeral)
 
         // Create a minimal DER-encoded certificate for testing
-        let certData = Data(base64Encoded:
-            "MIIBkTCB+wIJAKoSVqPi4qyMMA0GCSqGSIb3DQEBCwUAMBExDzANBgNVBAMMBnRl" +
-            "c3RlcjAeFw0yNDAyMjYwMDAwMDBaFw0yNTAyMjYwMDAwMDBaMBExDzANBgNVBAMM" +
-            "BnRlc3RlcjCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAw0qKpfOtGlR7cqYU" +
-            "4WqKvVqExNdvCblJ4cNslAn/YY4U0k0vD4g0bTtJpqm0PAqPJJT0cLlXZmMKt8lC" +
-            "EqtqPkQN8L1Kq4TtJpPtqKlQpvNqtJpqKlQpvNqtJpPtqKlQpvNqtJpPtqKlQpvN" +
-            "qtJpPtqKlQpvNqtJpPtqKlQpvNqtJpwCAwEAATANBgkqhkiG9w0BAQsFAAOBgQBM" +
-            "2qtJpPtqKlQpvNqtJpPtqKlQpvNqtJpPtqKlQpvNqtJpPtqKlQpvNqtJpPtqKlQp" +
-            "vNqtJpPtqKlQpvNqtJpPtqKlQpvNqtJpPtqKlQpvNqtJpPtqKlQpvNqtJpPtqKlQ" +
-            "pvNqtJpPtqKlQpvNqtJpPtqKlQpvNqtJpPtqKlQpvNqtJpPtqKlQpvNqtJpPtqKg"
+        let certData = Data(
+            base64Encoded:
+                "MIIBkTCB+wIJAKoSVqPi4qyMMA0GCSqGSIb3DQEBCwUAMBExDzANBgNVBAMMBnRl" +
+                "c3RlcjAeFw0yNDAyMjYwMDAwMDBaFw0yNTAyMjYwMDAwMDBaMBExDzANBgNVBAMM" +
+                "BnRlc3RlcjCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAw0qKpfOtGlR7cqYU" +
+                "4WqKvVqExNdvCblJ4cNslAn/YY4U0k0vD4g0bTtJpqm0PAqPJJT0cLlXZmMKt8lC" +
+                "EqtqPkQN8L1Kq4TtJpPtqKlQpvNqtJpqKlQpvNqtJpPtqKlQpvNqtJpPtqKlQpvN" +
+                "qtJpPtqKlQpvNqtJpPtqKlQpvNqtJpwCAwEAATANBgkqhkiG9w0BAQsFAAOBgQBM" +
+                "2qtJpPtqKlQpvNqtJpPtqKlQpvNqtJpPtqKlQpvNqtJpPtqKlQpvNqtJpPtqKlQp" +
+                "vNqtJpPtqKlQpvNqtJpPtqKlQpvNqtJpPtqKlQpvNqtJpPtqKlQpvNqtJpPtqKlQ" +
+                "pvNqtJpPtqKlQpvNqtJpPtqKlQpvNqtJpPtqKlQpvNqtJpPtqKlQpvNqtJpPtqKg"
         )!
 
         guard let certificate = SecCertificateCreateWithData(nil, certData as CFData) else {
@@ -336,12 +338,13 @@ private class CustomProtectionSpace: URLProtectionSpace, @unchecked Sendable {
         )
     }
 
+    @available(*, unavailable)
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
     override var serverTrust: SecTrust? {
-        return _serverTrust
+        _serverTrust
     }
 }
 
