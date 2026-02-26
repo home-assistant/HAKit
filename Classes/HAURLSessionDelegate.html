@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>HADataDecodable Protocol Reference</title>
+    <title>HAURLSessionDelegate Class Reference</title>
     <link rel="stylesheet" type="text/css" href="../css/jazzy.css" />
     <link rel="stylesheet" type="text/css" href="../css/highlight.css" />
     <meta charset='utf-8'>
@@ -13,8 +13,8 @@
     <script src="../js/jazzy.search.js" defer></script>
   </head>
   <body>
-    <a name="//apple_ref/swift/Protocol/HADataDecodable" class="dashAnchor"></a>
-    <a title="HADataDecodable Protocol Reference"></a>
+    <a name="//apple_ref/swift/Class/HAURLSessionDelegate" class="dashAnchor"></a>
+    <a title="HAURLSessionDelegate Class Reference"></a>
     <header>
       <div class="content-wrapper">
         <p><a href="../index.html">HAKit 0.4.11 Docs</a> (93% documented)</p>
@@ -30,9 +30,9 @@
       <p id="breadcrumbs">
         <a href="../index.html">HAKit</a>
         <img id="carat" src="../img/carat.png" alt=""/>
-        <a href="../Protocols.html">Protocols</a>
+        <a href="../Classes.html">Classes</a>
         <img id="carat" src="../img/carat.png" alt=""/>
-        HADataDecodable Protocol Reference
+        HAURLSessionDelegate Class Reference
       </p>
     </div>
     <div class="content-wrapper">
@@ -254,21 +254,35 @@
       <article class="main-content">
         <section>
           <section class="section">
-            <h1>HADataDecodable</h1>
+            <h1>HAURLSessionDelegate</h1>
               <div class="declaration">
                 <div class="language">
                   
-                  <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">protocol</span> <span class="kt">HADataDecodable</span> <span class="p">:</span> <span class="kt"><a href="../Protocols/HADecodeTransformable.html">HADecodeTransformable</a></span></code></pre>
+                  <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">HAURLSessionDelegate</span> <span class="p">:</span> <span class="kt">NSObject</span><span class="p">,</span> <span class="kt">URLSessionDelegate</span></code></pre>
 
                 </div>
               </div>
-            <p>A type which can be decoded using our data type</p>
-<div class="aside aside-note">
-    <p class="aside-title">Note</p>
-    This differs from <code>Decodable</code> intentionally; <code>Decodable</code> does not support <code>Any</code> types or JSON well when the
-    results are extremely dynamic. This limitation requires that we do it ourselves.
+            <p>URLSession delegate for HAKit REST API calls that supports custom certificate handling</p>
 
-</div>
+<p>This delegate handles both client certificate authentication (mTLS) and custom server
+certificate validation through the <code><a href="../Protocols/HACertificateProvider.html">HACertificateProvider</a></code> protocol.</p>
+
+<p>Example usage:</p>
+<pre class="highlight swift"><code><span class="kd">struct</span> <span class="kt">MyCertificateProvider</span><span class="p">:</span> <span class="kt">HACertificateProvider</span> <span class="p">{</span>
+    <span class="kd">func</span> <span class="nf">provideClientCertificate</span><span class="p">(</span><span class="k">for</span> <span class="nv">challenge</span><span class="p">:</span> <span class="o">...</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// Provide client certificate from keychain</span>
+    <span class="p">}</span>
+
+    <span class="kd">func</span> <span class="nf">evaluateServerTrust</span><span class="p">(</span><span class="n">_</span> <span class="nv">serverTrust</span><span class="p">:</span> <span class="o">...</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// Validate self-signed or custom CA certificates</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">let</span> <span class="nv">provider</span> <span class="o">=</span> <span class="kt">MyCertificateProvider</span><span class="p">()</span>
+<span class="k">let</span> <span class="nv">delegate</span> <span class="o">=</span> <span class="kt">HAURLSessionDelegate</span><span class="p">(</span><span class="nv">certificateProvider</span><span class="p">:</span> <span class="n">provider</span><span class="p">)</span>
+<span class="k">let</span> <span class="nv">session</span> <span class="o">=</span> <span class="kt">URLSession</span><span class="p">(</span><span class="nv">configuration</span><span class="p">:</span> <span class="o">.</span><span class="n">ephemeral</span><span class="p">,</span> <span class="nv">delegate</span><span class="p">:</span> <span class="n">delegate</span><span class="p">,</span> <span class="nv">delegateQueue</span><span class="p">:</span> <span class="kc">nil</span><span class="p">)</span>
+<span class="k">let</span> <span class="nv">connection</span> <span class="o">=</span> <span class="kt">HAKit</span><span class="o">.</span><span class="nf">connection</span><span class="p">(</span><span class="nv">configuration</span><span class="p">:</span> <span class="n">config</span><span class="p">,</span> <span class="nv">urlSession</span><span class="p">:</span> <span class="n">session</span><span class="p">)</span>
+</code></pre>
 
           </section>
           <section class="section task-group-section">
@@ -277,9 +291,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:5HAKit15HADataDecodableP4dataxAA0B0O_tKcfc"></a>
-                    <a name="//apple_ref/swift/Method/init(data:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:5HAKit15HADataDecodableP4dataxAA0B0O_tKcfc">init(data:<wbr>)</a>
+                    <a name="/s:5HAKit20HAURLSessionDelegateC19certificateProviderAcA013HACertificateE0_p_tcfc"></a>
+                    <a name="//apple_ref/swift/Method/init(certificateProvider:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:5HAKit20HAURLSessionDelegateC19certificateProviderAcA013HACertificateE0_p_tcfc">init(certificateProvider:<wbr>)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -287,20 +301,14 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Create an instance from data
-One day, if Decodable can handle &lsquo;Any&rsquo; types well, this can be init(decoder:).</p>
-<div class="aside aside-throws">
-    <p class="aside-title">Throws</p>
-    When unable to decode
-
-</div>
+                        <p>Initialize with a certificate provider</p>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="nf">init</span><span class="p">(</span><span class="nv">data</span><span class="p">:</span> <span class="kt"><a href="../Enums/HAData.html">HAData</a></span><span class="p">)</span> <span class="k">throws</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="nf">init</span><span class="p">(</span><span class="nv">certificateProvider</span><span class="p">:</span> <span class="kt"><a href="../Protocols/HACertificateProvider.html">HACertificateProvider</a></span><span class="p">)</span></code></pre>
 
                         </div>
                       </div>
@@ -311,12 +319,12 @@ One day, if Decodable can handle &lsquo;Any&rsquo; types well, this can be init(
                             <tr>
                               <td>
                                 <code>
-                                <em>data</em>
+                                <em>certificateProvider</em>
                                 </code>
                               </td>
                               <td>
                                 <div>
-                                  <p>The data to decode</p>
+                                  <p>The provider that handles certificate authentication</p>
                                 </div>
                               </td>
                             </tr>
@@ -329,57 +337,30 @@ One day, if Decodable can handle &lsquo;Any&rsquo; types well, this can be init(
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:5HAKit15HADataDecodablePAAE6decode7unknownxSgyp_tKFZ"></a>
-                    <a name="//apple_ref/swift/Method/decode(unknown:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:5HAKit15HADataDecodablePAAE6decode7unknownxSgyp_tKFZ">decode(unknown:<wbr>)</a>
+                    <a name="/c:@M@HAKit@objc(cs)HAURLSessionDelegate(im)URLSession:didReceiveChallenge:completionHandler:"></a>
+                    <a name="//apple_ref/swift/Method/urlSession(_:didReceive:completionHandler:)" class="dashAnchor"></a>
+                    <a class="token" href="#/c:@M@HAKit@objc(cs)HAURLSessionDelegate(im)URLSession:didReceiveChallenge:completionHandler:">urlSession(_:<wbr>didReceive:<wbr>completionHandler:<wbr>)</a>
                     </code>
-                      <span class="declaration-note">
-                        Extension method
-                      </span>
                   </div>
                   <div class="height-container">
                     <div class="pointer-container"></div>
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Create a <code>HADataDecodable</code> instance via <code>.decode(…)</code> indirection</p>
-<div class="aside aside-throws">
-    <p class="aside-title">Throws</p>
-    When unable to decode
-
-</div>
+                        <p>Undocumented</p>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">static</span> <span class="kd">func</span> <span class="nf">decode</span><span class="p">(</span><span class="n">unknown</span> <span class="nv">value</span><span class="p">:</span> <span class="kt">Any</span><span class="p">)</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="k">Self</span><span class="p">?</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">urlSession</span><span class="p">(</span>
+    <span class="n">_</span> <span class="nv">session</span><span class="p">:</span> <span class="kt">URLSession</span><span class="p">,</span>
+    <span class="n">didReceive</span> <span class="nv">challenge</span><span class="p">:</span> <span class="kt">URLAuthenticationChallenge</span><span class="p">,</span>
+    <span class="nv">completionHandler</span><span class="p">:</span> <span class="kd">@escaping</span> <span class="p">(</span><span class="kt">URLSession</span><span class="o">.</span><span class="kt">AuthChallengeDisposition</span><span class="p">,</span> <span class="kt">URLCredential</span><span class="p">?)</span> <span class="o">-&gt;</span> <span class="kt">Void</span>
+<span class="p">)</span></code></pre>
 
                         </div>
-                      </div>
-                      <div>
-                        <h4>Parameters</h4>
-                        <table class="graybox">
-                          <tbody>
-                            <tr>
-                              <td>
-                                <code>
-                                <em>value</em>
-                                </code>
-                              </td>
-                              <td>
-                                <div>
-                                  <p>The value to convert to HAData for the init</p>
-                                </div>
-                              </td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>
-                      <div>
-                        <h4>Return Value</h4>
-                        <p>The decodable initialized with the given value</p>
                       </div>
                     </section>
                   </div>

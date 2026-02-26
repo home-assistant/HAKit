@@ -106,6 +106,13 @@
       "warning": "undocumented"
     },
     {
+      "file": "/Users/runner/work/HAKit/HAKit/Source/HAURLSessionDelegate.swift",
+      "line": 58,
+      "symbol": "HAURLSessionDelegate.urlSession(_:didReceive:completionHandler:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
       "file": "/Users/runner/work/HAKit/HAKit/Source/Requests/HAHTTPMethod.swift",
       "line": 1,
       "symbol": "HAHTTPMethod",

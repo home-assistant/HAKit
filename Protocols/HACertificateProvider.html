@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>HADataDecodable Protocol Reference</title>
+    <title>HACertificateProvider Protocol Reference</title>
     <link rel="stylesheet" type="text/css" href="../css/jazzy.css" />
     <link rel="stylesheet" type="text/css" href="../css/highlight.css" />
     <meta charset='utf-8'>
@@ -13,8 +13,8 @@
     <script src="../js/jazzy.search.js" defer></script>
   </head>
   <body>
-    <a name="//apple_ref/swift/Protocol/HADataDecodable" class="dashAnchor"></a>
-    <a title="HADataDecodable Protocol Reference"></a>
+    <a name="//apple_ref/swift/Protocol/HACertificateProvider" class="dashAnchor"></a>
+    <a title="HACertificateProvider Protocol Reference"></a>
     <header>
       <div class="content-wrapper">
         <p><a href="../index.html">HAKit 0.4.11 Docs</a> (93% documented)</p>
@@ -32,7 +32,7 @@
         <img id="carat" src="../img/carat.png" alt=""/>
         <a href="../Protocols.html">Protocols</a>
         <img id="carat" src="../img/carat.png" alt=""/>
-        HADataDecodable Protocol Reference
+        HACertificateProvider Protocol Reference
       </p>
     </div>
     <div class="content-wrapper">
@@ -254,21 +254,15 @@
       <article class="main-content">
         <section>
           <section class="section">
-            <h1>HADataDecodable</h1>
+            <h1>HACertificateProvider</h1>
               <div class="declaration">
                 <div class="language">
                   
-                  <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">protocol</span> <span class="kt">HADataDecodable</span> <span class="p">:</span> <span class="kt"><a href="../Protocols/HADecodeTransformable.html">HADecodeTransformable</a></span></code></pre>
+                  <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">protocol</span> <span class="kt">HACertificateProvider</span></code></pre>
 
                 </div>
               </div>
-            <p>A type which can be decoded using our data type</p>
-<div class="aside aside-note">
-    <p class="aside-title">Note</p>
-    This differs from <code>Decodable</code> intentionally; <code>Decodable</code> does not support <code>Any</code> types or JSON well when the
-    results are extremely dynamic. This limitation requires that we do it ourselves.
-
-</div>
+            <p>Protocol for providing certificate authentication for HAKit REST API calls</p>
 
           </section>
           <section class="section task-group-section">
@@ -277,9 +271,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:5HAKit15HADataDecodableP4dataxAA0B0O_tKcfc"></a>
-                    <a name="//apple_ref/swift/Method/init(data:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:5HAKit15HADataDecodableP4dataxAA0B0O_tKcfc">init(data:<wbr>)</a>
+                    <a name="/s:5HAKit21HACertificateProviderP24provideClientCertificate3for17completionHandlerySo28NSURLAuthenticationChallengeC_ySo016NSURLSessionAuthK11DispositionV_So15NSURLCredentialCSgtctF"></a>
+                    <a name="//apple_ref/swift/Method/provideClientCertificate(for:completionHandler:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:5HAKit21HACertificateProviderP24provideClientCertificate3for17completionHandlerySo28NSURLAuthenticationChallengeC_ySo016NSURLSessionAuthK11DispositionV_So15NSURLCredentialCSgtctF">provideClientCertificate(for:<wbr>completionHandler:<wbr>)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -287,20 +281,17 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Create an instance from data
-One day, if Decodable can handle &lsquo;Any&rsquo; types well, this can be init(decoder:).</p>
-<div class="aside aside-throws">
-    <p class="aside-title">Throws</p>
-    When unable to decode
-
-</div>
+                        <p>Called when the server requests a client certificate (mTLS)</p>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="nf">init</span><span class="p">(</span><span class="nv">data</span><span class="p">:</span> <span class="kt"><a href="../Enums/HAData.html">HAData</a></span><span class="p">)</span> <span class="k">throws</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">provideClientCertificate</span><span class="p">(</span>
+    <span class="k">for</span> <span class="nv">challenge</span><span class="p">:</span> <span class="kt">URLAuthenticationChallenge</span><span class="p">,</span>
+    <span class="nv">completionHandler</span><span class="p">:</span> <span class="kd">@escaping</span> <span class="p">(</span><span class="kt">URLSession</span><span class="o">.</span><span class="kt">AuthChallengeDisposition</span><span class="p">,</span> <span class="kt">URLCredential</span><span class="p">?)</span> <span class="o">-&gt;</span> <span class="kt">Void</span>
+<span class="p">)</span></code></pre>
 
                         </div>
                       </div>
@@ -311,12 +302,24 @@ One day, if Decodable can handle &lsquo;Any&rsquo; types well, this can be init(
                             <tr>
                               <td>
                                 <code>
-                                <em>data</em>
+                                <em>challenge</em>
                                 </code>
                               </td>
                               <td>
                                 <div>
-                                  <p>The data to decode</p>
+                                  <p>The authentication challenge</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>completionHandler</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Handler to call with the authentication result</p>
                                 </div>
                               </td>
                             </tr>
@@ -329,32 +332,28 @@ One day, if Decodable can handle &lsquo;Any&rsquo; types well, this can be init(
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:5HAKit15HADataDecodablePAAE6decode7unknownxSgyp_tKFZ"></a>
-                    <a name="//apple_ref/swift/Method/decode(unknown:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:5HAKit15HADataDecodablePAAE6decode7unknownxSgyp_tKFZ">decode(unknown:<wbr>)</a>
+                    <a name="/s:5HAKit21HACertificateProviderP19evaluateServerTrust_7forHost17completionHandlerySo03SecF3Refa_SSySo36NSURLSessionAuthChallengeDispositionV_So15NSURLCredentialCSgtctF"></a>
+                    <a name="//apple_ref/swift/Method/evaluateServerTrust(_:forHost:completionHandler:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:5HAKit21HACertificateProviderP19evaluateServerTrust_7forHost17completionHandlerySo03SecF3Refa_SSySo36NSURLSessionAuthChallengeDispositionV_So15NSURLCredentialCSgtctF">evaluateServerTrust(_:<wbr>forHost:<wbr>completionHandler:<wbr>)</a>
                     </code>
-                      <span class="declaration-note">
-                        Extension method
-                      </span>
                   </div>
                   <div class="height-container">
                     <div class="pointer-container"></div>
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Create a <code>HADataDecodable</code> instance via <code>.decode(…)</code> indirection</p>
-<div class="aside aside-throws">
-    <p class="aside-title">Throws</p>
-    When unable to decode
-
-</div>
+                        <p>Called when the server&rsquo;s SSL certificate needs validation</p>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">static</span> <span class="kd">func</span> <span class="nf">decode</span><span class="p">(</span><span class="n">unknown</span> <span class="nv">value</span><span class="p">:</span> <span class="kt">Any</span><span class="p">)</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="k">Self</span><span class="p">?</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">evaluateServerTrust</span><span class="p">(</span>
+    <span class="n">_</span> <span class="nv">serverTrust</span><span class="p">:</span> <span class="kt">SecTrust</span><span class="p">,</span>
+    <span class="n">forHost</span> <span class="nv">host</span><span class="p">:</span> <span class="kt">String</span><span class="p">,</span>
+    <span class="nv">completionHandler</span><span class="p">:</span> <span class="kd">@escaping</span> <span class="p">(</span><span class="kt">URLSession</span><span class="o">.</span><span class="kt">AuthChallengeDisposition</span><span class="p">,</span> <span class="kt">URLCredential</span><span class="p">?)</span> <span class="o">-&gt;</span> <span class="kt">Void</span>
+<span class="p">)</span></code></pre>
 
                         </div>
                       </div>
@@ -365,21 +364,41 @@ One day, if Decodable can handle &lsquo;Any&rsquo; types well, this can be init(
                             <tr>
                               <td>
                                 <code>
-                                <em>value</em>
+                                <em>serverTrust</em>
                                 </code>
                               </td>
                               <td>
                                 <div>
-                                  <p>The value to convert to HAData for the init</p>
+                                  <p>The server trust to evaluate</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>host</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The hostname being connected to</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>completionHandler</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Handler to call with the validation result</p>
                                 </div>
                               </td>
                             </tr>
                           </tbody>
                         </table>
-                      </div>
-                      <div>
-                        <h4>Return Value</h4>
-                        <p>The decodable initialized with the given value</p>
                       </div>
                     </section>
                   </div>

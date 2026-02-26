@@ -45,6 +45,9 @@
               <li class="nav-group-task">
                 <a href="Classes/HAProtected.html">HAProtected</a>
               </li>
+              <li class="nav-group-task">
+                <a href="Classes/HAURLSessionDelegate.html">HAURLSessionDelegate</a>
+              </li>
             </ul>
           </li>
           <li class="nav-group-name">
@@ -110,6 +113,9 @@
               </li>
               <li class="nav-group-task">
                 <a href="Protocols/HACancellable.html">HACancellable</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Protocols/HACertificateProvider.html">HACertificateProvider</a>
               </li>
               <li class="nav-group-task">
                 <a href="Protocols/HAConnection.html">HAConnection</a>
@@ -280,6 +286,9 @@
 <p><strong>Note</strong>: This feature is experimental and not available on watchOS.</p>
 </blockquote>
 
+<p>HAKit supports mutual TLS (mTLS) authentication for both WebSocket and REST API connections. This allows you to connect to Home Assistant instances behind reverse proxies that require client certificate authentication.</p>
+<h3 id='websocket-mtls' class='heading'>WebSocket mTLS</h3>
+
 <p>If your Home Assistant instance is behind a reverse proxy that requires client certificate authentication (mutual TLS / mTLS), you can provide a <code>clientIdentity</code> when creating the connection info:</p>
 <pre class="highlight swift"><code><span class="k">let</span> <span class="nv">connection</span> <span class="o">=</span> <span class="kt">HAKit</span><span class="o">.</span><span class="nf">connection</span><span class="p">(</span><span class="nv">configuration</span><span class="p">:</span> <span class="o">.</span><span class="nf">init</span><span class="p">(</span>
   <span class="nv">connectionInfo</span><span class="p">:</span> <span class="p">{</span>
@@ -297,6 +306,63 @@
   <span class="p">}</span>
 <span class="p">))</span>
 </code></pre>
+<h3 id='rest-api-mtls' class='heading'>REST API mTLS</h3>
+
+<p>For REST API calls, you can provide a custom <code>URLSession</code> with certificate handling through the <code><a href="Protocols/HACertificateProvider.html">HACertificateProvider</a></code> protocol:</p>
+<pre class="highlight swift"><code><span class="c1">// 1. Implement the HACertificateProvider protocol</span>
+<span class="kd">struct</span> <span class="kt">MyCertificateProvider</span><span class="p">:</span> <span class="kt">HACertificateProvider</span> <span class="p">{</span>
+    <span class="kd">func</span> <span class="nf">provideClientCertificate</span><span class="p">(</span>
+        <span class="k">for</span> <span class="nv">challenge</span><span class="p">:</span> <span class="kt">URLAuthenticationChallenge</span><span class="p">,</span>
+        <span class="nv">completionHandler</span><span class="p">:</span> <span class="kd">@escaping</span> <span class="p">(</span><span class="kt">URLSession</span><span class="o">.</span><span class="kt">AuthChallengeDisposition</span><span class="p">,</span> <span class="kt">URLCredential</span><span class="p">?)</span> <span class="o">-&gt;</span> <span class="kt">Void</span>
+    <span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// Load and provide your client certificate</span>
+        <span class="k">if</span> <span class="k">let</span> <span class="nv">identity</span> <span class="o">=</span> <span class="nf">loadClientIdentityFromKeychain</span><span class="p">()</span> <span class="p">{</span>
+            <span class="k">let</span> <span class="nv">credential</span> <span class="o">=</span> <span class="kt">URLCredential</span><span class="p">(</span>
+                <span class="nv">identity</span><span class="p">:</span> <span class="n">identity</span><span class="p">,</span>
+                <span class="nv">certificates</span><span class="p">:</span> <span class="kc">nil</span><span class="p">,</span>
+                <span class="nv">persistence</span><span class="p">:</span> <span class="o">.</span><span class="k">none</span>
+            <span class="p">)</span>
+            <span class="nf">completionHandler</span><span class="p">(</span><span class="o">.</span><span class="n">useCredential</span><span class="p">,</span> <span class="n">credential</span><span class="p">)</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="nf">completionHandler</span><span class="p">(</span><span class="o">.</span><span class="n">cancelAuthenticationChallenge</span><span class="p">,</span> <span class="kc">nil</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="kd">func</span> <span class="nf">evaluateServerTrust</span><span class="p">(</span>
+        <span class="n">_</span> <span class="nv">serverTrust</span><span class="p">:</span> <span class="kt">SecTrust</span><span class="p">,</span>
+        <span class="n">forHost</span> <span class="nv">host</span><span class="p">:</span> <span class="kt">String</span><span class="p">,</span>
+        <span class="nv">completionHandler</span><span class="p">:</span> <span class="kd">@escaping</span> <span class="p">(</span><span class="kt">URLSession</span><span class="o">.</span><span class="kt">AuthChallengeDisposition</span><span class="p">,</span> <span class="kt">URLCredential</span><span class="p">?)</span> <span class="o">-&gt;</span> <span class="kt">Void</span>
+    <span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// Optionally validate self-signed or custom CA certificates</span>
+        <span class="c1">// For standard certificates, you can use default handling:</span>
+        <span class="nf">completionHandler</span><span class="p">(</span><span class="o">.</span><span class="n">performDefaultHandling</span><span class="p">,</span> <span class="kc">nil</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// 2. Create a URLSession with the certificate provider</span>
+<span class="k">let</span> <span class="nv">provider</span> <span class="o">=</span> <span class="kt">MyCertificateProvider</span><span class="p">()</span>
+<span class="k">let</span> <span class="nv">delegate</span> <span class="o">=</span> <span class="kt">HAURLSessionDelegate</span><span class="p">(</span><span class="nv">certificateProvider</span><span class="p">:</span> <span class="n">provider</span><span class="p">)</span>
+<span class="k">let</span> <span class="nv">urlSession</span> <span class="o">=</span> <span class="kt">URLSession</span><span class="p">(</span>
+    <span class="nv">configuration</span><span class="p">:</span> <span class="o">.</span><span class="n">ephemeral</span><span class="p">,</span>
+    <span class="nv">delegate</span><span class="p">:</span> <span class="n">delegate</span><span class="p">,</span>
+    <span class="nv">delegateQueue</span><span class="p">:</span> <span class="kc">nil</span>
+<span class="p">)</span>
+
+<span class="c1">// 3. Pass the URLSession when creating the connection</span>
+<span class="k">let</span> <span class="nv">connection</span> <span class="o">=</span> <span class="kt">HAKit</span><span class="o">.</span><span class="nf">connection</span><span class="p">(</span>
+    <span class="nv">configuration</span><span class="p">:</span> <span class="o">.</span><span class="nf">init</span><span class="p">(</span>
+        <span class="nv">connectionInfo</span><span class="p">:</span> <span class="p">{</span>
+            <span class="k">try!</span> <span class="o">.</span><span class="nf">init</span><span class="p">(</span><span class="nv">url</span><span class="p">:</span> <span class="kt">URL</span><span class="p">(</span><span class="nv">string</span><span class="p">:</span> <span class="s">"https://homeassistant.example.com"</span><span class="p">)</span><span class="o">!</span><span class="p">)</span>
+        <span class="p">},</span>
+        <span class="nv">fetchAuthToken</span><span class="p">:</span> <span class="p">{</span> <span class="n">completion</span> <span class="k">in</span>
+            <span class="nf">completion</span><span class="p">(</span><span class="o">.</span><span class="nf">success</span><span class="p">(</span><span class="s">"API_Token_Here"</span><span class="p">))</span>
+        <span class="p">}</span>
+    <span class="p">),</span>
+    <span class="nv">urlSession</span><span class="p">:</span> <span class="n">urlSession</span>
+<span class="p">)</span>
+</code></pre>
+
+<p>This approach allows you to handle certificate authentication for REST API calls independently from WebSocket connections, giving you full control over the certificate validation process.</p>
 <h3 id='loading-a-client-identity-from-a-p12-file' class='heading'>Loading a client identity from a .p12 file</h3>
 <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">loadClientIdentity</span><span class="p">(</span><span class="n">from</span> <span class="nv">p12Data</span><span class="p">:</span> <span class="kt">Data</span><span class="p">,</span> <span class="nv">password</span><span class="p">:</span> <span class="kt">String</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">SecIdentity</span><span class="p">?</span> <span class="p">{</span>
     <span class="k">var</span> <span class="nv">importResult</span><span class="p">:</span> <span class="kt">CFArray</span><span class="p">?</span>
@@ -513,7 +579,7 @@
           </section>
         </section>
         <section id="footer">
-          <p>&copy; 2026 <a class="link" href="https://github.com/home-assistant/HAKit" target="_blank" rel="external noopener">Home Assistant</a>. All rights reserved. (Last updated: 2026-02-24)</p>
+          <p>&copy; 2026 <a class="link" href="https://github.com/home-assistant/HAKit" target="_blank" rel="external noopener">Home Assistant</a>. All rights reserved. (Last updated: 2026-02-26)</p>
           <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external noopener">jazzy ♪♫ v0.15.4</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external noopener">Realm</a> project.</p>
         </section>
       </article>

@@ -48,6 +48,9 @@
               <li class="nav-group-task">
                 <a href="Classes/HAProtected.html">HAProtected</a>
               </li>
+              <li class="nav-group-task">
+                <a href="Classes/HAURLSessionDelegate.html">HAURLSessionDelegate</a>
+              </li>
             </ul>
           </li>
           <li class="nav-group-name">
@@ -113,6 +116,9 @@
               </li>
               <li class="nav-group-task">
                 <a href="Protocols/HACancellable.html">HACancellable</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Protocols/HACertificateProvider.html">HACertificateProvider</a>
               </li>
               <li class="nav-group-task">
                 <a href="Protocols/HAConnection.html">HAConnection</a>
@@ -350,6 +356,54 @@ alerted for changes.</p>
                 <li class="item">
                   <div>
                     <code>
+                    <a name="/c:@M@HAKit@objc(cs)HAURLSessionDelegate"></a>
+                    <a name="//apple_ref/swift/Class/HAURLSessionDelegate" class="dashAnchor"></a>
+                    <a class="token" href="#/c:@M@HAKit@objc(cs)HAURLSessionDelegate">HAURLSessionDelegate</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>URLSession delegate for HAKit REST API calls that supports custom certificate handling</p>
+
+<p>This delegate handles both client certificate authentication (mTLS) and custom server
+certificate validation through the <code><a href="Protocols/HACertificateProvider.html">HACertificateProvider</a></code> protocol.</p>
+
+<p>Example usage:</p>
+<pre class="highlight swift"><code><span class="kd">struct</span> <span class="kt">MyCertificateProvider</span><span class="p">:</span> <span class="kt">HACertificateProvider</span> <span class="p">{</span>
+    <span class="kd">func</span> <span class="nf">provideClientCertificate</span><span class="p">(</span><span class="k">for</span> <span class="nv">challenge</span><span class="p">:</span> <span class="o">...</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// Provide client certificate from keychain</span>
+    <span class="p">}</span>
+
+    <span class="kd">func</span> <span class="nf">evaluateServerTrust</span><span class="p">(</span><span class="n">_</span> <span class="nv">serverTrust</span><span class="p">:</span> <span class="o">...</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// Validate self-signed or custom CA certificates</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">let</span> <span class="nv">provider</span> <span class="o">=</span> <span class="kt">MyCertificateProvider</span><span class="p">()</span>
+<span class="k">let</span> <span class="nv">delegate</span> <span class="o">=</span> <span class="kt">HAURLSessionDelegate</span><span class="p">(</span><span class="nv">certificateProvider</span><span class="p">:</span> <span class="n">provider</span><span class="p">)</span>
+<span class="k">let</span> <span class="nv">session</span> <span class="o">=</span> <span class="kt">URLSession</span><span class="p">(</span><span class="nv">configuration</span><span class="p">:</span> <span class="o">.</span><span class="n">ephemeral</span><span class="p">,</span> <span class="nv">delegate</span><span class="p">:</span> <span class="n">delegate</span><span class="p">,</span> <span class="nv">delegateQueue</span><span class="p">:</span> <span class="kc">nil</span><span class="p">)</span>
+<span class="k">let</span> <span class="nv">connection</span> <span class="o">=</span> <span class="kt">HAKit</span><span class="o">.</span><span class="nf">connection</span><span class="p">(</span><span class="nv">configuration</span><span class="p">:</span> <span class="n">config</span><span class="p">,</span> <span class="nv">urlSession</span><span class="p">:</span> <span class="n">session</span><span class="p">)</span>
+</code></pre>
+
+                        <a href="Classes/HAURLSessionDelegate.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">HAURLSessionDelegate</span> <span class="p">:</span> <span class="kt">NSObject</span><span class="p">,</span> <span class="kt">URLSessionDelegate</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
                     <a name="/s:5HAKit11HAProtectedC"></a>
                     <a name="//apple_ref/swift/Class/HAProtected" class="dashAnchor"></a>
                     <a class="token" href="#/s:5HAKit11HAProtectedC">HAProtected</a>
@@ -382,7 +436,7 @@ alerted for changes.</p>
           </section>
         </section>
         <section id="footer">
-          <p>&copy; 2026 <a class="link" href="https://github.com/home-assistant/HAKit" target="_blank" rel="external noopener">Home Assistant</a>. All rights reserved. (Last updated: 2026-02-24)</p>
+          <p>&copy; 2026 <a class="link" href="https://github.com/home-assistant/HAKit" target="_blank" rel="external noopener">Home Assistant</a>. All rights reserved. (Last updated: 2026-02-26)</p>
           <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external noopener">jazzy ♪♫ v0.15.4</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external noopener">Realm</a> project.</p>
         </section>
       </article>
