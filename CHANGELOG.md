@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.13] - 2026-03-24
+- Fix: Bump Startscream, capture strong Swift references to the streams before clearing the
+instance vars, then hold them alive in a trailing workQueue.async block.
+Since workQueue is serial, this block executes only after all previously-
+queued stream-event callbacks complete, at which point ARC safely
+releases the streams.
+
 ## [0.4.12] - 2026-02-26
 - Added: URLSession optional parameter to `HAConnectionInfo` for custom configuration, e.g. for mTLS support.
 
