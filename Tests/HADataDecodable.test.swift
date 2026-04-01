@@ -47,7 +47,7 @@ internal class HADataDecodableTests: XCTestCase {
         XCTAssertEqual(logs.count, 1)
         XCTAssertEqual(logs.first?.0, .info)
         XCTAssertTrue(logs.first?.1.starts(with: "[HAEntity-Decode-Error]") == true)
-        XCTAssertTrue(logs.first?.1.contains("broken"))
+        XCTAssertTrue(logs.first?.1.contains("broken") == true)
     }
 
     func testHAEntityArrayDecodeSkipsInvalidEntities() throws {
@@ -71,7 +71,7 @@ internal class HADataDecodableTests: XCTestCase {
         XCTAssertEqual(logs.count, 1)
         XCTAssertEqual(logs.first?.0, .info)
         XCTAssertTrue(logs.first?.1.starts(with: "[HAEntity-Decode-Error]") == true)
-        XCTAssertTrue(logs.first?.1.contains("broken"))
+        XCTAssertTrue(logs.first?.1.contains("broken") == true)
     }
 }
 
