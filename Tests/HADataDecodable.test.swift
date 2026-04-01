@@ -27,6 +27,32 @@ internal class HADataDecodableTests: XCTestCase {
             XCTAssertEqual(error as? HADataError, .missingKey("any"))
         }
     }
+
+    func testHAEntityArrayDecodableSkipsInvalidEntities() throws {
+        let data = HAData.array([
+            entityData(id: "light.valid_one"),
+            invalidEntityData(),
+            entityData(id: "light.valid_two"),
+        ])
+
+        let result = try [HAEntity](data: data)
+
+        XCTAssertEqual(result.map(\.entityId), ["light.valid_one", "light.valid_two"])
+    }
+
+    func testHAEntityArrayDecodeSkipsInvalidEntities() throws {
+        let data = HAData.dictionary([
+            "entities": [
+                entityDictionary(id: "light.valid_one"),
+                invalidEntityDictionary(),
+                entityDictionary(id: "light.valid_two"),
+            ],
+        ])
+
+        let result: [HAEntity] = try data.decode("entities")
+
+        XCTAssertEqual(result.map(\.entityId), ["light.valid_one", "light.valid_two"])
+    }
 }
 
 private class RandomDecodable: HADataDecodable {
@@ -35,5 +61,45 @@ private class RandomDecodable: HADataDecodable {
         if Self.shouldThrow {
             throw HADataError.missingKey("any")
         }
+    }
+}
+
+private extension HADataDecodableTests {
+    func entityData(id: String) -> HAData {
+        .dictionary(entityDictionary(id: id))
+    }
+
+    func entityDictionary(id: String) -> [String: Any] {
+        [
+            "entity_id": id,
+            "state": "on",
+            "attributes": [:],
+            "last_changed": "2021-02-20T05:14:52.625818+00:00",
+            "last_updated": "2021-02-23T05:55:17.008448+00:00",
+            "context": [
+                "id": "27f121fd8bfa49f92f7094d8cb3eb2c1",
+                "parent_id": NSNull(),
+                "user_id": NSNull(),
+            ],
+        ]
+    }
+
+    func invalidEntityData() -> HAData {
+        .dictionary(invalidEntityDictionary())
+    }
+
+    func invalidEntityDictionary() -> [String: Any] {
+        [
+            "entity_id": "broken",
+            "state": "on",
+            "attributes": [:],
+            "last_changed": "2021-02-20T05:14:52.625818+00:00",
+            "last_updated": "2021-02-23T05:55:17.008448+00:00",
+            "context": [
+                "id": "27f121fd8bfa49f92f7094d8cb3eb2c1",
+                "parent_id": NSNull(),
+                "user_id": NSNull(),
+            ],
+        ]
     }
 }

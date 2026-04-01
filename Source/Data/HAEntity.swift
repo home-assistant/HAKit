@@ -87,6 +87,34 @@ public struct HAEntity: HADataDecodable, Hashable {
     }
 }
 
+internal extension HAEntity {
+    static func decodeIgnoringFailures(from values: [HAData]) -> [HAEntity] {
+        values.compactMap { value in
+            do {
+                return try .init(data: value)
+            } catch {
+                logDecodeFailure(error)
+                return nil
+            }
+        }
+    }
+
+    static func decodeIgnoringFailures(from values: [Any]) -> [HAEntity] {
+        values.compactMap { value in
+            do {
+                return try .init(data: .init(value: value))
+            } catch {
+                logDecodeFailure(error)
+                return nil
+            }
+        }
+    }
+
+    private static func logDecodeFailure(_ error: Error) {
+        HAGlobal.log(.error, "[HAEntity-Decode-Error] Failed decoding entity, skipping it: \(error)")
+    }
+}
+
 /// The attributes of the entity's state
 public struct HAEntityAttributes {
     /// Convenience access to values inside of the dictionary
