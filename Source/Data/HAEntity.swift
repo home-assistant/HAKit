@@ -1,7 +1,7 @@
 import Foundation
 
 /// An entity in Home Assistant
-public struct HAEntity: HADataDecodable, Hashable {
+public struct HAEntity: HADataDecodable, HALossyArrayElementDecodable, Hashable {
     /// The entity id, e.g. `sun.sun` or `light.office`
     public var entityId: String
     /// The domain of the entity id, e.g. `light` in `light.office`
@@ -92,22 +92,15 @@ internal extension HAEntity {
         do {
             return try .init(data: data)
         } catch {
-            logDecodeFailure(error)
+            logDecodeFailure(error, data: data)
             return nil
         }
     }
 
-    static func decodeIgnoringFailure(value: Any) -> HAEntity? {
-        do {
-            return try .init(data: .init(value: value))
-        } catch {
-            logDecodeFailure(error)
-            return nil
-        }
-    }
-
-    private static func logDecodeFailure(_ error: Error) {
-        HAGlobal.log(.error, "[HAEntity-Decode-Error] Failed decoding entity, skipping it: \(error)")
+    private static func logDecodeFailure(_ error: Error, data: HAData) {
+        let entityId: String? = try? data.decode("entity_id")
+        let details = entityId.map { " \($0)" } ?? ""
+        HAGlobal.log(.info, "[HAEntity-Decode-Error] Failed decoding entity\(details), skipping it: \(error)")
     }
 }
 

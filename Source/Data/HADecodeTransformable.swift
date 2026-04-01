@@ -31,8 +31,8 @@ extension Array: HADecodeTransformable where Element: HADecodeTransformable {
     public static func decode(unknown value: Any) throws -> Self? {
         guard let value = value as? [Any] else { return nil }
 
-        if Element.self == HAEntity.self {
-            return value.compactMap { HAEntity.decodeIgnoringFailure(value: $0) as? Element }
+        if let lossyType = Element.self as? HALossyArrayElementDecodable.Type {
+            return value.compactMap { lossyType.decodeIgnoringFailure(data: .init(value: $0)) as? Element }
         }
 
         return try value.compactMap { try Element.decode(unknown: $0) }

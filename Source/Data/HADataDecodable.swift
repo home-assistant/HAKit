@@ -23,6 +23,13 @@ public extension HADataDecodable {
     }
 }
 
+internal protocol HALossyArrayElementDecodable: HADataDecodable {
+    /// Decode an element for lossy array parsing. Return nil to skip invalid values.
+    /// - Parameter data: The array element data to decode
+    /// - Returns: A decoded element, or nil when the item should be ignored
+    static func decodeIgnoringFailure(data: HAData) -> Self?
+}
+
 extension Array: HADataDecodable where Element: HADataDecodable {
     /// Construct an array of decodable elements
     /// - Parameter data: The data to decode
@@ -32,8 +39,8 @@ extension Array: HADataDecodable where Element: HADataDecodable {
             throw HADataError.couldntTransform(key: "root")
         }
 
-        if Element.self == HAEntity.self {
-            self.init(array.compactMap { HAEntity.decodeIgnoringFailure(data: $0) as? Element })
+        if let lossyType = Element.self as? HALossyArrayElementDecodable.Type {
+            self.init(array.compactMap { lossyType.decodeIgnoringFailure(data: $0) as? Element })
         } else {
             try self.init(array.map { try Element(data: $0) })
         }
