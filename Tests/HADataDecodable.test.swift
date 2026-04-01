@@ -29,6 +29,12 @@ internal class HADataDecodableTests: XCTestCase {
     }
 
     func testHAEntityArrayDecodableSkipsInvalidEntities() throws {
+        var logs = [(HAGlobal.LogLevel, String)]()
+        HAGlobal.log = { level, message in
+            logs.append((level, message))
+        }
+        defer { HAGlobal.log = { _, _ in } }
+
         let data = HAData.array([
             entityData(id: "light.valid_one"),
             invalidEntityData(),
@@ -38,9 +44,18 @@ internal class HADataDecodableTests: XCTestCase {
         let result = try [HAEntity](data: data)
 
         XCTAssertEqual(result.map(\.entityId), ["light.valid_one", "light.valid_two"])
+        XCTAssertEqual(logs.count, 1)
+        XCTAssertEqual(logs.first?.0, .error)
+        XCTAssertTrue(logs.first?.1.starts(with: "[HAEntity-Decode-Error]") == true)
     }
 
     func testHAEntityArrayDecodeSkipsInvalidEntities() throws {
+        var logs = [(HAGlobal.LogLevel, String)]()
+        HAGlobal.log = { level, message in
+            logs.append((level, message))
+        }
+        defer { HAGlobal.log = { _, _ in } }
+
         let data = HAData.dictionary([
             "entities": [
                 entityDictionary(id: "light.valid_one"),
@@ -52,6 +67,9 @@ internal class HADataDecodableTests: XCTestCase {
         let result: [HAEntity] = try data.decode("entities")
 
         XCTAssertEqual(result.map(\.entityId), ["light.valid_one", "light.valid_two"])
+        XCTAssertEqual(logs.count, 1)
+        XCTAssertEqual(logs.first?.0, .error)
+        XCTAssertTrue(logs.first?.1.starts(with: "[HAEntity-Decode-Error]") == true)
     }
 }
 

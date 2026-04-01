@@ -88,25 +88,21 @@ public struct HAEntity: HADataDecodable, Hashable {
 }
 
 internal extension HAEntity {
-    static func decodeIgnoringFailures(from values: [HAData]) -> [HAEntity] {
-        values.compactMap { value in
-            do {
-                return try .init(data: value)
-            } catch {
-                logDecodeFailure(error)
-                return nil
-            }
+    static func decodeIgnoringFailure(data: HAData) -> HAEntity? {
+        do {
+            return try .init(data: data)
+        } catch {
+            logDecodeFailure(error)
+            return nil
         }
     }
 
-    static func decodeIgnoringFailures(from values: [Any]) -> [HAEntity] {
-        values.compactMap { value in
-            do {
-                return try .init(data: .init(value: value))
-            } catch {
-                logDecodeFailure(error)
-                return nil
-            }
+    static func decodeIgnoringFailure(value: Any) -> HAEntity? {
+        do {
+            return try .init(data: .init(value: value))
+        } catch {
+            logDecodeFailure(error)
+            return nil
         }
     }
 

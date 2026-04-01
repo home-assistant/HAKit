@@ -33,11 +33,7 @@ extension Array: HADataDecodable where Element: HADataDecodable {
         }
 
         if Element.self == HAEntity.self {
-            guard let entities = HAEntity.decodeIgnoringFailures(from: array) as? Self else {
-                throw HADataError.couldntTransform(key: "root")
-            }
-
-            self = entities
+            self.init(array.compactMap { HAEntity.decodeIgnoringFailure(data: $0) as? Element })
         } else {
             try self.init(array.map { try Element(data: $0) })
         }

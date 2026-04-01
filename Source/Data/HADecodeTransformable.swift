@@ -32,7 +32,7 @@ extension Array: HADecodeTransformable where Element: HADecodeTransformable {
         guard let value = value as? [Any] else { return nil }
 
         if Element.self == HAEntity.self {
-            return HAEntity.decodeIgnoringFailures(from: value) as? Self
+            return value.compactMap { HAEntity.decodeIgnoringFailure(value: $0) as? Element }
         }
 
         return try value.compactMap { try Element.decode(unknown: $0) }
