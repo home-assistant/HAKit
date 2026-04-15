@@ -30,6 +30,11 @@ extension Array: HADecodeTransformable where Element: HADecodeTransformable {
     /// - Returns: The array of values converted, compacted to remove any failures
     public static func decode(unknown value: Any) throws -> Self? {
         guard let value = value as? [Any] else { return nil }
+
+        if let lossyType = Element.self as? HALossyArrayElementDecodable.Type {
+            return value.compactMap { lossyType.decodeIgnoringFailure(data: .init(value: $0)) as? Element }
+        }
+
         return try value.compactMap { try Element.decode(unknown: $0) }
     }
 }
