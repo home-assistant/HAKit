@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.14] - 2026-04-15
+- Fixed: Skip invalid `HAEntity` items when decoding arrays so valid entities can still be returned.
+
 ## [0.4.13] - 2026-03-24
 - Fix: Bump Startscream, capture strong Swift references to the streams before clearing the
 instance vars, then hold them alive in a trailing workQueue.async block.
