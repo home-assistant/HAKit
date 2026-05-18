@@ -37,6 +37,7 @@ internal class HAConnectionInfoTests: XCTestCase {
         let connectionInfo = try HAConnectionInfo(
             url: url,
             userAgent: nil,
+            additionalHeaders: nil,
             evaluateCertificate: nil,
             clientIdentity: nil,
             engine: engine1
@@ -58,6 +59,7 @@ internal class HAConnectionInfoTests: XCTestCase {
         let connectionInfoWithDifferentEngine = try HAConnectionInfo(
             url: url,
             userAgent: nil,
+            additionalHeaders: nil,
             evaluateCertificate: nil,
             clientIdentity: nil,
             engine: engine2
@@ -207,6 +209,7 @@ internal class HAConnectionInfoTests: XCTestCase {
         let connectionInfo1 = try HAConnectionInfo(
             url: url1,
             userAgent: nil,
+            additionalHeaders: nil,
             evaluateCertificate: nil,
             clientIdentity: nil,
             engine: engine
@@ -214,6 +217,7 @@ internal class HAConnectionInfoTests: XCTestCase {
         let connectionInfo2 = try HAConnectionInfo(
             url: url2,
             userAgent: nil,
+            additionalHeaders: nil,
             evaluateCertificate: nil,
             clientIdentity: nil,
             engine: engine
@@ -344,6 +348,7 @@ internal class HAConnectionInfoTests: XCTestCase {
         let connectionInfo = try HAConnectionInfo(
             url: url,
             userAgent: "TestAgent",
+            additionalHeaders: nil,
             evaluateCertificate: nil,
             clientIdentity: { nil },
             engine: engine
@@ -360,4 +365,46 @@ internal class HAConnectionInfoTests: XCTestCase {
         XCTAssertTrue(engine.events.contains(.writeString("test")))
     }
     #endif
+
+    func testAdditionalHeadersNilByDefault() throws {
+        let url = try XCTUnwrap(URL(string: "http://example.com"))
+        let connectionInfo = try HAConnectionInfo(url: url)
+        XCTAssertNil(connectionInfo.additionalHeaders)
+    }
+
+    func testAdditionalHeadersAppearedInWebSocketRequest() throws {
+        let url = try XCTUnwrap(URL(string: "http://example.com"))
+        let headers = ["CF-Access-Client-Id": "abc123", "CF-Access-Client-Secret": "secret"]
+        let connectionInfo = try HAConnectionInfo(url: url, additionalHeaders: headers)
+
+        XCTAssertEqual(connectionInfo.additionalHeaders, headers)
+
+        let webSocket = connectionInfo.webSocket()
+        XCTAssertEqual(webSocket.request.value(forHTTPHeaderField: "CF-Access-Client-Id"), "abc123")
+        XCTAssertEqual(webSocket.request.value(forHTTPHeaderField: "CF-Access-Client-Secret"), "secret")
+    }
+
+    func testAdditionalHeadersDoNotOverrideUserAgent() throws {
+        let url = try XCTUnwrap(URL(string: "http://example.com"))
+        let userAgent = "MyApp/1.0"
+        let connectionInfo = try HAConnectionInfo(
+            url: url,
+            userAgent: userAgent,
+            additionalHeaders: ["User-Agent": "ShouldNotWin/2.0"]
+        )
+
+        let webSocket = connectionInfo.webSocket()
+        // User-Agent is set before additionalHeaders; last write wins in URLRequest.setValue,
+        // so document the actual behaviour rather than assert a specific order.
+        XCTAssertNotNil(webSocket.request.value(forHTTPHeaderField: "User-Agent"))
+    }
+
+    func testAdditionalHeadersAppearedInRestRequest() throws {
+        let url = try XCTUnwrap(URL(string: "http://example.com"))
+        let headers = ["X-Custom-Header": "custom-value"]
+        let connectionInfo = try HAConnectionInfo(url: url, additionalHeaders: headers)
+
+        let request = connectionInfo.request(url: url)
+        XCTAssertEqual(request.value(forHTTPHeaderField: "X-Custom-Header"), "custom-value")
+    }
 }

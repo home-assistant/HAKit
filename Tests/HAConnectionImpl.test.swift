@@ -60,6 +60,7 @@ internal class HAConnectionImplTests: XCTestCase {
                     return try? .init(
                         url: url,
                         userAgent: nil,
+                        additionalHeaders: nil,
                         evaluateCertificate: nil,
                         clientIdentity: nil,
                         engine: engine

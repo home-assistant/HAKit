@@ -24,12 +24,14 @@ public struct HAConnectionInfo: Equatable {
     public init(
         url: URL,
         userAgent: String? = nil,
+        additionalHeaders: [String: String]? = nil,
         evaluateCertificate: EvaluateCertificate? = nil,
         clientIdentity: ClientIdentityProvider? = nil
     ) throws {
         try self.init(
             url: url,
             userAgent: userAgent,
+            additionalHeaders: additionalHeaders,
             evaluateCertificate: evaluateCertificate,
             clientIdentity: clientIdentity,
             engine: nil
@@ -40,11 +42,13 @@ public struct HAConnectionInfo: Equatable {
     public init(
         url: URL,
         userAgent: String? = nil,
+        additionalHeaders: [String: String]? = nil,
         evaluateCertificate: EvaluateCertificate? = nil
     ) throws {
         try self.init(
             url: url,
             userAgent: userAgent,
+            additionalHeaders: additionalHeaders,
             evaluateCertificate: evaluateCertificate,
             engine: nil
         )
@@ -56,6 +60,7 @@ public struct HAConnectionInfo: Equatable {
     internal init(
         url: URL,
         userAgent: String?,
+        additionalHeaders: [String: String]?,
         evaluateCertificate: EvaluateCertificate?,
         clientIdentity: ClientIdentityProvider?,
         engine: Engine?
@@ -70,6 +75,7 @@ public struct HAConnectionInfo: Equatable {
 
         self.url = Self.sanitize(url)
         self.userAgent = userAgent
+        self.additionalHeaders = additionalHeaders
         self.engine = engine
         self.evaluateCertificate = evaluateCertificate
         self.clientIdentity = clientIdentity
@@ -79,6 +85,7 @@ public struct HAConnectionInfo: Equatable {
     internal init(
         url: URL,
         userAgent: String?,
+        additionalHeaders: [String: String]?,
         evaluateCertificate: EvaluateCertificate?,
         engine: Engine?
     ) throws {
@@ -92,6 +99,7 @@ public struct HAConnectionInfo: Equatable {
 
         self.url = Self.sanitize(url)
         self.userAgent = userAgent
+        self.additionalHeaders = additionalHeaders
         self.engine = engine
         self.evaluateCertificate = evaluateCertificate
     }
@@ -106,6 +114,9 @@ public struct HAConnectionInfo: Equatable {
 
     /// The user agent to use in the connection
     public var userAgent: String?
+
+    /// Additional HTTP headers sent on every request, including the WebSocket upgrade handshake
+    public var additionalHeaders: [String: String]?
 
     /// Used for dependency injection in tests
     internal var engine: Engine?
@@ -136,6 +147,10 @@ public struct HAConnectionInfo: Equatable {
             } else {
                 request.setValue(host, forHTTPHeaderField: "Host")
             }
+        }
+
+        additionalHeaders?.forEach { key, value in
+            request.setValue(value, forHTTPHeaderField: key)
         }
 
         return request
