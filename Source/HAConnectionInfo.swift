@@ -6,9 +6,11 @@ import Starscream
 // watchOS SDK headers, even though the symbols are present in the CFNetwork binary. The keys are
 // public, documented CFStrings whose values are equal to their names, so we re-declare them by value
 // here to enable client-certificate (mTLS) configuration of the WebSocket stream on watchOS too.
-private let kCFStreamSSLCertificates = "kCFStreamSSLCertificates" as CFString
-private let kCFStreamSSLValidatesCertificateChain = "kCFStreamSSLValidatesCertificateChain" as CFString
-private let kCFStreamPropertySSLSettings = "kCFStreamPropertySSLSettings" as CFString
+// Kept `internal` (not `private`) so `@testable` watchOS test builds can reference them like the SDK
+// constants they stand in for.
+let kCFStreamSSLCertificates = "kCFStreamSSLCertificates" as CFString
+let kCFStreamSSLValidatesCertificateChain = "kCFStreamSSLValidatesCertificateChain" as CFString
+let kCFStreamPropertySSLSettings = "kCFStreamPropertySSLSettings" as CFString
 #endif
 
 /// Information for connecting to the server
