@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.15] - 2026-06-16
+- Added: mTLS client certificate support on watchOS (`HAConnectionInfo` now accepts a `clientIdentity` provider on all platforms).
+
 ## [0.4.14] - 2026-04-15
 - Fixed: Skip invalid `HAEntity` items when decoding arrays so valid entities can still be returned.
 
