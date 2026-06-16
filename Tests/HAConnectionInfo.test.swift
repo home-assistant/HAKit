@@ -242,7 +242,6 @@ internal class HAConnectionInfoTests: XCTestCase {
         }
     }
 
-    #if !os(watchOS)
     func testCreationWithClientIdentity() throws {
         let url = try XCTUnwrap(URL(string: "http://example.com/with_client_identity"))
 
@@ -359,5 +358,4 @@ internal class HAConnectionInfoTests: XCTestCase {
         webSocket.write(string: "test")
         XCTAssertTrue(engine.events.contains(.writeString("test")))
     }
-    #endif
 }
