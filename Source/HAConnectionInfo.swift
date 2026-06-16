@@ -1,6 +1,18 @@
 import Foundation
 import Starscream
 
+#if os(watchOS)
+// CFNetwork's CFSocketStream.h — which declares these SSL stream property keys — is not part of the
+// watchOS SDK headers, even though the symbols are present in the CFNetwork binary. The keys are
+// public, documented CFStrings whose values are equal to their names, so we re-declare them by value
+// here to enable client-certificate (mTLS) configuration of the WebSocket stream on watchOS too.
+// Kept `internal` (not `private`) so `@testable` watchOS test builds can reference them like the SDK
+// constants they stand in for.
+internal let kCFStreamSSLCertificates = "kCFStreamSSLCertificates" as CFString
+internal let kCFStreamSSLValidatesCertificateChain = "kCFStreamSSLValidatesCertificateChain" as CFString
+internal let kCFStreamPropertySSLSettings = "kCFStreamPropertySSLSettings" as CFString
+#endif
+
 /// Information for connecting to the server
 public struct HAConnectionInfo: Equatable {
     /// Thrown if connection info was not able to be created
@@ -14,12 +26,9 @@ public struct HAConnectionInfo: Equatable {
     /// Certificate validation handler
     public typealias EvaluateCertificate = (SecTrust, (Result<Void, Error>) -> Void) -> Void
 
-    #if !os(watchOS)
     /// Client identity provider for mTLS
     public typealias ClientIdentityProvider = () -> SecIdentity?
-    #endif
 
-    #if !os(watchOS)
     /// Create a connection info
     public init(
         url: URL,
@@ -35,23 +44,7 @@ public struct HAConnectionInfo: Equatable {
             engine: nil
         )
     }
-    #else
-    /// Create a connection info
-    public init(
-        url: URL,
-        userAgent: String? = nil,
-        evaluateCertificate: EvaluateCertificate? = nil
-    ) throws {
-        try self.init(
-            url: url,
-            userAgent: userAgent,
-            evaluateCertificate: evaluateCertificate,
-            engine: nil
-        )
-    }
-    #endif
 
-    #if !os(watchOS)
     /// Internally create a connection info with engine
     internal init(
         url: URL,
@@ -74,28 +67,6 @@ public struct HAConnectionInfo: Equatable {
         self.evaluateCertificate = evaluateCertificate
         self.clientIdentity = clientIdentity
     }
-    #else
-    /// Internally create a connection info with engine
-    internal init(
-        url: URL,
-        userAgent: String?,
-        evaluateCertificate: EvaluateCertificate?,
-        engine: Engine?
-    ) throws {
-        guard let host = url.host, !host.isEmpty else {
-            throw CreationError.emptyHostname
-        }
-
-        guard (url.port ?? 80) <= UInt16.max else {
-            throw CreationError.invalidPort
-        }
-
-        self.url = Self.sanitize(url)
-        self.userAgent = userAgent
-        self.engine = engine
-        self.evaluateCertificate = evaluateCertificate
-    }
-    #endif
 
     /// The base URL for the WebSocket connection
     public var url: URL
@@ -113,10 +84,8 @@ public struct HAConnectionInfo: Equatable {
     /// Used to validate certificate, if provided
     internal var evaluateCertificate: EvaluateCertificate?
 
-    #if !os(watchOS)
     /// Used to provide client identity (SecIdentity) for mTLS
     internal var clientIdentity: ClientIdentityProvider?
-    #endif
 
     /// Should this connection info take over an existing connection?
     internal func shouldReplace(_ webSocket: WebSocket) -> Bool {
@@ -160,7 +129,6 @@ public struct HAConnectionInfo: Equatable {
         let request = self.request(url: webSocketURL)
         let webSocket: WebSocket
 
-        #if !os(watchOS)
         if let engine = engine {
             webSocket = WebSocket(request: request, engine: engine)
         } else if let clientIdentity = clientIdentity {
@@ -179,14 +147,6 @@ public struct HAConnectionInfo: Equatable {
             let pinning = evaluateCertificate.flatMap { HAStarscreamCertificatePinningImpl(evaluateCertificate: $0) }
             webSocket = WebSocket(request: request, certPinner: pinning, compressionHandler: WSCompression())
         }
-        #else
-        if let engine = engine {
-            webSocket = WebSocket(request: request, engine: engine)
-        } else {
-            let pinning = evaluateCertificate.flatMap { HAStarscreamCertificatePinningImpl(evaluateCertificate: $0) }
-            webSocket = WebSocket(request: request, certPinner: pinning, compressionHandler: WSCompression())
-        }
-        #endif
 
         return webSocket
     }
@@ -210,7 +170,6 @@ public struct HAConnectionInfo: Equatable {
         return components.url!
     }
 
-    #if !os(watchOS)
     /// Builds the SSL stream settings dictionary for client certificate configuration.
     /// - Parameters:
     ///   - certificateArray: Array of `SecIdentity`/`SecCertificate` for `kCFStreamSSLCertificates`, or nil
@@ -259,7 +218,6 @@ public struct HAConnectionInfo: Equatable {
             }
         }
     }
-    #endif
 
     public static func == (lhs: HAConnectionInfo, rhs: HAConnectionInfo) -> Bool {
         lhs.url == rhs.url
