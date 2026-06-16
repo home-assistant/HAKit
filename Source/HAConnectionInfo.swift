@@ -8,9 +8,9 @@ import Starscream
 // here to enable client-certificate (mTLS) configuration of the WebSocket stream on watchOS too.
 // Kept `internal` (not `private`) so `@testable` watchOS test builds can reference them like the SDK
 // constants they stand in for.
-let kCFStreamSSLCertificates = "kCFStreamSSLCertificates" as CFString
-let kCFStreamSSLValidatesCertificateChain = "kCFStreamSSLValidatesCertificateChain" as CFString
-let kCFStreamPropertySSLSettings = "kCFStreamPropertySSLSettings" as CFString
+internal let kCFStreamSSLCertificates = "kCFStreamSSLCertificates" as CFString
+internal let kCFStreamSSLValidatesCertificateChain = "kCFStreamSSLValidatesCertificateChain" as CFString
+internal let kCFStreamPropertySSLSettings = "kCFStreamPropertySSLSettings" as CFString
 #endif
 
 /// Information for connecting to the server
