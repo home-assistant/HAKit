@@ -145,7 +145,15 @@ public struct HAConnectionInfo: Equatable {
             webSocket = WebSocket(request: request, engine: engine)
         } else {
             let pinning = evaluateCertificate.flatMap { HAStarscreamCertificatePinningImpl(evaluateCertificate: $0) }
+            #if os(watchOS)
+            // permessage-deflate compressed frames fail to decode on watchOS — Starscream reports a
+            // protocol error ("not valid UTF-8 data", 1002) on the first server frame and the
+            // connection drops in a loop. Connect without WebSocket compression there; Home
+            // Assistant works fine uncompressed.
+            webSocket = WebSocket(request: request, certPinner: pinning)
+            #else
             webSocket = WebSocket(request: request, certPinner: pinning, compressionHandler: WSCompression())
+            #endif
         }
 
         return webSocket
