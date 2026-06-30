@@ -16,6 +16,14 @@ public let package = Package(
             name: "HAKit",
             targets: ["HAKit"]
         ),
+        .library(
+            name: "HAKit+PromiseKit",
+            targets: ["HAKit+PromiseKit"]
+        ),
+        .library(
+            name: "HAKit+Mocks",
+            targets: ["HAKit+Mocks"]
+        ),
     ],
     dependencies: [
         .package(

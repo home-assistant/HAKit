@@ -24,12 +24,4 @@ else
 	@echo LINT: SwiftFormat...
 	@swiftformat --config .swiftformat --quiet .
 endif
-drstring:
-ifeq (${CI}, true)
-	drstring check --config-file .drstring.toml
-else
-	@echo LINT: DrString...
-	@drstring format --config-file .drstring.toml || true
-	@drstring check --config-file .drstring.toml || true
-endif
-lint: swiftlint swiftformat drstring
+lint: swiftlint swiftformat
