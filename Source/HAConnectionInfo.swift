@@ -1,18 +1,6 @@
 import Foundation
 import Starscream
 
-#if os(watchOS)
-// CFNetwork's CFSocketStream.h — which declares these SSL stream property keys — is not part of the
-// watchOS SDK headers, even though the symbols are present in the CFNetwork binary. The keys are
-// public, documented CFStrings whose values are equal to their names, so we re-declare them by value
-// here to enable client-certificate (mTLS) configuration of the WebSocket stream on watchOS too.
-// Kept `internal` (not `private`) so `@testable` watchOS test builds can reference them like the SDK
-// constants they stand in for.
-internal let kCFStreamSSLCertificates = "kCFStreamSSLCertificates" as CFString
-internal let kCFStreamSSLValidatesCertificateChain = "kCFStreamSSLValidatesCertificateChain" as CFString
-internal let kCFStreamPropertySSLSettings = "kCFStreamPropertySSLSettings" as CFString
-#endif
-
 /// Information for connecting to the server
 public struct HAConnectionInfo: Equatable {
     /// Thrown if connection info was not able to be created
@@ -132,19 +120,11 @@ public struct HAConnectionInfo: Equatable {
         if let engine = engine {
             webSocket = WebSocket(request: request, engine: engine)
         } else if let clientIdentity = clientIdentity {
-            if #available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *) {
-                let engine = HAURLSessionWebSocketEngine(
-                    clientIdentity: clientIdentity,
-                    evaluateCertificate: evaluateCertificate
-                )
-                webSocket = WebSocket(request: request, engine: engine)
-            } else {
-                webSocket = Self.legacyClientCertificateWebSocket(
-                    request: request,
-                    clientIdentity: clientIdentity,
-                    evaluateCertificate: evaluateCertificate
-                )
-            }
+            let engine = HAURLSessionWebSocketEngine(
+                clientIdentity: clientIdentity,
+                evaluateCertificate: evaluateCertificate
+            )
+            webSocket = WebSocket(request: request, engine: engine)
         } else {
             let pinning = evaluateCertificate.flatMap { HAStarscreamCertificatePinningImpl(evaluateCertificate: $0) }
             #if os(watchOS)
@@ -159,26 +139,6 @@ public struct HAConnectionInfo: Equatable {
         }
 
         return webSocket
-    }
-
-    /// Builds a WebSocket that presents a client certificate over Starscream's CFStream-based
-    /// `FoundationTransport`. Used as the mTLS fallback below iOS 13 / macOS 10.15, where
-    /// `URLSessionWebSocketTask` (and therefore `HAURLSessionWebSocketEngine`) is unavailable.
-    internal static func legacyClientCertificateWebSocket(
-        request: URLRequest,
-        clientIdentity: @escaping ClientIdentityProvider,
-        evaluateCertificate: EvaluateCertificate?
-    ) -> WebSocket {
-        let hasCertEval = evaluateCertificate != nil
-        let transport = FoundationTransport(
-            streamConfiguration: makeStreamConfiguration(
-                clientIdentity: clientIdentity,
-                disableCertificateChainValidation: hasCertEval
-            )
-        )
-        let pinning = evaluateCertificate.flatMap { HAStarscreamCertificatePinningImpl(evaluateCertificate: $0) }
-        let engine = WSEngine(transport: transport, certPinner: pinning)
-        return WebSocket(request: request, engine: engine)
     }
 
     private static func sanitize(_ url: URL) -> URL {
@@ -198,55 +158,6 @@ public struct HAConnectionInfo: Equatable {
         }
 
         return components.url!
-    }
-
-    /// Builds the SSL stream settings dictionary for client certificate configuration.
-    /// - Parameters:
-    ///   - certificateArray: Array of `SecIdentity`/`SecCertificate` for `kCFStreamSSLCertificates`, or nil
-    ///   - disableCertificateChainValidation: Pass true when custom certificate evaluation is in use
-    /// - Returns: SSL settings dictionary; empty if no configuration is needed
-    internal static func makeSSLSettings(
-        certificateArray: CFArray?,
-        disableCertificateChainValidation: Bool
-    ) -> [String: Any] {
-        var settings: [String: Any] = [:]
-        if let certificateArray {
-            settings[kCFStreamSSLCertificates as String] = certificateArray
-        }
-        if disableCertificateChainValidation {
-            settings[kCFStreamSSLValidatesCertificateChain as String] = false
-        }
-        return settings
-    }
-
-    /// Returns a stream configuration closure suitable for use with `FoundationTransport`.
-    /// - Parameters:
-    ///   - clientIdentity: Provider for the client identity used in mTLS
-    ///   - disableCertificateChainValidation: Pass true when custom certificate evaluation is in use
-    /// - Returns: A closure that configures SSL settings on the given streams
-    internal static func makeStreamConfiguration(
-        clientIdentity: @escaping ClientIdentityProvider,
-        disableCertificateChainValidation: Bool
-    ) -> (InputStream, OutputStream) -> Void {
-        { inStream, outStream in
-            let certificateArray = clientIdentity().map { [$0] as CFArray }
-            let sslSettings = makeSSLSettings(
-                certificateArray: certificateArray,
-                disableCertificateChainValidation: disableCertificateChainValidation
-            )
-            if !sslSettings.isEmpty {
-                CFReadStreamSetProperty(
-                    inStream,
-                    CFStreamPropertyKey(rawValue: kCFStreamPropertySSLSettings),
-                    sslSettings as CFTypeRef
-                )
-                CFWriteStreamSetProperty(
-                    outStream,
-                    CFStreamPropertyKey(rawValue: kCFStreamPropertySSLSettings),
-                    sslSettings as CFTypeRef
-                )
-            }
-        }
     }
 
     public static func == (lhs: HAConnectionInfo, rhs: HAConnectionInfo) -> Bool {

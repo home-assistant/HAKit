@@ -1,13 +1,10 @@
 import Foundation
 import Starscream
 
-/// A Starscream `Engine` backed by `URLSessionWebSocketTask`.
+/// A Starscream `Engine` backed by `URLSessionWebSocketTask`, used for mTLS connections.
 ///
-/// Used for mTLS connections instead of the CFStream-based `FoundationTransport`. The URL Loading
-/// System supports TLS 1.3 and presents the client certificate through the standard authentication
-/// challenge (the same path the REST API uses). `FoundationTransport`/`SecureTransport` is capped at
-/// TLS 1.2 and fails against servers that require a newer TLS version.
-@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
+/// The URL Loading System supports modern TLS versions and presents the client certificate through
+/// the standard authentication challenge, the same path the REST API uses.
 internal final class HAURLSessionWebSocketEngine: NSObject, Engine, URLSessionDataDelegate,
     URLSessionWebSocketDelegate {
     private var task: URLSessionWebSocketTask?

@@ -2,7 +2,6 @@
 import Starscream
 import XCTest
 
-@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 internal class HAURLSessionWebSocketEngineTests: XCTestCase {
     func testClientCertificateChallengeUsesIdentity() throws {
         let identity = try createClientIdentity()
@@ -236,7 +235,6 @@ internal class HAURLSessionWebSocketEngineTests: XCTestCase {
 
 // MARK: - Test Doubles
 
-@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 private final class MockEngineDelegate: EngineDelegate {
     private(set) var events: [WebSocketEvent] = []
     var onEvent: ((WebSocketEvent) -> Void)?
@@ -288,7 +286,6 @@ private final class TrustProtectionSpace: URLProtectionSpace, @unchecked Sendabl
 
 // MARK: - Fixtures
 
-@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 private extension HAURLSessionWebSocketEngineTests {
     static let identityP12Base64 = """
     MIIJYQIBAzCCCR8GCSqGSIb3DQEHAaCCCRAEggkMMIIJCDCCA78GCSqGSIb3DQEHBqCCA7AwggOs
