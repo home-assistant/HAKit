@@ -1762,6 +1762,8 @@ private class FakeHARequestController: HARequestController {
     weak var delegate: HARequestControllerDelegate?
     var workQueue: DispatchQueue = .main
 
+    private let lock = NSLock()
+
     var added: [HARequestInvocation] = []
     func add(_ invocation: HARequestInvocation) {
         added.append(invocation)
@@ -1810,9 +1812,17 @@ private class FakeHARequestController: HARequestController {
         subscriptions[identifier]
     }
 
-    var cleared: [HARequestInvocationSingle] = []
+    private var _cleared: [HARequestInvocationSingle] = []
+    var cleared: [HARequestInvocationSingle] {
+        lock.lock()
+        defer { lock.unlock() }
+        return _cleared
+    }
+
     func clear(invocation: HARequestInvocationSingle) {
-        cleared.append(invocation)
+        lock.lock()
+        _cleared.append(invocation)
+        lock.unlock()
     }
 }
 
