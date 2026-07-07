@@ -68,21 +68,21 @@ internal final class HAURLSessionWebSocketEngine: NSObject, Engine, URLSessionDa
 
     private func doRead() {
         task?.receive { [weak self] result in
-            switch result {
-            case let .success(message):
-                switch message {
-                case let .string(string):
-                    self?.broadcast(event: .text(string))
-                case let .data(data):
-                    self?.broadcast(event: .binary(data))
-                @unknown default:
-                    break
-                }
-            case let .failure(error):
-                self?.broadcast(event: .error(error))
-                return
+            self?.handleReceiveResult(result)
+        }
+    }
+
+    func handleReceiveResult(_ result: Result<URLSessionWebSocketTask.Message, Error>) {
+        switch result {
+        case let .success(message):
+            if case let .string(string) = message {
+                broadcast(event: .text(string))
+            } else if case let .data(data) = message {
+                broadcast(event: .binary(data))
             }
-            self?.doRead()
+            doRead()
+        case let .failure(error):
+            broadcast(event: .error(error))
         }
     }
 

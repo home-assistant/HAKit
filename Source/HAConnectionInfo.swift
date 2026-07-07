@@ -139,18 +139,11 @@ public struct HAConnectionInfo: Equatable {
                 )
                 webSocket = WebSocket(request: request, engine: engine)
             } else {
-                // Use FoundationTransport with stream configuration for mTLS
-                let hasCertEval = evaluateCertificate != nil
-                let transport = FoundationTransport(
-                    streamConfiguration: Self.makeStreamConfiguration(
-                        clientIdentity: clientIdentity,
-                        disableCertificateChainValidation: hasCertEval
-                    )
+                webSocket = Self.legacyClientCertificateWebSocket(
+                    request: request,
+                    clientIdentity: clientIdentity,
+                    evaluateCertificate: evaluateCertificate
                 )
-                let pinning = evaluateCertificate
-                    .flatMap { HAStarscreamCertificatePinningImpl(evaluateCertificate: $0) }
-                let engine = WSEngine(transport: transport, certPinner: pinning)
-                webSocket = WebSocket(request: request, engine: engine)
             }
         } else {
             let pinning = evaluateCertificate.flatMap { HAStarscreamCertificatePinningImpl(evaluateCertificate: $0) }
@@ -166,6 +159,26 @@ public struct HAConnectionInfo: Equatable {
         }
 
         return webSocket
+    }
+
+    /// Builds a WebSocket that presents a client certificate over Starscream's CFStream-based
+    /// `FoundationTransport`. Used as the mTLS fallback below iOS 13 / macOS 10.15, where
+    /// `URLSessionWebSocketTask` (and therefore `HAURLSessionWebSocketEngine`) is unavailable.
+    internal static func legacyClientCertificateWebSocket(
+        request: URLRequest,
+        clientIdentity: @escaping ClientIdentityProvider,
+        evaluateCertificate: EvaluateCertificate?
+    ) -> WebSocket {
+        let hasCertEval = evaluateCertificate != nil
+        let transport = FoundationTransport(
+            streamConfiguration: makeStreamConfiguration(
+                clientIdentity: clientIdentity,
+                disableCertificateChainValidation: hasCertEval
+            )
+        )
+        let pinning = evaluateCertificate.flatMap { HAStarscreamCertificatePinningImpl(evaluateCertificate: $0) }
+        let engine = WSEngine(transport: transport, certPinner: pinning)
+        return WebSocket(request: request, engine: engine)
     }
 
     private static func sanitize(_ url: URL) -> URL {

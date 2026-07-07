@@ -154,6 +154,20 @@ internal class HAURLSessionWebSocketEngineTests: XCTestCase {
         wait(for: [errored], timeout: 10)
     }
 
+    func testHandleReceiveResultBroadcastsMessages() {
+        let delegate = MockEngineDelegate()
+        let engine = HAURLSessionWebSocketEngine(clientIdentity: { nil }, evaluateCertificate: nil)
+        engine.register(delegate: delegate)
+
+        engine.handleReceiveResult(.success(.string("hello")))
+        engine.handleReceiveResult(.success(.data(Data("bytes".utf8))))
+        engine.handleReceiveResult(.failure(URLError(.badServerResponse)))
+
+        XCTAssertTrue(delegate.events.contains { if case .text("hello") = $0 { return true } else { return false } })
+        XCTAssertTrue(delegate.events.contains { if case .binary = $0 { return true } else { return false } })
+        XCTAssertTrue(delegate.events.contains { if case .error = $0 { return true } else { return false } })
+    }
+
     // MARK: - Helpers
 
     private enum TestError: Error {

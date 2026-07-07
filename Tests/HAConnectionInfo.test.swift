@@ -281,6 +281,25 @@ internal class HAConnectionInfoTests: XCTestCase {
         XCTAssertEqual(webSocket.request.url, url.appendingPathComponent("api/websocket"))
     }
 
+    func testLegacyClientCertificateWebSocket() throws {
+        let url = try XCTUnwrap(URL(string: "https://example.com/api/websocket"))
+        let request = URLRequest(url: url)
+
+        let webSocket = HAConnectionInfo.legacyClientCertificateWebSocket(
+            request: request,
+            clientIdentity: { nil },
+            evaluateCertificate: { $1(.success(())) }
+        )
+        XCTAssertEqual(webSocket.request.url, url)
+
+        let webSocketWithoutEvaluation = HAConnectionInfo.legacyClientCertificateWebSocket(
+            request: request,
+            clientIdentity: { nil },
+            evaluateCertificate: nil
+        )
+        XCTAssertEqual(webSocketWithoutEvaluation.request.url, url)
+    }
+
     func testMakeSSLSettingsEmpty() {
         let settings = HAConnectionInfo.makeSSLSettings(certificateArray: nil, disableCertificateChainValidation: false)
         XCTAssertTrue(settings.isEmpty)
