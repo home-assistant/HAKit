@@ -118,7 +118,9 @@ internal class HAURLSessionWebSocketEngineTests: XCTestCase {
         engine.register(delegate: delegate)
 
         let session = URLSession(configuration: .ephemeral)
+        defer { session.invalidateAndCancel() }
         let task = try session.webSocketTask(with: XCTUnwrap(URL(string: "wss://example.com/api/websocket")))
+        task.cancel(with: .normalClosure, reason: nil)
 
         engine.urlSession(session, webSocketTask: task, didOpenWithProtocol: "chat")
         engine.urlSession(session, webSocketTask: task, didCloseWith: .goingAway, reason: Data("bye".utf8))
