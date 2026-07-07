@@ -132,17 +132,26 @@ public struct HAConnectionInfo: Equatable {
         if let engine = engine {
             webSocket = WebSocket(request: request, engine: engine)
         } else if let clientIdentity = clientIdentity {
-            // Use FoundationTransport with stream configuration for mTLS
-            let hasCertEval = evaluateCertificate != nil
-            let transport = FoundationTransport(
-                streamConfiguration: Self.makeStreamConfiguration(
+            if #available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *) {
+                let engine = HAURLSessionWebSocketEngine(
                     clientIdentity: clientIdentity,
-                    disableCertificateChainValidation: hasCertEval
+                    evaluateCertificate: evaluateCertificate
                 )
-            )
-            let pinning = evaluateCertificate.flatMap { HAStarscreamCertificatePinningImpl(evaluateCertificate: $0) }
-            let engine = WSEngine(transport: transport, certPinner: pinning)
-            webSocket = WebSocket(request: request, engine: engine)
+                webSocket = WebSocket(request: request, engine: engine)
+            } else {
+                // Use FoundationTransport with stream configuration for mTLS
+                let hasCertEval = evaluateCertificate != nil
+                let transport = FoundationTransport(
+                    streamConfiguration: Self.makeStreamConfiguration(
+                        clientIdentity: clientIdentity,
+                        disableCertificateChainValidation: hasCertEval
+                    )
+                )
+                let pinning = evaluateCertificate
+                    .flatMap { HAStarscreamCertificatePinningImpl(evaluateCertificate: $0) }
+                let engine = WSEngine(transport: transport, certPinner: pinning)
+                webSocket = WebSocket(request: request, engine: engine)
+            }
         } else {
             let pinning = evaluateCertificate.flatMap { HAStarscreamCertificatePinningImpl(evaluateCertificate: $0) }
             #if os(watchOS)
