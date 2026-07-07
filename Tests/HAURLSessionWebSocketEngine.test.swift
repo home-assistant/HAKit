@@ -135,12 +135,13 @@ internal class HAURLSessionWebSocketEngineTests: XCTestCase {
         let engine = HAURLSessionWebSocketEngine(clientIdentity: { nil }, evaluateCertificate: nil)
         engine.register(delegate: delegate)
 
-        let errored = expectation(description: "read fails after the socket is cancelled")
+        let errored = expectation(description: "read fails once the socket is cancelled")
+        errored.assertForOverFulfill = false
         delegate.onEvent = { event in
             if case .error = event { errored.fulfill() }
         }
 
-        let request = try URLRequest(url: XCTUnwrap(URL(string: "wss://127.0.0.1:0/api/websocket")))
+        let request = try URLRequest(url: XCTUnwrap(URL(string: "wss://127.0.0.1:1/api/websocket")))
         engine.start(request: request)
         engine.write(string: "text", completion: nil)
         engine.write(data: Data("binary".utf8), opcode: .binaryFrame, completion: nil)
@@ -151,6 +152,16 @@ internal class HAURLSessionWebSocketEngineTests: XCTestCase {
         engine.forceStop()
 
         wait(for: [errored], timeout: 10)
+    }
+
+    func testSendCompletionInvokesCompletion() {
+        let engine = HAURLSessionWebSocketEngine(clientIdentity: { nil }, evaluateCertificate: nil)
+
+        var called = false
+        engine.sendCompletion { called = true }(nil)
+        XCTAssertTrue(called)
+
+        engine.sendCompletion(nil)(nil)
     }
 
     func testHandleReceiveResultBroadcastsMessages() {

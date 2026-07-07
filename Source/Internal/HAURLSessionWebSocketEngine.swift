@@ -46,21 +46,24 @@ internal final class HAURLSessionWebSocketEngine: NSObject, Engine, URLSessionDa
     }
 
     func write(string: String, completion: (() -> Void)?) {
-        task?.send(.string(string)) { _ in completion?() }
+        task?.send(.string(string), completionHandler: sendCompletion(completion))
     }
 
     func write(data: Data, opcode: FrameOpCode, completion: (() -> Void)?) {
         switch opcode {
         case .binaryFrame:
-            task?.send(.data(data)) { _ in completion?() }
+            task?.send(.data(data), completionHandler: sendCompletion(completion))
         case .textFrame:
-            let text = String(decoding: data, as: UTF8.self)
-            write(string: text, completion: completion)
+            write(string: String(decoding: data, as: UTF8.self), completion: completion)
         case .ping:
-            task?.sendPing { _ in completion?() }
+            task?.sendPing(pongReceiveHandler: sendCompletion(completion))
         default:
             break
         }
+    }
+
+    func sendCompletion(_ completion: (() -> Void)?) -> (Error?) -> Void {
+        { _ in completion?() }
     }
 
     private func doRead() {
