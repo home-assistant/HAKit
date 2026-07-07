@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.18] - 2026-07-07
+- Fixed: mTLS connections now use `URLSessionWebSocketTask`, which supports TLS 1.3 and presents the client certificate through the standard `URLSession` authentication challenge. Previously the WebSocket used the deprecated CFStream stack, which failed against servers that require TLS 1.3 and forced a TLS handshake on plain-`http` URLs.
+- Changed: Raised the minimum deployment targets to iOS 13, macOS 10.15, tvOS 13, and watchOS 6, and removed the legacy CFStream (`FoundationTransport`) client-certificate fallback that those older versions relied on.
+
 ## [0.4.17] - 2026-06-30
 - Added: `HAKit+PromiseKit` and `HAKit+Mocks` are now exposed as Swift Package Manager library products, so SPM consumers can depend on them directly (previously only reachable through the CocoaPods subspecs).
 
