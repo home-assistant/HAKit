@@ -274,7 +274,6 @@ private final class TrustProtectionSpace: URLProtectionSpace, @unchecked Sendabl
 
 @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 private extension HAURLSessionWebSocketEngineTests {
-    // Self-signed throwaway identity generated only for these tests (passphrase: hakittest).
     static let identityP12Base64 = """
     MIIJYQIBAzCCCR8GCSqGSIb3DQEHAaCCCRAEggkMMIIJCDCCA78GCSqGSIb3DQEHBqCCA7AwggOs
     AgEAMIIDpQYJKoZIhvcNAQcBMBwGCiqGSIb3DQEMAQYwDgQIU/iQV2tjb2UCAggAgIIDeGc7Iw2C
@@ -321,7 +320,6 @@ private extension HAURLSessionWebSocketEngineTests {
     8lXW6bhLIQICCAA=
     """
 
-    // Google Trust Services GTS CA 1C3 certificate, used only to obtain a valid SecTrust.
     static let certificateBase64 = """
     MIIFljCCA36gAwIBAgINAgO8U1lrNMcY9QFQZjANBgkqhkiG9w0BAQsFADBHMQswCQYDVQQGEwJVUzEiMCAGA1UEChMZR29vZ2xlIFRy
     dXN0IFNlcnZpY2VzIExMQzEUMBIGA1UEAxMLR1RTIFJvb3QgUjEwHhcNMjAwODEzMDAwMDQyWhcNMjcwOTMwMDAwMDQyWjBGMQswCQYD
