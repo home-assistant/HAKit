@@ -271,6 +271,11 @@ internal class CallServiceTests: XCTestCase {
                     "description": "Only Description",
                     "fields": {}
                 },
+                "with_empty_description": {
+                    "name": "Has Name",
+                    "description": "",
+                    "fields": {}
+                },
                 "with_neither": {
                     "fields": {}
                 }
@@ -279,7 +284,7 @@ internal class CallServiceTests: XCTestCase {
         """)
         let response = try HAResponseServices(data: data)
         let domain = try XCTUnwrap(response.allByDomain["test_domain"])
-        XCTAssertEqual(domain.count, 4)
+        XCTAssertEqual(domain.count, 5)
 
         var service: HAServiceDefinition!
 
@@ -297,6 +302,11 @@ internal class CallServiceTests: XCTestCase {
         service = try XCTUnwrap(domain["with_only_description"])
         XCTAssertEqual(service.name, "Only Description")
         XCTAssertEqual(service.description, "Only Description")
+
+        // Test with an empty description (treated as nil)
+        service = try XCTUnwrap(domain["with_empty_description"])
+        XCTAssertEqual(service.name, "Has Name")
+        XCTAssertNil(service.description, "empty description should be treated as nil")
 
         // Test with neither (name falls back to domain.service pair)
         service = try XCTUnwrap(domain["with_neither"])
