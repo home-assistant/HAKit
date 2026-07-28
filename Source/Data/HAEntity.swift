@@ -115,7 +115,7 @@ public struct HAEntityAttributes {
     /// This contains all keys and values received, including those not parsed or handled otherwise
     public var dictionary: [String: Any]
 
-    /// The display name for the entity, from the `friendly_name` attribute.
+    /// The value of the entity's legacy `friendly_name` state attribute.
     ///
     /// - Warning: The `friendly_name` state attribute should no longer be used to display an
     ///   entity's name. It does not reflect the canonical display name, which is derived from the
