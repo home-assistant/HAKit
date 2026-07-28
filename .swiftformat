@@ -11,7 +11,8 @@
 
 --ifdef no-indent
 
---disable wrapMultilineStatementBraces 
+--disable wrapMultilineStatementBraces
+--disable wrapIfStatementBodies
 
 --maxwidth 120
 
