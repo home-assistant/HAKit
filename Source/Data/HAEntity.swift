@@ -115,7 +115,19 @@ public struct HAEntityAttributes {
     /// This contains all keys and values received, including those not parsed or handled otherwise
     public var dictionary: [String: Any]
 
-    /// The display name for the entity, from the `friendly_name` attribute
+    /// The display name for the entity, from the `friendly_name` attribute.
+    ///
+    /// - Warning: The `friendly_name` state attribute should no longer be used to display an
+    ///   entity's name. It does not reflect the canonical display name, which is derived from the
+    ///   entity and device registries together with any user customizations. Resolve the display
+    ///   name from the entity registry display data provided by the `list_for_display` endpoint
+    ///   instead. That endpoint is not currently mapped in HAKit; refer to its definition and usage
+    ///   in `home-assistant/core` and `home-assistant/frontend`.
+    @available(
+        *,
+        deprecated,
+        message: "friendly_name should no longer be used to display an entity's name; it doesn't reflect the entity/device registry name or user customizations. Resolve the display name from the entity registry `list_for_display` endpoint instead (not yet mapped in HAKit — see home-assistant/core and home-assistant/frontend)."
+    )
     public var friendlyName: String? {
         self["friendly_name"] as? String
     }
