@@ -125,9 +125,27 @@ internal class HAURLSessionWebSocketEngineTests: XCTestCase {
         engine.urlSession(session, webSocketTask: task, didCloseWith: .goingAway, reason: Data("bye".utf8))
         engine.urlSession(session, task: task, didCompleteWithError: URLError(.timedOut))
 
-        XCTAssertTrue(delegate.events.contains { if case .connected = $0 { return true } else { return false } })
-        XCTAssertTrue(delegate.events.contains { if case .disconnected = $0 { return true } else { return false } })
-        XCTAssertTrue(delegate.events.contains { if case .error = $0 { return true } else { return false } })
+        XCTAssertTrue(delegate.events.contains {
+            if case .connected = $0 {
+                return true
+            } else {
+                return false
+            }
+        })
+        XCTAssertTrue(delegate.events.contains {
+            if case .disconnected = $0 {
+                return true
+            } else {
+                return false
+            }
+        })
+        XCTAssertTrue(delegate.events.contains {
+            if case .error = $0 {
+                return true
+            } else {
+                return false
+            }
+        })
     }
 
     func testStartWritesAndStop() throws {
@@ -138,7 +156,9 @@ internal class HAURLSessionWebSocketEngineTests: XCTestCase {
         let errored = expectation(description: "read fails once the socket is cancelled")
         errored.assertForOverFulfill = false
         delegate.onEvent = { event in
-            if case .error = event { errored.fulfill() }
+            if case .error = event {
+                errored.fulfill()
+            }
         }
 
         let request = try URLRequest(url: XCTUnwrap(URL(string: "wss://127.0.0.1:1/api/websocket")))
@@ -173,9 +193,27 @@ internal class HAURLSessionWebSocketEngineTests: XCTestCase {
         engine.handleReceiveResult(.success(.data(Data("bytes".utf8))))
         engine.handleReceiveResult(.failure(URLError(.badServerResponse)))
 
-        XCTAssertTrue(delegate.events.contains { if case .text("hello") = $0 { return true } else { return false } })
-        XCTAssertTrue(delegate.events.contains { if case .binary = $0 { return true } else { return false } })
-        XCTAssertTrue(delegate.events.contains { if case .error = $0 { return true } else { return false } })
+        XCTAssertTrue(delegate.events.contains {
+            if case .text("hello") = $0 {
+                return true
+            } else {
+                return false
+            }
+        })
+        XCTAssertTrue(delegate.events.contains {
+            if case .binary = $0 {
+                return true
+            } else {
+                return false
+            }
+        })
+        XCTAssertTrue(delegate.events.contains {
+            if case .error = $0 {
+                return true
+            } else {
+                return false
+            }
+        })
     }
 
     // MARK: - Helpers

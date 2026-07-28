@@ -54,8 +54,12 @@ public struct HAServiceDefinition {
         var descriptionValue: String? = try? data.decode("description")
 
         // Treat empty strings as nil
-        if nameValue?.isEmpty == true { nameValue = nil }
-        if descriptionValue?.isEmpty == true { descriptionValue = nil }
+        if nameValue?.isEmpty == true {
+            nameValue = nil
+        }
+        if descriptionValue?.isEmpty == true {
+            descriptionValue = nil
+        }
 
         try self.init(
             domain: domain,
