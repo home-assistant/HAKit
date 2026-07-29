@@ -3,7 +3,6 @@
 @testable import HAKit_PromiseKit
 #endif
 import PromiseKit
-import Starscream
 import XCTest
 
 internal class HAConnectionImplTests: XCTestCase {
@@ -213,7 +212,7 @@ internal class HAConnectionImplTests: XCTestCase {
         let newExpectedURL = try HAConnectionInfo(url: XCTUnwrap(url)).webSocketURL
 
         connection.connect()
-        XCTAssertTrue(oldEngine.events.contains(.stop(CloseCode.goingAway.rawValue)))
+        XCTAssertTrue(oldEngine.events.contains(.stop(HACloseCode.goingAway.rawValue)))
         XCTAssertTrue(engine.events.contains(where: { event in
             if case let .start(request) = event {
                 return request.url == newExpectedURL
@@ -257,7 +256,7 @@ internal class HAConnectionImplTests: XCTestCase {
         waitForCallbackQueue()
 
         XCTAssertTrue(responseController.wasReset)
-        XCTAssertTrue(engine.events.contains(.stop(CloseCode.goingAway.rawValue)))
+        XCTAssertTrue(engine.events.contains(.stop(HACloseCode.goingAway.rawValue)))
     }
 
     func testSubscribeRetryEvents() {
@@ -330,7 +329,7 @@ internal class HAConnectionImplTests: XCTestCase {
 
         connection.disconnect()
         waitForCallbackQueue()
-        XCTAssertTrue(engine.events.contains(.stop(CloseCode.goingAway.rawValue)))
+        XCTAssertTrue(engine.events.contains(.stop(HACloseCode.goingAway.rawValue)))
         XCTAssertTrue(responseController.wasReset)
         XCTAssertTrue(reconnectManager.didPermanently)
         XCTAssertFalse(reconnectManager.didTemporarily)
@@ -789,7 +788,7 @@ internal class HAConnectionImplTests: XCTestCase {
 
         accessTokenBlock(.failure(TestError.any))
         waitForCallbackQueue()
-        XCTAssertTrue(engine.events.contains(.stop(CloseCode.goingAway.rawValue)))
+        XCTAssertTrue(engine.events.contains(.stop(HACloseCode.goingAway.rawValue)))
         XCTAssertEqual(delegate.notifiedCount, 3)
 
         let last = try XCTUnwrap(delegate.states.last)
@@ -822,7 +821,7 @@ internal class HAConnectionImplTests: XCTestCase {
     func testReceivedEventForwardedToResponseController() throws {
         connection.connect()
 
-        for event: WebSocketEvent in [
+        for event: HAWebSocketEvent in [
             .binary(Data()),
             .cancelled,
             .connected(["a": "b"]),
@@ -835,7 +834,7 @@ internal class HAConnectionImplTests: XCTestCase {
             .viabilityChanged(true),
         ] {
             responseController.received.removeAll()
-            try connection.didReceive(event: event, client: XCTUnwrap(connection.connection))
+            connection.didReceive(event: event)
             XCTAssertEqual(try XCTUnwrap(responseController.received.last), event)
         }
     }
@@ -864,7 +863,7 @@ internal class HAConnectionImplTests: XCTestCase {
         waitForCallbackQueue()
 
         // Should disconnect with rejected reason (via .rejected context)
-        XCTAssertTrue(engine.events.contains(.stop(CloseCode.goingAway.rawValue)))
+        XCTAssertTrue(engine.events.contains(.stop(HACloseCode.goingAway.rawValue)))
         XCTAssertTrue(reconnectManager.didReject)
         XCTAssertFalse(reconnectManager.didTemporarily)
 
@@ -1685,36 +1684,6 @@ internal class HAConnectionImplTests: XCTestCase {
     }
 }
 
-extension WebSocketEvent: @retroactive Equatable {
-    public static func == (lhs: WebSocketEvent, rhs: WebSocketEvent) -> Bool {
-        switch (lhs, lhs) {
-        case let (.binary(lhsInside), .binary(rhsInside)):
-            return lhsInside == rhsInside
-        case (.cancelled, .cancelled):
-            return true
-        case let (.connected(lhsInside), .connected(rhsInside)):
-            return lhsInside == rhsInside
-        case let (.disconnected(lhsInsideString, lhsInsideCode), .disconnected(rhsInsideString, rhsInsideCode)):
-            return lhsInsideString == rhsInsideString
-                && lhsInsideCode == rhsInsideCode
-        case let (.error(lhsInside), .error(rhsInside)):
-            return lhsInside as NSError? == rhsInside as NSError?
-        case let (.ping(lhsInside), .ping(rhsInside)):
-            return lhsInside == rhsInside
-        case let (.pong(lhsInside), .pong(rhsInside)):
-            return lhsInside == rhsInside
-        case let (.reconnectSuggested(lhsInside), .reconnectSuggested(rhsInside)):
-            return lhsInside == rhsInside
-        case let (.text(lhsInside), .text(rhsInside)):
-            return lhsInside == rhsInside
-        case let (.viabilityChanged(lhsInside), .viabilityChanged(rhsInside)):
-            return lhsInside == rhsInside
-        default:
-            return false
-        }
-    }
-}
-
 private class MockTypedRequestResult: HADataDecodable {
     enum DecodeError: Error {
         case intentional
@@ -1840,8 +1809,8 @@ private class FakeHAResponseController: HAResponseController {
     }
 
     var receivedWaitExpectation: XCTestExpectation?
-    var received: [WebSocketEvent] = []
-    func didReceive(event: WebSocketEvent) {
+    var received: [HAWebSocketEvent] = []
+    func didReceive(event: HAWebSocketEvent) {
         received.append(event)
         receivedWaitExpectation?.fulfill()
     }

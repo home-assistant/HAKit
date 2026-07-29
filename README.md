@@ -346,8 +346,6 @@ Add the following line to your Podfile:
 
 ```ruby
 pod "HAKit", "~> 0.4.18"
-# We are working from a fork of Starscream due to a necessary fix, please specify in your podfile
-pod 'Starscream', git: 'https://github.com/bgoncal/starscream', branch: 'ha-URLSession-fix'
 # pod "HAKit/PromiseKit" # optional, for PromiseKit support
 # pod "HAKit/Mocks" # optional, for tests
 ```
@@ -356,4 +354,4 @@ pod 'Starscream', git: 'https://github.com/bgoncal/starscream', branch: 'ha-URLS
 See [CONTRIBUTING.md](CONTRIBUTING.md) more information on how to build and modify this library.
 
 ## License
-This library is available under the [Apache 2.0 license](LICENSE.md). It also has an underlying dependency on [Starscream](https://github.com/daltoniam/Starscream) for WebSocket connectivity on older versions of iOS. Starscream is also available under the Apache 2.0 license.
+This library is available under the [Apache 2.0 license](LICENSE.md).

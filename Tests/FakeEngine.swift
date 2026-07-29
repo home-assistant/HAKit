@@ -1,11 +1,11 @@
 import Foundation
-import Starscream
+@testable import HAKit
 
-internal class FakeEngine: Engine {
-    weak var delegate: EngineDelegate?
+internal class FakeEngine: HAWebSocketEngine {
+    weak var delegate: HAWebSocketEngineDelegate?
     var events = [Event]()
 
-    func register(delegate: EngineDelegate) {
+    func register(delegate: HAWebSocketEngineDelegate) {
         self.delegate = delegate
     }
 
@@ -14,7 +14,7 @@ internal class FakeEngine: Engine {
         case stop(UInt16)
         case forceStop
         case writeString(String)
-        case writeData(Data, opcode: FrameOpCode)
+        case writeData(Data, opcode: HAFrameOpCode)
     }
 
     func start(request: URLRequest) {
@@ -29,7 +29,7 @@ internal class FakeEngine: Engine {
         events.append(.forceStop)
     }
 
-    func write(data: Data, opcode: FrameOpCode, completion: (() -> Void)?) {
+    func write(data: Data, opcode: HAFrameOpCode, completion: (() -> Void)?) {
         events.append(.writeData(data, opcode: opcode))
         completion?()
     }

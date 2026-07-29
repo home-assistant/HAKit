@@ -27,10 +27,6 @@ public let package = Package(
     ],
     dependencies: [
         .package(
-            url: "https://github.com/bgoncal/Starscream",
-            from: "4.0.9"
-        ),
-        .package(
             url: "https://github.com/mxcl/PromiseKit",
             from: "8.1.1"
         ),
@@ -38,9 +34,6 @@ public let package = Package(
     targets: [
         .target(
             name: "HAKit",
-            dependencies: [
-                .byName(name: "Starscream"),
-            ],
             path: "Source"
         ),
         .target(
