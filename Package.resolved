@@ -9,15 +9,6 @@
           "revision": "6fcc08077124e9747f1ec7bd8bb78f5caffe5a79",
           "version": "8.1.2"
         }
-      },
-      {
-        "package": "Starscream",
-        "repositoryURL": "https://github.com/bgoncal/Starscream",
-        "state": {
-          "branch": null,
-          "revision": "5ecf50449c9bfd8c922bf1020ad922b5c1f24598",
-          "version": "4.0.9"
-        }
       }
     ]
   },

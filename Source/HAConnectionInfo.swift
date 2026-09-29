@@ -1,5 +1,4 @@
 import Foundation
-import Starscream
 
 /// Information for connecting to the server
 public struct HAConnectionInfo: Equatable {
@@ -39,7 +38,7 @@ public struct HAConnectionInfo: Equatable {
         userAgent: String?,
         evaluateCertificate: EvaluateCertificate?,
         clientIdentity: ClientIdentityProvider?,
-        engine: Engine?
+        engine: HAWebSocketEngine?
     ) throws {
         guard let host = url.host, !host.isEmpty else {
             throw CreationError.emptyHostname
@@ -67,7 +66,7 @@ public struct HAConnectionInfo: Equatable {
     public var userAgent: String?
 
     /// Used for dependency injection in tests
-    internal var engine: Engine?
+    internal var engine: HAWebSocketEngine?
 
     /// Used to validate certificate, if provided
     internal var evaluateCertificate: EvaluateCertificate?
@@ -76,7 +75,7 @@ public struct HAConnectionInfo: Equatable {
     internal var clientIdentity: ClientIdentityProvider?
 
     /// Should this connection info take over an existing connection?
-    internal func shouldReplace(_ webSocket: WebSocket) -> Bool {
+    internal func shouldReplace(_ webSocket: HAWebSocket) -> Bool {
         webSocket.request.url.map(Self.sanitize) != Self.sanitize(url)
     }
 
@@ -113,32 +112,18 @@ public struct HAConnectionInfo: Equatable {
     }
 
     /// Create a new WebSocket connection
-    internal func webSocket() -> WebSocket {
+    internal func webSocket() -> HAWebSocket {
         let request = self.request(url: webSocketURL)
-        let webSocket: WebSocket
 
-        if let engine = engine {
-            webSocket = WebSocket(request: request, engine: engine)
-        } else if let clientIdentity = clientIdentity {
-            let engine = HAURLSessionWebSocketEngine(
-                clientIdentity: clientIdentity,
-                evaluateCertificate: evaluateCertificate
-            )
-            webSocket = WebSocket(request: request, engine: engine)
-        } else {
-            let pinning = evaluateCertificate.flatMap { HAStarscreamCertificatePinningImpl(evaluateCertificate: $0) }
-            #if os(watchOS)
-            // permessage-deflate compressed frames fail to decode on watchOS — Starscream reports a
-            // protocol error ("not valid UTF-8 data", 1002) on the first server frame and the
-            // connection drops in a loop. Connect without WebSocket compression there; Home
-            // Assistant works fine uncompressed.
-            webSocket = WebSocket(request: request, certPinner: pinning)
-            #else
-            webSocket = WebSocket(request: request, certPinner: pinning, compressionHandler: WSCompression())
-            #endif
-        }
+        // Every connection uses `URLSessionWebSocketTask`. The URL Loading System handles server
+        // trust evaluation and the mTLS client-identity challenge through the engine's
+        // authentication handler, so a single path covers all cases.
+        let engine = engine ?? HAURLSessionWebSocketEngine(
+            clientIdentity: clientIdentity,
+            evaluateCertificate: evaluateCertificate
+        )
 
-        return webSocket
+        return HAWebSocket(request: request, engine: engine)
     }
 
     private static func sanitize(_ url: URL) -> URL {

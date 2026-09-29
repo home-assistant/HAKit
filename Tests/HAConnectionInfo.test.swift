@@ -1,5 +1,4 @@
 @testable import HAKit
-import Starscream
 import XCTest
 
 internal class HAConnectionInfoTests: XCTestCase {
@@ -133,10 +132,9 @@ internal class HAConnectionInfoTests: XCTestCase {
         })
         XCTAssertEqual(connectionInfo.url, url)
 
-        // not easy to test WebSocket, so we test our wrapper for it
-        let pinning = try HAStarscreamCertificatePinningImpl(
-            evaluateCertificate: XCTUnwrap(connectionInfo.evaluateCertificate)
-        )
+        // The evaluation closure is stored on the connection info and handed to the WebSocket
+        // engine's authentication challenge handler; verify it forwards success and failure.
+        let evaluate = try XCTUnwrap(connectionInfo.evaluateCertificate)
 
         var secTrust: SecTrust?
         try SecTrustCreateWithCertificates([
@@ -168,12 +166,12 @@ internal class HAConnectionInfoTests: XCTestCase {
         }
 
         let expectation1 = expectation(description: "first request")
-        pinning.evaluateTrust(trust: secTrust, domain: "some_domain") { pinningState in
-            switch pinningState {
+        evaluate(secTrust) { evaluationResult in
+            switch evaluationResult {
             case .success:
                 // pass
                 break
-            case .failed:
+            case .failure:
                 XCTFail("expected success, got failure")
             }
             expectation1.fulfill()
@@ -186,11 +184,11 @@ internal class HAConnectionInfoTests: XCTestCase {
         result = .failure(TestError.any)
 
         let expectation2 = expectation(description: "second request")
-        pinning.evaluateTrust(trust: secTrust, domain: "some_domain") { pinningState in
-            switch pinningState {
+        evaluate(secTrust) { evaluationResult in
+            switch evaluationResult {
             case .success:
                 XCTFail("expected failure, got success")
-            case .failed:
+            case .failure:
                 // pass
                 break
             }
