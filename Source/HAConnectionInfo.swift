@@ -22,13 +22,15 @@ public struct HAConnectionInfo: Equatable {
         url: URL,
         userAgent: String? = nil,
         evaluateCertificate: EvaluateCertificate? = nil,
-        clientIdentity: ClientIdentityProvider? = nil
+        clientIdentity: ClientIdentityProvider? = nil,
+        cookieStorage: HTTPCookieStorage? = nil
     ) throws {
         try self.init(
             url: url,
             userAgent: userAgent,
             evaluateCertificate: evaluateCertificate,
             clientIdentity: clientIdentity,
+            cookieStorage: cookieStorage,
             engine: nil
         )
     }
@@ -39,6 +41,7 @@ public struct HAConnectionInfo: Equatable {
         userAgent: String?,
         evaluateCertificate: EvaluateCertificate?,
         clientIdentity: ClientIdentityProvider?,
+        cookieStorage: HTTPCookieStorage? = nil,
         engine: Engine?
     ) throws {
         guard let host = url.host, !host.isEmpty else {
@@ -51,6 +54,7 @@ public struct HAConnectionInfo: Equatable {
 
         self.url = Self.sanitize(url)
         self.userAgent = userAgent
+        self.cookieStorage = cookieStorage
         self.engine = engine
         self.evaluateCertificate = evaluateCertificate
         self.clientIdentity = clientIdentity
@@ -65,6 +69,11 @@ public struct HAConnectionInfo: Equatable {
 
     /// The user agent to use in the connection
     public var userAgent: String?
+
+    /// The cookies in this storage that match the WebSocket URL are sent on the handshake request.
+    /// An authentication proxy in front of Home Assistant rejects the handshake with 401 unless the
+    /// session cookie it issued is present.
+    public var cookieStorage: HTTPCookieStorage?
 
     /// Used for dependency injection in tests
     internal var engine: Engine?
@@ -114,7 +123,7 @@ public struct HAConnectionInfo: Equatable {
 
     /// Create a new WebSocket connection
     internal func webSocket() -> WebSocket {
-        let request = self.request(url: webSocketURL)
+        var request = self.request(url: webSocketURL)
         let webSocket: WebSocket
 
         if let engine = engine {
@@ -122,10 +131,17 @@ public struct HAConnectionInfo: Equatable {
         } else if let clientIdentity = clientIdentity {
             let engine = HAURLSessionWebSocketEngine(
                 clientIdentity: clientIdentity,
-                evaluateCertificate: evaluateCertificate
+                evaluateCertificate: evaluateCertificate,
+                cookieStorage: cookieStorage
             )
             webSocket = WebSocket(request: request, engine: engine)
         } else {
+            // Starscream's transport never reads cookie storage, so the cookies go on the request here.
+            if let cookies = cookieStorage?.cookies(for: webSocketURL), !cookies.isEmpty {
+                for (field, value) in HTTPCookie.requestHeaderFields(with: cookies) {
+                    request.setValue(value, forHTTPHeaderField: field)
+                }
+            }
             let pinning = evaluateCertificate.flatMap { HAStarscreamCertificatePinningImpl(evaluateCertificate: $0) }
             #if os(watchOS)
             // permessage-deflate compressed frames fail to decode on watchOS — Starscream reports a
