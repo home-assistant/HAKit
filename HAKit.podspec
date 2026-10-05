@@ -19,7 +19,6 @@ Pod::Spec.new do |s|
 
   s.subspec 'Core' do |subspec|
     subspec.source_files = 'Source/**/*.swift'
-    subspec.dependency 'Starscream', '~> 4.0.4'
   end
 
   s.subspec 'PromiseKit' do |subspec|

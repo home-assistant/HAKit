@@ -1,5 +1,4 @@
 import Foundation
-import Starscream
 
 // NOTE: see HAConnection.swift for how to access these types
 
@@ -39,12 +38,12 @@ internal class HAConnectionImpl: HAConnection {
         }
     }
 
-    internal private(set) var connection: WebSocket? {
+    internal private(set) var connection: HAWebSocket? {
         didSet {
             connection?.delegate = self
 
             if oldValue !== connection {
-                oldValue?.disconnect(closeCode: CloseCode.goingAway.rawValue)
+                oldValue?.disconnect(closeCode: HACloseCode.goingAway.rawValue)
                 responseController.reset()
                 connection?.connect()
             }
@@ -150,7 +149,7 @@ internal class HAConnectionImpl: HAConnection {
 
         setupResubscribeEvents()
 
-        let connection: WebSocket = {
+        let connection: HAWebSocket = {
             guard let existing = self.connection else {
                 return connectionInfo.webSocket()
             }
@@ -184,7 +183,7 @@ internal class HAConnectionImpl: HAConnection {
         HAGlobal.log(.info, "disconnecting; permanently: \(context), error: \(String(describing: error))")
 
         connection?.delegate = nil
-        connection?.disconnect(closeCode: CloseCode.goingAway.rawValue)
+        connection?.disconnect(closeCode: HACloseCode.goingAway.rawValue)
         connection = nil
 
         switch context {

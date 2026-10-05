@@ -1,5 +1,4 @@
 @testable import HAKit
-import Starscream
 import XCTest
 
 internal class HAURLSessionWebSocketEngineTests: XCTestCase {
@@ -284,11 +283,11 @@ internal class HAURLSessionWebSocketEngineTests: XCTestCase {
 
 // MARK: - Test Doubles
 
-private final class MockEngineDelegate: EngineDelegate {
-    private(set) var events: [WebSocketEvent] = []
-    var onEvent: ((WebSocketEvent) -> Void)?
+private final class MockEngineDelegate: HAWebSocketEngineDelegate {
+    private(set) var events: [HAWebSocketEvent] = []
+    var onEvent: ((HAWebSocketEvent) -> Void)?
 
-    func didReceive(event: WebSocketEvent) {
+    func didReceive(event: HAWebSocketEvent) {
         events.append(event)
         onEvent?(event)
     }
