@@ -28,7 +28,7 @@ public let package = Package(
     dependencies: [
         .package(
             url: "https://github.com/bgoncal/Starscream",
-            from: "4.0.9"
+            from: "4.0.10"
         ),
         .package(
             url: "https://github.com/mxcl/PromiseKit",
