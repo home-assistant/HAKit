@@ -13,13 +13,16 @@ internal final class HAURLSessionWebSocketEngine: NSObject, Engine, URLSessionDa
 
     private let clientIdentity: HAConnectionInfo.ClientIdentityProvider?
     private let evaluateCertificate: HAConnectionInfo.EvaluateCertificate?
+    private let cookieStorage: HTTPCookieStorage?
 
     init(
         clientIdentity: HAConnectionInfo.ClientIdentityProvider?,
-        evaluateCertificate: HAConnectionInfo.EvaluateCertificate?
+        evaluateCertificate: HAConnectionInfo.EvaluateCertificate?,
+        cookieStorage: HTTPCookieStorage? = nil
     ) {
         self.clientIdentity = clientIdentity
         self.evaluateCertificate = evaluateCertificate
+        self.cookieStorage = cookieStorage
         super.init()
     }
 
@@ -29,7 +32,9 @@ internal final class HAURLSessionWebSocketEngine: NSObject, Engine, URLSessionDa
 
     func start(request: URLRequest) {
         if session == nil {
-            session = URLSession(configuration: .default, delegate: self, delegateQueue: nil)
+            let configuration = URLSessionConfiguration.default
+            configuration.httpCookieStorage = cookieStorage
+            session = URLSession(configuration: configuration, delegate: self, delegateQueue: nil)
         }
         task = session?.webSocketTask(with: request)
         doRead()
