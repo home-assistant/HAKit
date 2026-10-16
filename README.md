@@ -2,7 +2,7 @@
 
 [![Documentation](https://home-assistant.github.io/HAKit/badge.svg)](https://home-assistant.github.io/HAKit/) [![codecov](https://codecov.io/gh/home-assistant/HAKit/branch/main/graph/badge.svg?token=M0ZUCTQMBM)](https://codecov.io/gh/home-assistant/HAKit) [![License Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-green.svg?style=flat)](https://github.com/home-assistant/HAKit/blob/master/LICENSE)
 
-This library allows you to connect to the [Home Assistant WebSocket API](https://developers.home-assistant.io/docs/api/websocket) to issue commands and subscribe to events as well as issue [REST API](https://developers.home-assistant.io/docs/api/rest) requests. Future plans include offering authentication support.
+This library allows you to connect to the [Home Assistant WebSocket API](https://contributors.home-assistant.io/core/internals/websocket-api/) to issue commands and subscribe to events as well as issue [REST API](https://contributors.home-assistant.io/core/internals/rest-api/) requests. Future plans include offering authentication support.
 
 ## API Reference
 
