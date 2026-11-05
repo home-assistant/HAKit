@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.21] - 2026-11-05
+- Changed: Removed the Starscream dependency. Every WebSocket connection now uses `URLSessionWebSocketTask`, the transport mTLS connections already used. CocoaPods users no longer need the Starscream fork in their Podfile.
+- Changed: When no `evaluateCertificate` is provided, the server certificate is now validated with the system's default trust evaluation. Previously, connections without a client identity accepted any server certificate in that case.
+
 ## [0.4.20] - 2026-11-05
 - Fixed: The WebSocket connection could stay stuck in `connecting` indefinitely when the connect never completed or failed, leaving every queued command waiting. Connecting and authenticating now each have a 30-second deadline, after which HAKit drops the attempt and retries with the usual backoff.
 
