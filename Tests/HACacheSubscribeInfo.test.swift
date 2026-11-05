@@ -1,8 +1,8 @@
 @testable import HAKit
+import XCTest
 #if SWIFT_PACKAGE
 import HAKit_Mocks
 #endif
-import XCTest
 
 internal class HACacheSubscribeInfoTests: XCTestCase {
     private var connection: HAMockConnection!
