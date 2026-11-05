@@ -273,18 +273,44 @@ internal class HAReconnectManagerTests: XCTestCase {
     }
 
     func testConnectReachesAuthBeforeTimeout() throws {
+        let now = Date(timeIntervalSinceNow: 1000)
+
+        HAGlobal.date = { now }
+
         reconnectManager.didStartInitialConnect()
         reconnectManager.didStartConnect()
 
         let connectTimer = try XCTUnwrap(reconnectManager.connectTimer)
 
+        // the socket connected, so authentication gets a fresh deadline
+        HAGlobal.date = { now.addingTimeInterval(10) }
+
         reconnectManager.didStartAuth()
-        XCTAssertNil(reconnectManager.connectTimer)
         XCTAssertFalse(connectTimer.isValid)
+
+        let authTimer = try XCTUnwrap(reconnectManager.connectTimer)
+        XCTAssertNotEqual(authTimer, connectTimer)
+        XCTAssertTrue(authTimer.isValid)
+        XCTAssertEqual(authTimer.fireDate, now.addingTimeInterval(40))
 
         reconnectManager.didFinishConnect()
         assertIdle(connected: true)
+        XCTAssertFalse(authTimer.isValid)
         XCTAssertNil(delegate.wantsDisconnectError)
+    }
+
+    func testAuthTimesOut() throws {
+        reconnectManager.didStartInitialConnect()
+        reconnectManager.didStartConnect()
+        reconnectManager.didStartAuth()
+
+        let authTimer = try XCTUnwrap(reconnectManager.connectTimer)
+
+        // the server never answers the auth message and the socket never closes
+        authTimer.fire()
+
+        XCTAssertNil(reconnectManager.connectTimer)
+        XCTAssertEqual(delegate.wantsDisconnectError as? HAReconnectManagerError, .connectTimeout)
     }
 
     func testConnectFinishesBeforeTimeout() throws {

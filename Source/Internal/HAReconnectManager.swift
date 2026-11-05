@@ -56,9 +56,9 @@ internal class HAReconnectManagerImpl: HAReconnectManager {
         lateFireReset: .init(value: 5, unit: .minutes)
     )
 
-    /// How long the socket may stay in the connecting phase before the connect is abandoned and retried.
-    /// Starscream does not always report a failed connect (e.g. a wedged TLS handshake through a remote URL),
-    /// which would otherwise leave the connection stuck in `.connecting` forever.
+    /// How long the socket may stay in the connecting phase, and then in the authenticating phase, before the
+    /// attempt is abandoned and retried. Starscream does not always report a failed connect (e.g. a wedged TLS
+    /// handshake through a remote URL), which would otherwise leave the connection stuck in `.connecting` forever.
     static let connectTimeout: Measurement<UnitDuration> = .init(value: 30, unit: .seconds)
 
     weak var delegate: HAReconnectManagerDelegate?
@@ -144,6 +144,21 @@ internal class HAReconnectManagerImpl: HAReconnectManager {
     }
 
     func didStartConnect() {
+        state.mutate { state in
+            // a ping timer left over from the previous connection must not interfere with this attempt
+            state.pingTimer = nil
+            state.connectTimer = makeConnectTimer()
+        }
+    }
+
+    func didStartAuth() {
+        // the socket is up, so authentication gets a deadline of its own
+        state.mutate { state in
+            state.connectTimer = makeConnectTimer()
+        }
+    }
+
+    private func makeConnectTimer() -> Timer {
         let timer = Timer(
             fire: HAGlobal.date().addingTimeInterval(Self.connectTimeout.converted(to: .seconds).value),
             interval: 0,
@@ -152,19 +167,7 @@ internal class HAReconnectManagerImpl: HAReconnectManager {
             self?.connectTimerFired()
         }
         timer.tolerance = 5.0
-
-        state.mutate { state in
-            // a ping timer left over from the previous connection must not interfere with this attempt
-            state.pingTimer = nil
-            state.connectTimer = timer
-        }
-    }
-
-    func didStartAuth() {
-        // the socket is up and talking to the server, so the connect watchdog is no longer needed
-        state.mutate { state in
-            state.connectTimer = nil
-        }
+        return timer
     }
 
     private func connectTimerFired() {
