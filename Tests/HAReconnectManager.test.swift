@@ -28,6 +28,7 @@ internal class HAReconnectManagerTests: XCTestCase {
         } else {
             XCTAssertNil(reconnectManager.pingTimer, file: file, line: line)
         }
+        XCTAssertNil(reconnectManager.connectTimer, file: file, line: line)
         XCTAssertNil(reconnectManager.reconnectTimer, file: file, line: line)
         XCTAssertEqual(reconnectManager.retryCount, 0, file: file, line: line)
         XCTAssertEqual(delegate.wantsReconnection, reconnects, file: file, line: line)
@@ -231,6 +232,118 @@ internal class HAReconnectManagerTests: XCTestCase {
 
         XCTAssertNil(reconnectManager.lastPingDuration)
         XCTAssertEqual(delegate.wantsDisconnectError as? HAReconnectManagerError, .timeout)
+    }
+
+    func testConnectTimesOutAndRetries() throws {
+        let now = Date(timeIntervalSinceNow: 1000)
+
+        HAGlobal.date = { now }
+
+        reconnectManager.didStartInitialConnect()
+        reconnectManager.didStartConnect()
+
+        let connectTimer = try XCTUnwrap(reconnectManager.connectTimer)
+        XCTAssertEqual(connectTimer.fireDate, now.addingTimeInterval(30))
+        XCTAssertNil(reconnectManager.pingTimer)
+        XCTAssertNil(delegate.wantsDisconnectError)
+
+        // the socket never reports connected, errored or closed
+        connectTimer.fire()
+
+        XCTAssertNil(reconnectManager.connectTimer)
+        XCTAssertEqual(delegate.wantsDisconnectError as? HAReconnectManagerError, .connectTimeout)
+
+        // the connection disconnects temporarily in response, which schedules a retry
+        reconnectManager.didDisconnectTemporarily(error: delegate.wantsDisconnectError)
+        XCTAssertEqual(reconnectManager.reason, .waitingToReconnect(
+            lastError: HAReconnectManagerError.connectTimeout,
+            atLatest: now,
+            retryCount: 1
+        ))
+
+        reconnectManager.reconnectTimer?.fire()
+        XCTAssertEqual(delegate.wantsReconnection, 1)
+
+        // the retry gets a fresh watchdog of its own
+        reconnectManager.didStartConnect()
+        let retryTimer = try XCTUnwrap(reconnectManager.connectTimer)
+        XCTAssertNotEqual(retryTimer, connectTimer)
+        XCTAssertTrue(retryTimer.isValid)
+        XCTAssertEqual(retryTimer.fireDate, now.addingTimeInterval(30))
+    }
+
+    func testConnectReachesAuthBeforeTimeout() throws {
+        reconnectManager.didStartInitialConnect()
+        reconnectManager.didStartConnect()
+
+        let connectTimer = try XCTUnwrap(reconnectManager.connectTimer)
+
+        reconnectManager.didStartAuth()
+        XCTAssertNil(reconnectManager.connectTimer)
+        XCTAssertFalse(connectTimer.isValid)
+
+        reconnectManager.didFinishConnect()
+        assertIdle(connected: true)
+        XCTAssertNil(delegate.wantsDisconnectError)
+    }
+
+    func testConnectFinishesBeforeTimeout() throws {
+        reconnectManager.didStartInitialConnect()
+        reconnectManager.didStartConnect()
+
+        let connectTimer = try XCTUnwrap(reconnectManager.connectTimer)
+
+        reconnectManager.didFinishConnect()
+        assertIdle(connected: true)
+        XCTAssertFalse(connectTimer.isValid)
+        XCTAssertNil(delegate.wantsDisconnectError)
+    }
+
+    func testConnectDisconnectsBeforeTimeout() throws {
+        reconnectManager.didStartInitialConnect()
+        reconnectManager.didStartConnect()
+
+        let connectTimer = try XCTUnwrap(reconnectManager.connectTimer)
+
+        reconnectManager.didDisconnectTemporarily(error: nil)
+        XCTAssertNil(reconnectManager.connectTimer)
+        XCTAssertFalse(connectTimer.isValid)
+        XCTAssertNotNil(reconnectManager.reconnectTimer)
+        XCTAssertNil(delegate.wantsDisconnectError)
+    }
+
+    func testConnectDisconnectsPermanentlyBeforeTimeout() throws {
+        reconnectManager.didStartInitialConnect()
+        reconnectManager.didStartConnect()
+
+        let connectTimer = try XCTUnwrap(reconnectManager.connectTimer)
+
+        reconnectManager.didDisconnectPermanently()
+        assertIdle(connected: false)
+        XCTAssertFalse(connectTimer.isValid)
+    }
+
+    func testStartConnectClearsStalePingTimer() throws {
+        reconnectManager.didFinishConnect()
+
+        let pingTimer = try XCTUnwrap(reconnectManager.pingTimer)
+
+        // e.g. a disconnect reported by the socket while a ping was in flight
+        reconnectManager.didStartConnect()
+        XCTAssertNil(reconnectManager.pingTimer)
+        XCTAssertFalse(pingTimer.isValid)
+        XCTAssertNotNil(reconnectManager.connectTimer)
+    }
+
+    func testDisconnectTemporarilyClearsPingTimer() throws {
+        reconnectManager.didFinishConnect()
+
+        let pingTimer = try XCTUnwrap(reconnectManager.pingTimer)
+
+        reconnectManager.didDisconnectTemporarily(error: nil)
+        XCTAssertNil(reconnectManager.pingTimer)
+        XCTAssertFalse(pingTimer.isValid)
+        XCTAssertNotNil(reconnectManager.reconnectTimer)
     }
 
     func testPingTimerFiresSuperLate() throws {

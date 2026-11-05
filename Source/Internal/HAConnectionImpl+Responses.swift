@@ -77,6 +77,7 @@ extension HAConnectionImpl: HAResponseControllerDelegate {
     ) {
         switch phase {
         case .auth:
+            reconnectManager.didStartAuth()
             sendAuthToken()
             notifyState()
         case .command:
