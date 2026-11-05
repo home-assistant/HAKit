@@ -1607,6 +1607,8 @@ internal class HAConnectionImplTests: XCTestCase {
 
             added.invoke(token: .init(handler: {}), event: .dictionary(["failure": true]))
         }
+
+        waitForWorkQueue()
     }
 
     func testCachesContainerExists() {
