@@ -1,5 +1,4 @@
 import Foundation
-import Starscream
 
 internal protocol HAResponseControllerDelegate: AnyObject {
     func responseController(
@@ -37,7 +36,7 @@ internal protocol HAResponseController: AnyObject {
 
     func reset()
     func didWrite()
-    func didReceive(event: Starscream.WebSocketEvent)
+    func didReceive(event: HAWebSocketEvent)
     func didReceive(
         for identifier: HARequestIdentifier,
         response: Result<(HTTPURLResponse, Data?), Error>
@@ -61,7 +60,7 @@ internal class HAResponseControllerImpl: HAResponseController {
         phase = .disconnected(error: nil, forReset: true)
     }
 
-    func didReceive(event: Starscream.WebSocketEvent) {
+    func didReceive(event: HAWebSocketEvent) {
         switch event {
         case let .connected(headers):
             HAGlobal.log(.info, "connected with headers: \(headers)")

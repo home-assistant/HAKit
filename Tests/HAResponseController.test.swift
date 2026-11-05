@@ -1,5 +1,4 @@
 @testable import HAKit
-import Starscream
 import XCTest
 
 internal class HAResponseControllerTests: XCTestCase {
@@ -58,7 +57,7 @@ internal class HAResponseControllerTests: XCTestCase {
     func testIgnoredEvents() {
         fireConnected()
 
-        for event: Starscream.WebSocketEvent in [
+        for event: HAWebSocketEvent in [
             .binary(.init(count: 100)),
             .ping(nil),
             .pong(nil),

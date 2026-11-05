@@ -57,8 +57,9 @@ internal class HAReconnectManagerImpl: HAReconnectManager {
     )
 
     /// How long the socket may stay in the connecting phase, and then in the authenticating phase, before the
-    /// attempt is abandoned and retried. Starscream does not always report a failed connect (e.g. a wedged TLS
-    /// handshake through a remote URL), which would otherwise leave the connection stuck in `.connecting` forever.
+    /// attempt is abandoned and retried. The WebSocket transport does not always report a failed connect (e.g. a
+    /// wedged TLS handshake through a remote URL), which would otherwise leave the connection stuck in
+    /// `.connecting` forever.
     static let connectTimeout: Measurement<UnitDuration> = .init(value: 30, unit: .seconds)
 
     weak var delegate: HAReconnectManagerDelegate?
