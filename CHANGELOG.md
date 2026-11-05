@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.20] - 2026-11-05
+- Fixed: The WebSocket connection could stay stuck in `connecting` indefinitely when the connect never completed or failed, leaving every queued command waiting. Connecting and authenticating now each have a 30-second deadline, after which HAKit drops the attempt and retries with the usual backoff.
+
 ## [0.4.19] - 2026-10-10
 - Fixed: WebSocket connections dropping every ~56 seconds against Home Assistant 2026.10 with "Received frame with non-zero reserved bits". Bumps Starscream to 4.0.10, which no longer sets the permessage-deflate compressed bit on control frames (the pong replying to the server's heartbeat ping), as RFC 7692 requires and aiohttp 3.14.4 now enforces.
 

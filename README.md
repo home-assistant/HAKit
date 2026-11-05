@@ -345,7 +345,7 @@ To add it to an Xcode project, you can do this by adding the URL to File > Swift
 Add the following line to your Podfile:
 
 ```ruby
-pod "HAKit", "~> 0.4.19"
+pod "HAKit", "~> 0.4.20"
 # We are working from a fork of Starscream due to a necessary fix, please specify in your podfile
 pod 'Starscream', git: 'https://github.com/bgoncal/starscream', tag: '4.0.10'
 # pod "HAKit/PromiseKit" # optional, for PromiseKit support
