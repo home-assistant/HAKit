@@ -7,6 +7,7 @@ import Network
 internal enum HAReconnectManagerError: Error {
     case timeout
     case lateFireReset
+    case connectTimeout
 }
 
 internal protocol HAReconnectManagerDelegate: AnyObject {
@@ -26,6 +27,8 @@ internal protocol HAReconnectManager: AnyObject {
     var reason: HAConnectionState.DisconnectReason { get }
 
     func didStartInitialConnect()
+    func didStartConnect()
+    func didStartAuth()
     func didDisconnectPermanently()
     func didDisconnectRejected()
     func didDisconnectTemporarily(error: Error?)
@@ -53,6 +56,12 @@ internal class HAReconnectManagerImpl: HAReconnectManager {
         lateFireReset: .init(value: 5, unit: .minutes)
     )
 
+    /// How long the socket may stay in the connecting phase, and then in the authenticating phase, before the
+    /// attempt is abandoned and retried. The WebSocket transport does not always report a failed connect (e.g. a
+    /// wedged TLS handshake through a remote URL), which would otherwise leave the connection stuck in
+    /// `.connecting` forever.
+    static let connectTimeout: Measurement<UnitDuration> = .init(value: 30, unit: .seconds)
+
     weak var delegate: HAReconnectManagerDelegate?
 
     #if canImport(Network)
@@ -72,10 +81,12 @@ internal class HAReconnectManagerImpl: HAReconnectManager {
 
         var lastPingDuration: Measurement<UnitDuration>?
         @HASchedulingTimer var pingTimer: Timer?
+        @HASchedulingTimer var connectTimer: Timer?
 
         mutating func reset() {
             lastPingDuration = nil
             pingTimer = nil
+            connectTimer = nil
             reconnectTimer = nil
             lastError = nil
             retryCount = 0
@@ -133,6 +144,41 @@ internal class HAReconnectManagerImpl: HAReconnectManager {
         reset()
     }
 
+    func didStartConnect() {
+        state.mutate { state in
+            // a ping timer left over from the previous connection must not interfere with this attempt
+            state.pingTimer = nil
+            state.connectTimer = makeConnectTimer()
+        }
+    }
+
+    func didStartAuth() {
+        // the socket is up, so authentication gets a deadline of its own
+        state.mutate { state in
+            state.connectTimer = makeConnectTimer()
+        }
+    }
+
+    private func makeConnectTimer() -> Timer {
+        let timer = Timer(
+            fire: HAGlobal.date().addingTimeInterval(Self.connectTimeout.converted(to: .seconds).value),
+            interval: 0,
+            repeats: false
+        ) { [weak self] _ in
+            self?.connectTimerFired()
+        }
+        timer.tolerance = 5.0
+        return timer
+    }
+
+    private func connectTimerFired() {
+        state.mutate { state in
+            state.connectTimer = nil
+        }
+
+        delegate?.reconnect(self, wantsDisconnectFor: HAReconnectManagerError.connectTimeout)
+    }
+
     func didDisconnectPermanently() {
         reset()
     }
@@ -152,6 +198,8 @@ internal class HAReconnectManagerImpl: HAReconnectManager {
     func didDisconnectTemporarily(error: Error?) {
         state.mutate { state in
             state.lastError = error
+            state.pingTimer = nil
+            state.connectTimer = nil
 
             let delay: TimeInterval = {
                 switch state.retryCount {
@@ -256,6 +304,10 @@ extension HAReconnectManagerImpl {
 
     var pingTimer: Timer? {
         state.read(\.pingTimer)
+    }
+
+    var connectTimer: Timer? {
+        state.read(\.connectTimer)
     }
 
     var retryCount: Int {

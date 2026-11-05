@@ -1,9 +1,9 @@
 @testable import HAKit
+import PromiseKit
+import XCTest
 #if SWIFT_PACKAGE
 @testable import HAKit_PromiseKit
 #endif
-import PromiseKit
-import XCTest
 
 internal class HAConnectionImplTests: XCTestCase {
     private var url: URL?
@@ -182,10 +182,12 @@ internal class HAConnectionImplTests: XCTestCase {
             }
         }))
         XCTAssertTrue(reconnectManager.didStartInitial)
+        XCTAssertEqual(reconnectManager.didStartConnectCount, 1)
 
         // connect a second time, it shouldn't disconnect
         connection.connect()
         XCTAssertEqual(engine.events.count, 1)
+        XCTAssertEqual(reconnectManager.didStartConnectCount, 1)
 
         responseController.phase = .command(version: "123")
         connection.responseController(responseController, didTransitionTo: .command(version: "123"))
@@ -224,6 +226,7 @@ internal class HAConnectionImplTests: XCTestCase {
         XCTAssertTrue(responseController.wasReset)
         XCTAssertFalse(reconnectManager.didPermanently)
         XCTAssertFalse(reconnectManager.didTemporarily)
+        XCTAssertEqual(reconnectManager.didStartConnectCount, 2)
     }
 
     func testConnectionConnectDisconnectOffThread() {
@@ -418,6 +421,7 @@ internal class HAConnectionImplTests: XCTestCase {
         XCTAssertFalse(reconnectManager.didPermanently)
         XCTAssertFalse(reconnectManager.didTemporarily)
         XCTAssertFalse(reconnectManager.didStartInitial)
+        XCTAssertEqual(reconnectManager.didStartConnectCount, 1)
         XCTAssertTrue(engine.events.contains(where: { event in
             if case .start = event {
                 return true
@@ -508,6 +512,45 @@ internal class HAConnectionImplTests: XCTestCase {
             }
         case .connecting, .ready, .authenticating: XCTFail("expected disconnected")
         }
+    }
+
+    func testReconnectManagerConnectTimeoutRetries() {
+        connection.connect()
+        waitForCallbackQueue()
+        XCTAssertEqual(connection.state, .connecting)
+        XCTAssertEqual(reconnectManager.didStartConnectCount, 1)
+
+        engine.events.removeAll()
+
+        // the watchdog gave up on a socket that never called back
+        connection.reconnect(reconnectManager, wantsDisconnectFor: HAReconnectManagerError.connectTimeout)
+        waitForCallbackQueue()
+
+        XCTAssertTrue(engine.events.contains(.stop(HACloseCode.goingAway.rawValue)))
+        XCTAssertTrue(responseController.wasReset)
+        XCTAssertTrue(reconnectManager.didTemporarily)
+        XCTAssertEqual(reconnectManager.didTemporarilyError as? HAReconnectManagerError, .connectTimeout)
+
+        guard case .disconnected = connection.state else {
+            XCTFail("expected disconnected, got \(connection.state)")
+            return
+        }
+
+        engine.events.removeAll()
+
+        // the retry opens a brand-new socket with its own watchdog
+        connection.reconnectManagerWantsReconnection(reconnectManager)
+        waitForCallbackQueue()
+
+        XCTAssertEqual(reconnectManager.didStartConnectCount, 2)
+        XCTAssertEqual(connection.state, .connecting)
+        XCTAssertTrue(engine.events.contains(where: { event in
+            if case .start = event {
+                return true
+            } else {
+                return false
+            }
+        }))
     }
 
     func testAutomaticConnection() {
@@ -719,10 +762,13 @@ internal class HAConnectionImplTests: XCTestCase {
 
         engine.events.removeAll()
 
+        XCTAssertFalse(reconnectManager.didAuth)
+
         responseController.phase = .auth
         connection.responseController(responseController, didTransitionTo: .auth)
 
         XCTAssertTrue(engine.events.isEmpty)
+        XCTAssertTrue(reconnectManager.didAuth)
 
         waitForCallbackQueue()
 
@@ -1570,7 +1616,7 @@ internal class HAConnectionImplTests: XCTestCase {
 
     func testWriteDataRequestAddsToRequestController() {
         connection.connectAutomatically = true
-        let expectedData = "Fake data".data(using: .utf8)!
+        let expectedData = Data("Fake data".utf8)
         let request = HARequest(
             type: .sttData(.init(rawValue: 1)),
             data: [
@@ -1591,7 +1637,7 @@ internal class HAConnectionImplTests: XCTestCase {
 
     func testWriteDataRequestsCallCompletion() {
         let expectation = expectation(description: "Waiting for completion")
-        let expectedData = "Fake data".data(using: .utf8)!
+        let expectedData = Data("Fake data".utf8)
         let request = HARequest(
             type: .sttData(.init(rawValue: 1)),
             data: [
@@ -1607,7 +1653,7 @@ internal class HAConnectionImplTests: XCTestCase {
 
     func testSendRawWithSttRequest() {
         connection.connect()
-        let expectedData = "Fake data".data(using: .utf8)!
+        let expectedData = Data("Fake data".utf8)
         let request = HARequest(
             type: .sttData(.init(rawValue: 1)),
             data: [
@@ -1625,7 +1671,7 @@ internal class HAConnectionImplTests: XCTestCase {
     }
 
     func testSendSttRequestCommand() {
-        let expectedData = "Fake data".data(using: .utf8)!
+        let expectedData = Data("Fake data".utf8)
         let request = HARequest(
             type: .sttData(.init(rawValue: 1)),
             data: [
@@ -1664,7 +1710,7 @@ internal class HAConnectionImplTests: XCTestCase {
     func testSendSettDataClearsOnCompletion() {
         connection.connect()
         let expectation = expectation(description: "Completion")
-        let expectedData = "Fake data".data(using: .utf8)!
+        let expectedData = Data("Fake data".utf8)
         let request = HARequest(
             type: .sttData(.init(rawValue: 1)),
             data: [
@@ -1840,6 +1886,16 @@ private class FakeHAReconnectManager: HAReconnectManager {
     var didStartInitial = false
     func didStartInitialConnect() {
         didStartInitial = true
+    }
+
+    var didStartConnectCount = 0
+    func didStartConnect() {
+        didStartConnectCount += 1
+    }
+
+    var didAuth = false
+    func didStartAuth() {
+        didAuth = true
     }
 
     var didPermanently = false

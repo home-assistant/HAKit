@@ -1,10 +1,10 @@
 @testable import HAKit
+import PromiseKit
+import XCTest
 #if SWIFT_PACKAGE
 import HAKit_Mocks
 import HAKit_PromiseKit
 #endif
-import PromiseKit
-import XCTest
 
 internal class HACacheTests: XCTestCase {
     private var cache: HACache<CacheItem>!

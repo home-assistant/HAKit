@@ -169,6 +169,8 @@ internal class HAConnectionImpl: HAConnection {
             reconnectManager.didStartInitialConnect()
         }
 
+        reconnectManager.didStartConnect()
+
         let oldState = state
         HAGlobal.log(.info, "connecting using \(connectionInfo)")
         self.connection = connection
