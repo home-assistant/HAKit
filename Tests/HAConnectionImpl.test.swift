@@ -1,10 +1,10 @@
 @testable import HAKit
-#if SWIFT_PACKAGE
-@testable import HAKit_PromiseKit
-#endif
 import PromiseKit
 import Starscream
 import XCTest
+#if SWIFT_PACKAGE
+@testable import HAKit_PromiseKit
+#endif
 
 internal class HAConnectionImplTests: XCTestCase {
     private var url: URL?
@@ -1617,7 +1617,7 @@ internal class HAConnectionImplTests: XCTestCase {
 
     func testWriteDataRequestAddsToRequestController() {
         connection.connectAutomatically = true
-        let expectedData = "Fake data".data(using: .utf8)!
+        let expectedData = Data("Fake data".utf8)
         let request = HARequest(
             type: .sttData(.init(rawValue: 1)),
             data: [
@@ -1638,7 +1638,7 @@ internal class HAConnectionImplTests: XCTestCase {
 
     func testWriteDataRequestsCallCompletion() {
         let expectation = expectation(description: "Waiting for completion")
-        let expectedData = "Fake data".data(using: .utf8)!
+        let expectedData = Data("Fake data".utf8)
         let request = HARequest(
             type: .sttData(.init(rawValue: 1)),
             data: [
@@ -1654,7 +1654,7 @@ internal class HAConnectionImplTests: XCTestCase {
 
     func testSendRawWithSttRequest() {
         connection.connect()
-        let expectedData = "Fake data".data(using: .utf8)!
+        let expectedData = Data("Fake data".utf8)
         let request = HARequest(
             type: .sttData(.init(rawValue: 1)),
             data: [
@@ -1672,7 +1672,7 @@ internal class HAConnectionImplTests: XCTestCase {
     }
 
     func testSendSttRequestCommand() {
-        let expectedData = "Fake data".data(using: .utf8)!
+        let expectedData = Data("Fake data".utf8)
         let request = HARequest(
             type: .sttData(.init(rawValue: 1)),
             data: [
@@ -1711,7 +1711,7 @@ internal class HAConnectionImplTests: XCTestCase {
     func testSendSettDataClearsOnCompletion() {
         connection.connect()
         let expectation = expectation(description: "Completion")
-        let expectedData = "Fake data".data(using: .utf8)!
+        let expectedData = Data("Fake data".utf8)
         let request = HARequest(
             type: .sttData(.init(rawValue: 1)),
             data: [
